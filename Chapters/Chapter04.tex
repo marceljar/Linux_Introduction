@@ -1,0 +1,214 @@
+%************************************************
+\chapter{Getting Help}\label{ch:getting_help}
+%************************************************
+We have already covered in previous chapters a number of commands which can take multiple options and different numbers of arguments. For example, it was shown in Chapter \ref{ch:basic_commands} that the command \textbf{\texttt{ls}} can work in three different ways:
+
+\begin{itemize}
+  \item By itself, this command prints the names of all files in the working directory.
+  \item When provided with the name of another folder as an argument, this command prints the names of all files in the specified folder.
+  \item If called with the the option \textbf{\texttt{-l}}\marginnotes{There are many more options for the \textbf{\texttt{ls}} command.}, this command gives all the information about files described on Table \ref{tab:ch2_list}, as opposed to just listing their names.
+\end{itemize}
+
+The bash shell has hundreds of commands like \textbf{\texttt{ls}} that can take multiple options and different numbers of arguments. Hence, in order to be accessible to non-experts, it needs to provide its users with a way of knowing how to use those commands.
+
+In this chapter we will cover different ways in which users can get help on how to use different commands.
+
+\section{\textbf{\texttt{help}}}
+
+By itself, the \textbf{\texttt{help}} command will list all \textbf{built-in}\marginnotes{Built-in commands are explained in the Built-in Commands box that follows} commands. If one of the built-in commands is provided as an argument, this command provides a quick description of the provided command, and possibly a list of options. You can see below the output of entering \textbf{\texttt{help pwd}} on bash.
+
+\begin{command_line}[make]
+@@marcel@dell:~$@@ help pwd
+pwd: pwd [-LP]
+    Print the name of the current working directory.
+
+    Options:
+      -L	print the value of $PWD if it names the current working directory
+      -P	print the physical directory, without any symbolic links
+
+    By default, 'pwd' behaves as if '-L' were specified.
+
+    Exit Status:
+    Returns 0 unless an invalid option is given or the current directory cannot be read.\end{command_line}
+
+Note that \textbf{\texttt{help}} only covers built-in commands. It does not cover commands implemented as binary files in \textbf{/bin} or \textbf{/usr/bin}, such as \textbf{\texttt{ls}}, \textbf{\texttt{rm}}, \textbf{\texttt{mv}}, and many others.
+
+
+\begin{my_box}[Built-in Commands]
+  Most commands in bash, such as \textbf{\texttt{ls}}, \textbf{\texttt{rm}}, and \textbf{\texttt{touch}} are implemented by binary files located in the \textbf{/bin} and \textbf{/usr/bin} folders. These commands are interpreted in the same way as any other application the shell can run. I.e., the shell asks the kernel to execute it, and after it has finished executing, the shell receives its output.
+
+  Built-in commands, on the other hand, are an integral part of the shell. They are not implemented in a separated file. The main reason why some commands are implemented directly inside the shell is because they need to change the state of the shell. For example, the \textbf{\texttt{cd}} command is a built-in command because it changes the current working directory. Commands implemented as binaries, such as \textbf{\texttt{ls}}, \textbf{\texttt{rm}}, and \textbf{\texttt{touch}}, cannot change the state of the shell.
+
+  Another reason for implementing some commands directly into the shell is because it normally enhances their performance.
+\end{my_box}
+
+\section{\textbf{\texttt{man}}}
+
+Since the inception of Unix, it has become standard practice for the authors of scripts that implement shell commands to provide manual pages for them. This practice was continued by the GNU project when rewritting Unix as an open source project\marginnotes{In fact, the author of the manual pages for many basic commands such as \textbf{\texttt{ls}} and \textbf{\texttt{rm}} is no one less than Robert Stallman, the programmer that started the GNU project, as discussed in Chapter XXX}.
+
+All manual pages follow the same structure show in Listing \ref{lst:mkdir_man} (page \pageref{lst:mkdir_man}). I.e., they have the following sections:
+
+\begin{source_code_float}{make}{Manual page for the \textbf{\texttt{mkdir}} command.}{lst:mkdir_man}
+  MKDIR(1)            User Commands               MKDIR(1)
+
+  NAME
+         mkdir - make directories
+  SYNOPSIS
+         mkdir [OPTION]... DIRECTORY...
+  DESCRIPTION
+         Create the DIRECTORY(ies), if they do not already exist.
+         Mandatory arguments to long options are mandatory for short options too.
+
+         -m, --mode=MODE
+            set file mode (as in chmod), not a=rwx - umask
+         -p, --parents
+                no error if existing, make parent directories as needed
+         -v, --verbose
+                print a message for each created directory
+         -Z     set SELinux security context of each created directory to the default type
+         --context[=CTX]
+                like -Z, or if CTX is specified then set the SELinux or SMACK security context to CTX
+         --help   display this help and exit
+         --version   output version information and exit
+  AUTHOR
+         Written by David MacKenzie.
+  REPORTING BUGS
+         GNU coreutils online help: <http://www.gnu.org/software/coreutils/>
+         Report mkdir translation bugs to <http://translationproject.org/team/>
+  COPYRIGHT
+         Copyright 2014 Free Software Foundation, Inc.  License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>.
+         This  is free software: you are free to change and redistribute it.  There is NO WARRANTY, to the extent permitted by law.
+  SEE ALSO    mkdir(2)
+
+         Full documentation at: <http://www.gnu.org/software/coreutils/mkdir> or available locally via: info '(coreutils) mkdir invocation'
+
+  GNU coreutils 8.23    November 2015    MKDIR(1)\end{source_code_float}
+
+\begin{description}
+\item{\textbf{Name}} States the name and purpose of the command
+\item{\textbf{Synopsis}} Briefly describes the command syntax
+\item{\textbf{Description}} Describes the command as well as its options
+\item{\textbf{Authors}} Lists the authors of the script that implements the command
+\item{\textbf{Reporting Bugs}} Provides a link to a page where bugs can be reported
+\item{\textbf{Copyright}} States that the code is provided as free software
+\item{\textbf{See Also}} Provides a list of related commands
+\end{description}
+
+To access manual pages, you need only to use the \textbf{\texttt{man}} command, followed by the name of the command you are trying to get information about.\marginnotes{Manual pages cover not only commands, but also daemons and config files}. See the example below:
+
+\begin{command_line}[Bash]
+@@marcel@dell:~$@@ man mkdir
+\end{command_line}
+
+\subsection{Sections}
+
+Note that the \textbf{\texttt{mkdir}} command appears with a \textbf{\texttt{(1)}} next to it at the top of Listing \ref{lst:mkdir_man} (see page  \pageref{lst:mkdir_man}). This number denotes the section of the manual from where the information was retrieved. Some commands have the same name of \textbf{deamons} or \textbf{config files}. Hence, dividing manual pages in sections makes it possible for users to access the manual page for the right tool. Manual pages are divided in 9 sections, as shown in Table \ref{tab:man_sections}.
+
+\begin{table}[!htbp]
+   \myfloatalign
+   \begin{tabularx}{\textwidth}{Xp{105mm}} \toprule
+   \textbf{1} & Executable programs or shell commands \\
+    \textbf{2} & System calls (functions provided by the kernel) \\
+   \textbf{3} & Library calls (functions within program libraries) \\
+   \textbf{4} & Special files (usually found in \textbf{\texttt{/dev}})\\
+   \textbf{5} & File formats and conventions e.g. \textbf{\texttt{/etc/passwd}}\\
+   \textbf{6} & Games\\
+   \textbf{7} & Miscellaneous (including macro packages and conventions), e.g. man(7), groff(7) \\
+   \textbf{8} & System administration commands (usually only for root)\\
+   \textbf{9} & Kernel routines [Non standard] \\
+   \bottomrule
+   \end{tabularx}
+\caption{Manual Page Sections}
+\label{tab:man_sections}
+\end{table}
+
+By default, \textbf{\texttt{man COMMAND}} retrieves the first occurrence of \textbf{\texttt{COMMAND}} in the manual pages. In order to access later occurrences, you need to provide the section as the first argument followed by the name of the command. For example, \textbf{\texttt{passwd}} is both a command, as well as a config file. To access the manual for the \textbf{\texttt{passwd}} command, one can write:
+\begin{command_line}[Bash]
+@@marcel@dell:~$@@ man passwd
+\end{command_line}
+or
+\begin{command_line}[Bash]
+@@marcel@dell:~$@@ man 1 passwd
+\end{command_line}
+
+However, to access the \textbf{\texttt{passwd}} config page manual, one needs to write:
+\begin{command_line}[Bash]
+@@marcel@dell:~$@@ man 5 passwd
+\end{command_line}
+
+\section{\textbf{\texttt{whatis}}}
+
+As shown in Listing \ref{lst:mkdir_man}, each manual page comes with a description section. The \textbf{\texttt{whatis}} command searches the man page of the command provided as an argument and displays its description. See the example below:
+\begin{command_line}[Bash]
+@@marcel@dell:~$@@ whatis ls
+ls (1)               - list directory contents
+\end{command_line}
+If the argument can be found in multiple sections, all descriptions are provided in the output, as shown below:
+\begin{command_line}[Bash]
+@@marcel@dell:~$@@ whatis passwd
+passwd (1)           - change user password
+passwd (5)           - the password file
+\end{command_line}
+
+
+\section{\textbf{\texttt{apropos}}}
+
+In English, the word apropos means: \textit{concerning, with reference to}. The \textbf{\texttt{apropos}} command is called using keywords as arguments. It returns a single line for each man page that contains one or more of the keyword(s) in its \textbf{NAME} section.
+
+This command comes handy when you need to search for commands which names you are not certain of. See the example below\marginnotes{A few extra outputs from this command were ommited for simplicity}:
+
+\begin{command_line}[Bash]
+@@marcel@dell:~$@@ apropos rename
+dpkg-name (1) - rename Debian packages to full package names
+mv (1)        - move (rename) files
+rename (1)    - renames multiple files
+rename (2)    - change the name or location of a file
+renameat (2)  - change the name or location of a file
+\end{command_line}
+In this example you can see that the \textbf{\texttt{mv}} command can be used to rename a single file, while the \textbf{\texttt{rename}} command is normally only used to rename multiple files at once.
+
+\section{\textbf{\texttt{info}}}
+
+Man pages were designed in the early seventies. Hence, they can only display simple text and do not take advantage of newer technologies such as hyperlinks. Also, man pages can be quite terse and seldom provide examples.
+
+In order to modernize the system documentation, the GNU project introduced the concept of info pages. Info pages are similar to man pages in which they provide a description of commands, deamons, and config files. However, they differ in two crucial aspects:
+
+\begin{enumerate}
+ \item Info pages provide a much more in depth description of commands and the options they can take. Multiples examples are often provided.
+ \item Info pages are divided in nodes that can be accessed via hyperlinks\marginnotes{To follow a hyperlink, you need to press enter when you cursor is over a node title}, or with the shortcuts provided in Table \ref{tab:info_pages}.
+\end{enumerate}
+
+\begin{table}[!htbp]
+   \myfloatalign
+   \begin{tabularx}{\textwidth}{Xp{95mm}} \toprule
+     \textbf{q} & Quits the info page \\
+     \textbf{n} & Moves to the next node\\
+     \textbf{p} & Moves back to the previous node\\
+     \textbf{u} & Go up to the parent node\\
+     \textbf{h} & Display a list of shortcuts to navigate info pages (exit it by pressing x)\\
+     \bottomrule
+   \end{tabularx}
+\caption{Shortcuts to navigate info pages}
+\label{tab:info_pages}
+\end{table}
+
+The choice between using a man page or an info page depends on the user. Some people prefer the terseness of man pages, while other find that it makes it hard to understand. On the other hand, some people like the level of detail present in info pages, as well as the fact that it contain examples, while others find it difficult to find the information they need among multiple nodes.
+
+As a rule of thumb, you may want to read first the man page for a particular command, and only read its info page in case you could not find the information you needed.
+
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+
+\begin{exercises}
+  \item Why there is no help page for the \textbf{\texttt{ls}} command in bash?
+  \item Why there is no man page for the \textbf{\texttt{alias}} command in bash?
+  \item What is a built-in command?
+  \item Why are some commands implemented as built-ins, as opposed to being implemented as binary files?
+  \item Why are manual pages divided in sections?
+  \item Explain in which scenarios you would use the \textbf{\texttt{whatis}} command.
+  \item Explain in which scenarios you would use the \textbf{\texttt{apropos}} command.
+  \item what is the difference between a man page and an info page?
+  \item How can you use the \textbf{\texttt{ls}} command to show all files in the working directory (including hidden files), without also showing the implied \textbf{\texttt{.}} and \textbf{\texttt{..}} directories? \textit{Hint: check its man or info pages.}
+  \item How can you use the \textbf{\texttt{rm}} command to remove an entire directory called \textbf{\texttt{myFolder}} in the working directory, while asking for confirmation before deleting each file inside \textbf{\texttt{myFolder}}? \textit{Hint: check its man or info pages.}
+  \item How can you use the \textbf{\texttt{cp}} command to make copies of one file called \textbf{\texttt{myFile}} in the working directory, saving it into a folder called \textbf{\texttt{myFolder}}, only if there are no files called \textbf{\texttt{myFile}} inside \textbf{\texttt{myFolder}}, or if the file exists, but is older than the new copy you are trying to create. \textit{Hint: check its man or info pages.}
+\end{exercises}

@@ -1,0 +1,231 @@
+\chapter{Basic Shell Commands I}\label{ch:basic_commands}
+
+In this chapter we will cover how to get access to a terminal emulator, as well as some very basic \textbf{bash} commands.
+
+\section{Accessing a Terminal Emulator}
+
+Once a user logs into a Linux \acs{OS} with a \acs{GUI}, there are multiple ways to get access to a \textbf{terminal emulator}. Some methods work only on a specific distribution, whereas some methods work on most distributions. In what follows, a list of methods to access terminal emulators are presented for some of the most popular desktop environments\marginnotes{Desktop environments are covered in Appendix XXX}. The most commom Linux distribution for each desktop environment is presented in the margin notes.
+
+\begin{description}
+   \item[Gnome3] Press\marginpar{Debian, Red Hat, Fedora, CentOS, Kali} the super (windows) button to call the list of applications, and then type \textbf{\texttt{terminal}} in the search field, or search for the terminal in the provided applications list.
+   \item[KDE] Click \marginpar{OpenSUSE, Kubuntu, Slackware} on the start button at the lower left, and then click on accessories, and finally on \textbf{\texttt{terminal}} .
+   \item[Unity] Press\marginpar{Ubuntu} the super (windows) button to call the dash (or conversely click on the dash button at the upper left), and then type \textbf{\texttt{terminal}}.
+\end{description}
+
+In all of these desktop environments, the terminal emualtor can also be started by pressing \textbf{\texttt{crtl+alt+T}}.
+
+\section{Terminal Basics}
+
+Once the terminal emulator starts, the user is presented with an application displaying a blinking cursor at a \textbf{\texttt{shell prompt}}, just like shown bellow.
+
+\begin{command_line}[Bash]
+@@marcel@dell:~$@@
+\end{command_line}
+
+This prompt contain important information about the current parameters of the shell, namely: the username (\textbf{\texttt{marcel}}), system name (\textbf{\texttt{dell}}), and working directory (represented by a tilde [\textbf{\texttt{\texttildelow}}])\marginnotes{The \textbf{\texttt{\$}} separates command prompts from these current parameters}. A brief description of these parameters follows:
+
+\begin{description}
+\item [Username] Linux systems, as any Unix-like system, was designed to allow multiple users to access the system. When a terminal emulator starts, it assumes the user to be the same one that logged in into the GUI system. in Chapter XX, we will show how the \textbf{\texttt{su}} command can be used to switch users. In the example above, the username is \textbf{\texttt{marcel}}.
+
+\item[System name] During the installation of Linux systems,  users are required to give your system (local machine) a name. When a terminal emulator starts, it assumes that you are using the local machine. In chapter XXX we will see how to log into remote machines using the \textbf{\texttt{ssh}} command. In the example above, my local machine is called is \textbf{\texttt{dell}}.
+
+\item[Working directory] Imagine that you issue a command to create a file. In which directory will this file be created? The answer is: in the current \textbf{working directory}. When a terminal emulator starts, it assumes by default that you are at the home folder (directory) of the user currently logged in. Hence, whichever actions you perform will, by default, affect this directory. In Section \ref{sub:cd} , we will show how to use the \textbf{\texttt{cd}} command to change directories. In the example above, this home folder, which is located at \textbf{\texttt{/home/marcel}} is represented by a tilde (\textbf{\texttt{\texttildelow}}).
+\end{description}
+
+In what follows, a number of basic \textbf{\texttt{bash}}\marginnotes{You can easily switch shells by typing the name of the shell you want to switch to. For example, you can type \textbf{\texttt{dash}} to start using a \textbf{dash shell}} commands are presented.
+
+\section{\textbf{\texttt{date}}}
+To ask what day is today, you can type \textbf{\texttt{date}} \index{date} in the terminal emulator and press enter. The shell will verify the date with the \acs{OS}, display it in the terminal, and start a new prompt line ready to receive more commands, as shown below\marginnotes{For the following commands, we will ommit this new prompt line}. Note that the terminal also shows the current time and the time zone (Eastern Daylight Time - EDT).
+
+\begin{command_line}[Bash]
+@@marcel@dell:~$@@ date
+Wed May 18 19:20:55 EDT 2016
+@@marcel@dell:~$@@
+\end{command_line}
+
+Note that shell commands are \textbf{case-sensitive}. I.e., the shell diferentiates between upper-case and lower-case letters. For example, while \textbf{\texttt{date}} is a valid command, \textbf{\texttt{Date}} and \textbf{\texttt{DATE}} are not.
+
+\section{\textbf{\texttt{whoami}}}
+Not all terminal emulators display the username at each command prompt. Therefore, the shell needs to provide a method to verify the username of the current user. This is accomplished by the \textbf{\texttt{whoami}} (who am I) command, as shown below.
+
+\begin{command_line}[Bash]
+@@marcel@dell:~$@@ whoami
+marcel
+\end{command_line}
+
+\section{\textbf{\texttt{pwd}}}
+%The concept of a hyerarchical filesystem in which users can have create folders (directories) inside other folders was introduced with Unix. This concept is used by most modern OS, and Linux is no exception to this rule.
+
+As mentioned before, when a terminal emulator is open, it needs a directory to act as a starting point. In most Linux system, this starting point is the user's home folder, located at \textbf{\texttt{/home/username}}, represented by a tilde (\textbf{\texttt{\texttildelow}}).
+
+As we will show later, users can move to different directories using the shell. The shell's current location is called \textbf{working directory}. This is due to the fact that this is the directory that the shell will, by default, act (work) upon. In order to see in which directory you are currently at, you can type \textbf{\texttt{pwd}}\marginnotes{short for print working directory} in the terminal emulator and press enter. The shell will then print the working directory in the terminal, as shown below.
+
+\begin{command_line}[C]
+@@marcel@dell:~$@@ pwd
+/home/marcel
+\end{command_line}
+
+\section{\textbf{\texttt{ls}}}
+\label{sec:ls}
+
+To obtain a list of all files and folders present in the working directory, as demonstrated in Chapter \ref{ch:cli_terminal_shell}, you can use the \textbf{\texttt{ls}}\marginnotes{short for list} command. The shell will then print a list of all files and folders, as shown below\marginnotes{Some terminal emulators use colours to distinguish between files, folders, scripts, etc}.
+
+\begin{command_line}[Bash]
+@@marcel@dell:~$@@ ls
+Documents      Downloads      Pictures
+Music          Video          seneca.pdf
+\end{command_line}
+
+The list command, by default, does not show hidden files\marginnotes{Hidden files are files whose names starts with a \textbf{\texttt{.}} (dot)}. In order to do so, you must add the option \textbf{\texttt{-a}} or \textbf{\texttt{--all}} to the ls command, as shown below:
+\begin{command_line}[Bash]
+@@marcel@dell:~$@@ ls
+Documents      Downloads      Pictures
+Music          Video          seneca.pdf
+@@marcel@dell:~$@@ ls -a
+.              ..             Documents
+Downloads      Pictures       Music
+Video          seneca.pdf     .System.conf
+\end{command_line}
+Note that in the command above, the file \textbf{\texttt{.System.conf}} only appears when the \textbf{\texttt{ls}} command is issued with the \textbf{\texttt{-a}} option. Also, note that two extra directories appear: a folder (\textbf{\texttt{.}}) and a folder (\textbf{\texttt{..}}). These are not real directories. They are simply hard links to the self (\textbf{\texttt{.}}) and parent (\textbf{\texttt{..}}) directories.
+
+The list comand can also used to gather information about the files and folders in the current working directory. To do so, the \textbf{long list} option \textbf{\texttt{-l}} must be invoked, as shown below:
+\begin{command_line}[Bash]
+@@marcel@dell:~$@@ ls -a -l
+drwxrwxr-x  3 marcel marcel  4096 Jun 21 23:06 .
+drwxr-xr-x 54 marcel marcel  4096 Jun 21 18:59 ..
+drwxrwxr-x  2 marcel marcel  4096 Jun 21 23:06 Documents
+drwxrwxr-x  2 marcel marcel  4096 Jun 21 23:06 Downloads
+drwxrwxr-x  2 marcel marcel  4096 Jun 21 23:06 Pictures
+drwxrwxr-x  2 marcel marcel  4096 Jun 21 23:06 Music
+drwxrwxr-x  2 marcel marcel  4096 Jun 21 23:06 Video
+-rw-rw-r--  1 marcel marcel 12238 Jun 29 22:54 seneca.pdf
+-rw-rw-r--  1 marcel marcel   126 Jun 28 20:52 .System.conf
+\end{command_line}
+This long list provides a number fo columns containing information about each file. In Table~ \ref{tab:ch2_list}, we explain what the information in each column represents using the file \textbf{\texttt{seneca.pdf}} as an example.
+
+\begin{table}[!htbp]
+   \myfloatalign
+   \begin{tabularx}{\textwidth}{cXp{70mm}} \toprule
+   %\tableheadline{Shell} & \tableheadline{Description}\\ \midrule
+   \textbf{column} & \textbf{example} & \textbf{meaning} \\ \bottomrule
+   \textbf{1} & \textbf{\texttt{-rw-rw-r--}} & File type and permission sets. These topics are covered in Chapter XX.\\
+   \textbf{2} & \textbf{1} & Number of hard links to this file. Links are covered in Chapter XX.\\
+   \textbf{3} & \textbf{marcel} & Name of the user owner of the file. The concepts of users and ownership are covered in Chapter XX.\\
+   \textbf{4} & \textbf{marcel} & Name of the group owner of the file. The concepts of groups and ownership are covered in Chapter XX.\\
+   \textbf{5} & \textbf{12238} & Size of the file in bytes.\\
+   \textbf{6} & \textbf{Jun 29 22:54} & Timestamp indicating when the file was edited for the last time.\\
+   \textbf{7} & \textbf{seneca.pdf} & File name.\\
+   \bottomrule
+   \end{tabularx}
+\caption{Long list information for the \textbf{\texttt{seneca.pdf}} file.}
+\label{tab:ch2_list}
+\end{table}
+
+
+
+\section{\textbf{\texttt{cd}}}
+\label{sub:cd}
+To switch working directories, you need only to use the \textbf{\texttt{cd}}\marginnotes{short for change directory} command, followed by the name of the directory you want to go. For example, assuming that the folders shown in the previous command's output do exist, typing \textbf{\texttt{cd Documents}} results in:
+\begin{command_line}
+@@marcel@dell:~$@@ pwd
+/home/marcel
+@@marcel@dell:~$@@ cd Documents
+@@marcel@dell:Documents$@@ pwd
+/home/marcel/Documents
+\end{command_line}
+
+The command \textbf{\texttt{cd}} by itself always sends the user back to the user's home folder. Also, the command \textbf{\texttt{cd ..}} sends the user to the parent folder of the working directory, and the command \textbf{\texttt{cd -}} sends the user back to the previous working directory. The parent folder is the folder hierarchically above the current folder. For example, the folder \textbf{\texttt{/home/marcel}} is the parent folder of \textbf{\texttt{/home/marcel/Documents}}.
+
+Finally, note that if you enter the name of a directory that does not exist, the shell will return an error message and then it will start a new prompt line ready to receive more commands, as shown next.
+
+\begin{command_line}[make]
+@@marcel@dell:~$@@ cd DOCUMENTS
+bash: cd: DOCUMENTS: No such file or directory
+@@marcel@dell:~$@@
+\end{command_line}
+
+\section{Relative and Absolute Paths}
+
+In our previous example using the \textbf{\texttt{cd}} command, we switched working directories from one folder, \textbf{\texttt{/home/marcel}}, to one of its immediate subfolders, \textbf{\texttt{/home/marcel/Documents}}. However, you might face more complex situations in which you have a directory tree as shown in Figure \ref{fig:ch2_dirtree}, and you want to switch the current working directory from any folder directly to any other folder.
+
+\begin{figure}[!htbp]
+  \centering
+        \input{Images/Chapter2/directory_tree.tex}
+        \caption{Directory tree.}
+        \label{fig:ch2_dirtree}
+\end{figure}
+
+For example, given the directory tree shown in Figure \ref{fig:ch2_dirtree}, how can we directly switch working directories for the following cases:
+\begin{itemize}
+\item from \textbf{\texttt{/home}} directly to \textbf{\texttt{/home/marcel/Personal}}
+\item from \textbf{\texttt{/home/marcel/Seneca}} directly to \textbf{\texttt{/media}}
+\item from \textbf{\texttt{/home/marcel/Seneca}} to \textbf{\texttt{/media/Seneca}}
+\end{itemize}
+The solution to all these cases is: ``by providing either a \textbf{relative path} or an \textbf{absolute path} to the desired folders.'' In what follows, we define these two concepts\marginnotes{Note that the concepts of relative and absolute paths also apply to files}.
+
+\subsection{Relative Path}
+ When a relative path is provided, the shell assumes that the starting point of the path is the current working directory. For example, given that you are currently in \textbf{\texttt{/home}}, you can switch your working directory to \textbf{\texttt{/home/marcel/Personal}} by issuing the command: \textbf{\texttt{cd marcel/Personal}}, as shown in what follows.
+\begin{command_line}
+@@marcel@dell:home$@@ pwd
+/home
+@@marcel@dell:home$@@ cd marcel/Personal
+@@marcel@dell:Personal$@@ pwd
+/home/marcel/Personal
+\end{command_line}
+\subsection{Absolute Path}
+ Absolute paths always start with \textbf{\texttt{/}}\marginnotes{\textbf{\texttt{/}} denotes the root, of all directories in a Linux system} and provide the complete path for the desired folder or file. For example, given that your working directory is \textbf{\texttt{/home/marcel/Seneca}}, you can switch to \textbf{\texttt{/media}} by issuing the command: \textbf{\texttt{cd /media}}, or you can switch  to \textbf{\texttt{/media/Seneca}} by issuing the command: \textbf{\texttt{cd /media/Seneca}} , as shown in what follows.
+\begin{command_line}
+@@marcel@dell:Seneca$@@ pwd
+/home/marcel/Seneca
+@@marcel@dell:Seneca$@@ cd /media
+@@marcel@dell:media$@@ pwd
+/media
+\end{command_line}
+\begin{command_line}
+@@marcel@dell:Seneca$@@ pwd
+/home/marcel/Seneca
+@@marcel@dell:Seneca$@@ cd /media/Seneca
+@@marcel@dell:Seneca$@@ pwd
+/media/Seneca
+\end{command_line}
+
+Relative and absolute paths can be compared to addresses in navigation systems. For example, if you live in Toronto, and you want to go to a place within the city, you can type on your navigation device an address such as 200 King Street. The device will assume that this address is in Toronto-ON, Canada. This would be the compared to a relative address, as the starting point is assumed to be the city of Toronto. However, if you are in Toronto and you want to go to 200 King Street in Buffalo-NY, you would need to enter the complete address, including the city, state, and sometimes even the country. This would be compared to an absolute value, as the address is completely defined.
+
+\section{\textbf{\texttt{clear}}}
+
+All commands you enter, as well as their outputs, stay in the screen and you are given a new shell prompt at the bottom to keep working with the shell. This can lead to a very polluted screen containing a lot of information that is no longer necessary.
+
+In order to clear the screen from all previous commands and ouputs, you simple have to issue the \textbf{\texttt{clear}} command. This command will erase from your terminal all information in it and provide you with a command prompt at the top to keep working with the shell.
+
+It is important to note that this command simply clears the terminal display. Any variables\marginnotes{Variables are covered in Chapter XXX} that have been defined, or any modifications to the state of the shell will not be changed by this command.
+
+\section{Command History}
+
+You can use the up ($\uparrow$) and down ($\downarrow$) arrow keys in order to navigate the commands you have previously entered in your shell. For example, by hitting the up arrow key once, you will get the previously entered command. Hitting the up arrow again, will get you the command you entered prior to that one.
+
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+
+\begin{exercises}
+   \item Describe two methods to open a terminal emulator on a Ubuntu Linux OS.
+   \item Given the command prompt below, who is the user currently logged into the shell? Also, what is the name of the local machine? Finally, what is the current working directory?
+\begin{command_line}
+@@john@lenovo:~$@@
+\end{command_line}
+   \item What is the relationship between a \textbf{terminal emulator}, and a \textbf{shell}?
+   \item Which commands are used to list all files in the working directory using the following shells: bash, csh, dash, and ksh?
+   \item Which command can be used to show in the terminal what time is it?
+   \item What is the output of the \textbf{\texttt{ls -l}} command? What does the 6$^{\text{th}}$ column represents?
+   \item How can you move back to the latest previously accessed working directory using only one shell command?
+   \item What happens when you apply the parent folder parameter to the \textbf{\texttt{cd}} command twice. In other words, what happens when you issue a \textbf{\texttt{cd ../..}} command?
+Given the directory tree shown in Figure \ref{fig:ch2_ex_dirtree}, answer the following questions:
+\begin{figure}[!htbp]
+  \centering
+        \input{Images/Chapter2/ex_directory_tree.tex}
+        \caption{Directory tree for questions 9, 10, and 11.}
+        \label{fig:ch2_ex_dirtree}
+\end{figure}
+   \item Write a command to switch your working directory from \textbf{marcel} to \textbf{Seneca} using only one shell command?
+   \item Write a command to switch your working directory from \textbf{media} to \textbf{marcel} using only one shell command.
+   \item Given that your working directory is \textbf{media}, can you use a relative path to move to \textbf{Seneca}? If yes, can you also use an absolute path? Which one of these options seem more appropriate in this case?
+\end{exercises}

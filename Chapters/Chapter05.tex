@@ -1,0 +1,296 @@
+%************************************************
+\chapter{Reading and Editing Text Files From the Shell}\label{ch:reading_editing}
+%************************************************
+
+In Chapter \ref{ch:basic_commands}, we learned how to create empty files with touch, rename them with \textbf{\texttt{mv}}, and even delete them using the \textbf{\texttt{rm}} command, among other things. However, so far we have not yet covered how to read the information contained in files, nor how to edit them using the terminal.
+
+In this chapter, we will fill this gap by introducing tools that allow us to read text files (\textbf{\texttt{more}}, and \textbf{\texttt{less}}), as well as to edit text files (\textbf{\texttt{nano}}, \textbf{\texttt{vim}}).
+
+\section{Reading text files}
+
+\subsection{\textbf{\texttt{more}}}
+
+To read simple text files on your terminal you can use \textbf{\texttt{more}}, by calling it with the name of the file you want to read passed as an argument. See the example below:
+\begin{command_line}[Bash]
+@@marcel@dell:~$@@ more poem
+Nature's first green is gold,
+Her hardest hue to hold.
+Her early leafs a flower;
+But only so an hour.
+Then leaf subsides to leaf.
+So Eden sank to grief,
+So dawn goes down to day.
+Nothing gold can stay.
+
+@@marcel@dell:~$@@
+\end{command_line}
+
+This tool will display as much of the file as it fits the terminal screen\marginnotes{In the provided example, all text from the \textbf{\texttt{poem}} file was able to fit in the screen}. To keep reading the file, you need to press the \textbf{\texttt{Space}} key. To quite \textbf{\texttt{more}} before reaching the end of the file you can press \textbf{\texttt{q}}.
+
+\textbf{\texttt{more}} is quite outdated. Its most glaring limitation is that  It doesn't allow you to scroll backwards while reading files. You can only scroll forward. So, while we included it here for historical reasons\marginnotes{some embedded systems still use more to take advantage of its small size}, even its man page advises users to use the \textbf{\texttt{less}} tool instead.
+
+\subsection{\textbf{\texttt{Less}}}
+
+The \textbf{\texttt{less}} command was created with the main goal of providing backwards scrolling to \textbf{\texttt{more}}\marginnotes{In fact, its name is a pun on the architecture's minimalist design motto ``less is more''}. It has since became the \textit{de facto} tool to read text files on the terminal. For example, all manual pages are displayed using \textbf{\texttt{less}}.
+
+This command is quite different than all other commands we have learned on chapters \ref{ch:basic_commands} and \ref{ch:basic_commands_ii}. So far, issuing commands would normally result in the steps below:
+\begin{enumerate}
+\item The user calls a command which might take options and arguments
+\item The command that was called processes the user's input
+\item All command's outputs are displayed on the terminal
+\item A new shell prompt is made available just below the previous command's output
+\end{enumerate}
+
+When calling \textbf{\texttt{less}}, on the other hand, the following sequence of steps happens:
+
+\begin{enumerate}
+\item The user calls \textbf{\texttt{less}} providing the name of a text file as an argument, as shown in the example below:
+\begin{command_line}[Bash]
+@@marcel@dell:~$@@ less poem
+\end{command_line}
+\item \textbf{\texttt{less}} starts its own user interface, as shown in Listing \ref{lst:ch5_less_interface}, that takes over the entire terminal screen and displays the beginning of the document
+\item The user can use a number of keys to navigate the document
+\item The user enters a key to quit \textbf{\texttt{less}}' interface
+\item A new command prompt is made available below the one in which the user called \textbf{\texttt{less}}\marginnotes{Note that the contents of the file opened in \textbf{\texttt{less}} do not remain in the terminal screen after the user quits \textbf{\texttt{less}}}.
+\end{enumerate}
+
+\begin{source_code_float}{make}{less user interface.}{lst:ch5_less_interface}
+Nature's first green is gold,
+Her hardest hue to hold.
+Her early leafs a flower;
+But only so an hour.
+Then leaf subsides to leaf.
+So Eden sank to grief,
+So dawn goes down to day.
+Nothing gold can stay.
+
+poem (END)
+\end{source_code_float}
+
+By creating its own user interface, \textbf{\texttt{less}} can allow the user to perform actions that would either not be possible or very cumbersome otherwise, such as backwards scrolling and some advanced navigation methods. These actions can be performed using the keyboard. The most important keys to control \textbf{\texttt{less}} are shown in Table~\ref{tab:less_nav_keys}\marginnotes{for a comprehensive list, check \textbf{\texttt{less}} \textbf{\texttt{man}} or \textbf{\texttt{info}} pages}.
+
+\begin{table}[!tbp]
+   \myfloatalign
+   \begin{tabularx}{\textwidth}{Xp{75mm}} \toprule
+     \textbf{\texttt{ENTER}} or $\downarrow$ & Moves forward by one line \\
+     \textbf{\texttt{Page Up}} or \textbf{\texttt{SPACE}} & Moves forward by one screen \\
+     \textbf{\texttt{y}} or $\uparrow$& Moves backward by one line \\
+      \textbf{\texttt{Page Down}} or \textbf{\texttt{b}} & Moves backward by one screen \\
+     \textbf{\texttt{g}} & Moves to the beginning of the file \\
+     \textbf{\texttt{G}} (\textbf{\texttt{Shift + g}}) & Moves to the end of the file \\
+     \textbf{\texttt{q}} &  Quits less \\
+     \textbf{\texttt{h}} &  Help \\
+   \bottomrule
+   \end{tabularx}
+\caption{Less navigation keys.}
+\label{tab:less_nav_keys}
+\end{table}
+
+\begin{my_box}[Terminal User Interfaces]
+Many other tools create their own terminal user interface like \textbf{\texttt{less}}. Notable examples are the two text editors discussed later in this chapter, \textbf{\texttt{nano}} and \textbf{\texttt{vim}}, as well as the \textbf{\texttt{top}} command covered in Chapter XXX.
+
+You can think of these tools the same way you think of applications such as MS Word, or your browser in a \acs{GUI} environment. These tools run on top of your shell, the same way as those applications run on top of your \acs{OS}. The only difference is that they normally take the whole terminal screen, as opposed to opening in a separate window, and normally can only be controlled via keyboard inputs (as opposed to mouse or touchscreen).
+
+When using tools that create their own interface, it is important to understand that they generally do not understand bash commands. I.e., issuing commands such as \textbf{\texttt{mkdir}}, or \textbf{\texttt{ls}}, inside these tools will most likely result in an error message.
+\end{my_box}
+
+
+The ability to search for patterns is also a great feature introduced in \textbf{\texttt{less}}. To search for a pattern, you need only to type backslash (\textbf{\texttt{\textbackslash}}) followed by the desired pattern and press \textbf{\texttt{Enter}}. For example, by entering \textbf{\texttt{\textbackslash folder}}, you are shown the first occurrence of the word \textbf{\texttt{folder}} starting from the top of the current screen. To keep searching for the next occurrence of the desired pattern, you can type \textbf{\texttt{n}}. To go back to a previous occurrence of the desired patter, you can type \textbf{\texttt{N}} (\textbf{\texttt{Shift + n}}).
+
+\section{Editing Text Files}
+
+In this section we will cover two widely used text editors. \textbf{\texttt{nano}} for small edits, and \textbf{\texttt{vim}} for larger projects and scripts. There is another widely used text editor in the Linux world called \textbf{\texttt{emacs}}, with some really die-hard fans, that is not covered in this book. There are two reasons why \textbf{\texttt{vim}} was chosen over \textbf{\texttt{emacs}}. First, \textbf{\texttt{vim}} is available by default in more distributions. Second, the author itself is a \textbf{\texttt{vim}} enthusiast.
+
+\subsection{\textbf{\texttt{nano}}}
+
+The simplest way to edit a text file on terminal is by using the \textbf{\texttt{nano}} command. To do so, you need only to call \textbf{\texttt{nano}} followed by the name of the file you are trying to edit\marginnotes{If no file name is provided, nano will open with a new empty file.}, such as in the example below:
+\begin{command_line}[Bash]
+@@marcel@dell:~$@@ nano poem
+\end{command_line}
+
+In this example, a file called \textbf{\texttt{poem}} is opened, resulting in the user interface shown below:
+
+\begin{source_code_float}{make}{Nano's user interface.}{lst:nano_interface}
+GNU nano 2.2.6         File: poem
+
+Nature's first green is gold,
+Her hardest hue to hold.
+Her early leafs a flower;
+But only so an hour.
+Then leaf subsides to leaf.
+So Eden sank to grief,
+So dawn goes down to day.
+Nothing gold can stay.
+
+^G Get He^O WriteOut^R Read Fi^Y Prev Pag^K Cut Te^C Cur Pos
+^X Exit  ^J Justify ^W WhereIs^V Next Pag^U UnCut ^T To Spel
+\end{source_code_float}
+
+Once a text file is open in \textbf{\texttt{nano}}, you can start editing it using the keyboard. To perform actions such as:  saving the file, exiting \textbf{\texttt{nano}}, or getting help, you simply need to enter the shortcuts presented at the bottom of the interface\marginnotes{The \textasciicircum \ symbol stands for the Crtl button}. For example, you can exit \textbf{\texttt{nano}} by entering \textbf{\texttt{Crtl + X}}, or you can save the file by entering \textbf{\texttt{Crtl + O}}.
+
+\subsection{\textbf{\texttt{vi}} and \textbf{\texttt{vim}}}
+
+The \textbf{\texttt{vi}}\marginnotes{short for visual} terminal-based text editor was released for Unix systems more than 40 years ago. It has since being ported to multiple systems and \acs{OS}s, and many text editors are built upon it. \textbf{\texttt{vi}} is, together with text editors derived from it, the most widely used text editor for Linux, and can be found in all Unix and Linux distributions.
+
+The most famous text editor derived from \textbf{\texttt{vi}}, \textbf{\texttt{vim}}\marginnotes{short for vi improved}, augments the capabilities of \textbf{\texttt{vi}} by introducing, among other things:
+\begin{itemize}
+\item Syntax highlighting for multiple programming languages.
+\item Spell check in more than 50 languages.
+\item Multilevel undo and redo. I.e., you can undo and redo multiple edits to the text, as opposed to only the last one.
+\item More user-friendly interface.
+\end{itemize}
+
+Over time, \textbf{\texttt{vim}} has become so ubiquitous in the Linux world that currently it is made available by default in most Linux distributions. In fact, this ubiquitousness has reached the point that, in some distributions, the command \textbf{\texttt{vi}} actually calls \textbf{\texttt{vim}} instead of \textbf{\texttt{vi}}.
+
+In this section, we will cover how to perform basic tasks in \textbf{\texttt{vim}}. However, all methods described here also apply to \textbf{\texttt{vi}}, unless stated otherwise.
+
+\subsection*{\textbf{\texttt{vim}} interface}
+
+Opening \textbf{\texttt{vim}} to start editing a file is as simple as opening \textbf{\texttt{nano}}. You simply need to call \textbf{\texttt{vim}} followed by the name of the file you are trying to edit\marginnotes{If no file name is provided, \textbf{\texttt{vim}} displays a splash screen with some help information. When you start inserting text, \textbf{\texttt{vim}} creates a new file}. See the example below:
+\begin{command_line}[Bash]
+@@marcel@dell:~$@@ vim poem
+\end{command_line}
+
+Not that in Listing \ref{lst:ch5_vim_interface}, the \textbf{\texttt{vim}} user interface indicates empty lines with tildes (\textbf{\texttt{\textasciitilde}}). Also, \textbf{\texttt{vim}} provides the user with important information at the bottom of the terminal screen. Table~\ref{tab:ch5_info_vim} presents a list of all information that is displayed, as well as the corresponding values displayed in Listing~\ref{lst:ch5_vim_interface}.
+
+\begin{source_code_float}{make}{\textbf{\texttt{vim}}'s user interface.}{lst:ch5_vim_interface}
+Nature's first green is gold,
+Her hardest hue to hold.
+Her early leafs a flower;
+But only so an hour.
+Then leaf subsides to leaf.
+So Eden sank to grief,
+So dawn goes down to day.
+Nothing gold can stay.
+~
+~
+~
+"poem" 9L, 210C                        1,1           All
+\end{source_code_float}
+
+\begin{table}[!htbp]
+   \myfloatalign
+   \begin{tabularx}{\textwidth}{Xp{70mm}} \toprule
+     File name & "poem" \\
+     Number of lines & 9L \\
+     Number of characters & 210C \\
+     Cursor position & 1,1 (first line, first column) \\
+     Position of the screen & Indicates if you are at the \textbf{\texttt{Top}}, \textbf{\texttt{Bot}}tom, or which percentage of text has already been read. In the example, \textbf{\texttt{All}} text is displayed. \\
+   \bottomrule
+   \end{tabularx}
+\caption{Information displayed in \textbf{\texttt{vim}}.}
+\label{tab:ch5_info_vim}
+\end{table}
+
+\subsection*{\textbf{\texttt{vim}} modes}
+
+Working with \textbf{\texttt{vim}} requires understanding its three modes of operation: \textbf{command mode}, \textbf{insert mode}, and \textbf{extended mode}. These modes are described below:
+
+\begin{description}
+\item[Command mode] In this mode, which is also known as \textbf{normal mode}, you can use combinations of keys to enter commands. Commands can be used to copy and paste, delete blocks of text, or undo previous actions, among other things.
+\item[Insert mode] In this mode you can type new text. Note that this is not the mode you need to be to copy or paste blocks of text.
+\item[Extended Mode] This mode, which is also known as \textbf{last-line mode}\marginnotes{The name \textbf{extended mode} is due to the fact that it was based on a previous text editor called \textbf{\texttt{ex}}}, can be used to save the current file, open more files, turn the spell check on and off, and quit \textbf{\texttt{vim}}, among other uses.
+\end{description}
+
+Each time you start \textbf{\texttt{vim}}, it is in \textbf{command mode}. To switch to \textbf{insert mode}, you can press any of the following keys: \textbf{\texttt{a}}, \textbf{\texttt{A}}, \textbf{\texttt{i}}, \textbf{\texttt{I}}, \textbf{\texttt{o}}, or \textbf{\texttt{O}}. Each key results in starting the \textbf{insert mode} at a different position with regards to where the cursor is, as shown in Table~\ref{tab:insert_keys}. To switch back from \textbf{insert mode} to \textbf{command mode}, you need to press \textbf{\texttt{Esc}}
+
+\begin{table}[!htbp]
+   \myfloatalign
+   \begin{tabularx}{\textwidth}{Xp{110mm}} \toprule
+     \textbf{\texttt{i}} & Starts insert mode at the cursor \\
+     \textbf{\texttt{I}} & Starts insert mode at the beginning of the line the cursor is \\
+     \textbf{\texttt{a}} & Starts insert mode after the cursor \\
+      \textbf{\texttt{A}} & Starts insert mode at the end of the line the cursor is \\
+     \textbf{\texttt{o}} & Opens a new line below the cursor and starts insert mode on it \\
+     \textbf{\texttt{O}} & Opens a new line above the cursor and starts insert mode on it \\
+   \bottomrule
+   \end{tabularx}
+\caption{Keys to switch to insert mode.}
+\label{tab:insert_keys}
+\end{table}
+
+To switch from \textbf{command mode} to \textbf{extended mode}, you need to press the colon key (\textbf{\texttt{:}}). To switch back, from the \textbf{extended mode} to the \textbf{command mode}, you need to press \textbf{\texttt{Enter}}. to the In Figure \ref{fig:ch5_vim_modes}, you can see how to transition from different nodes. Note that it is not possible to switch from \textbf{insert mode} to \textbf{extended mode}, or vice versa, directly.
+
+\begin{figure}[!htbp]
+  \centering
+        \input{Images/Chapter5/vim_modes.tex}
+        \caption{Vi operational modes and the keys required to change modes.}
+        \label{fig:ch5_vim_modes}
+\end{figure}
+
+\subsection*{Command mode}
+
+In \textbf{command mode}, \textbf{\texttt{vim}} allows the user to perform a multitude of different operations in a fast and direct way by pressing different keys. In fact, \textbf{\texttt{vim}} is so powerful that many experienced programers prefer to use it even when editors with sophisticated \acs{GUI}s are available.
+
+Some commands are quite intuitive such as the arrow keys moving the cursor around character by character, or the \textbf{\texttt{Page Up}} and \textbf{\texttt{Page Down}} keys scrolling the text by one screen at a time. However, some commands can be a bit cryptic, such as \textbf{\texttt{y}}\marginnotes{It is actually short for yank} standing for copy. Moreover, some commands require a sequence of keys to be pressed in an specific order to attain the desired outcomes.
+
+In order to help new users to get familiar with \textbf{\texttt{vim}}, Table~\ref{tab:ch5_vim_commands} presents some of the most used commands for \textbf{\texttt{vim}}\marginnotes{This table is introduced here to be used as a reference, not to simply be memorized.}. For a comprehensive list of \textbf{\texttt{vim}} commands, you can refer to its \textbf{\texttt{man}} page.
+
+\begin{table}[!htbp]
+   \myfloatalign
+   \begin{tabularx}{\textwidth}{Xp{95mm}} \toprule
+     \textbf{\texttt{u}} & Undo the latest command. Note that all edits performed each time you enter the insert mode are considered as just one command.\\
+     \textbf{\texttt{Ctrl+R}} & Redo changes that were undone using the \textbf{\texttt{u}} command. \\
+     \textbf{\texttt{dd}} & Deletes the line the cursor is on. Note that the line is saved on a clipboard which can be later pasted using the \textbf{\texttt{p}} command. \\
+      \textbf{\texttt{\#dd}} & Where \# stands for a number, deletes \# lines starting at the one where the cursor is on and saves them on the clipboard. \\
+      \textbf{\texttt{yy}} & Copies (yanks) the line the cursor is on to the clipboard. \\
+      \textbf{\texttt{\#yy}} & Where \# stands for a number, copies (yanks) \# lines starting at the one where the cursor is on to the clipboard.\\
+      \textbf{\texttt{v}} & Turns on visual mode that allows you to specify, using the arrow keys, which part of the text you want to act upon with other commands. For example, you can use \textbf{\texttt{v}} to select a few paragraphs, and then delete them all by pressing \textbf{\texttt{d}}.\\
+      \textbf{\texttt{p}} & Pastes the contents of the clipboard after the position the cursor is on.\\
+      \textbf{\texttt{P}} & Pastes the contents of the clipboard before the position the cursor is on.\\
+   \bottomrule
+   \end{tabularx}
+\caption{List of some \textbf{command mode} important commands.}
+\label{tab:ch5_vim_commands}
+\end{table}
+
+
+\subsection*{Extended Mode}
+
+The \textbf{extended mode} is mostly used for file operations, such as saving files, opening files, etc. It is also used, however, to configure the behaviour of \textbf{\texttt{vim}}. For example, it is in \textbf{extended mode} that you can turn spell check on and off. Finally, the \textbf{extended mode} is also used to quit \textbf{\texttt{vim}}.
+
+On Table \ref{tab:ch5_ex_commands}, we show some of the most important operations that can be performed in extended mode. Remember that you need to type colon (\textbf{\texttt{:}}), while in command mode, to reach the extended mode.
+
+\begin{table}[!htb]
+   \myfloatalign
+   \begin{tabularx}{\textwidth}{Xp{81mm}} \toprule
+      \textbf{\texttt{:q}} & Quits \textbf{\texttt{vim}}. If any open files have non-saved edits, an error message is displayed. \\     \textbf{\texttt{:w}}  & Saves the file under its current name. If the file hasn't been given a name yet, an error message appears. \\
+     \textbf{\texttt{:w file$\_$name}} & Saves the file as file$\_$name. If file$\_$name is the same names as the currently open file, the file is overwritten \\
+      \textbf{\texttt{:e file$\_$name}} & opens a new file, while placing the current file in a buffer. Having multiple files open whenhe same time can be very convenient. Specially when you need to copy parts of one file, and paste it into another. \\
+      \textbf{\texttt{:ls}} & Lists all currently opened files.\\
+      \textbf{\texttt{:b file$\_$name}} & Switchs to a file called file$\_$name currently open, i.e., currently in the open buffer. You can use tab to autoconplete the file name. You can also use its buffer number instead of its name.\\
+      \textbf{\texttt{:b\#}} & Switchs to the previously opened file. This is very convenient when you need to go back and forth between two files.\\
+      \textbf{\texttt{:set spell spelllang=en\_ca}} & Switchs spellcheck on, and assumes that the current language is Canadian English.\\
+      \textbf{\texttt{:set nospell}} & Switchs spellcheck on, and assumes that the current language is Canadian English.\\
+   \bottomrule
+   \end{tabularx}
+\caption{List of some extended mode important commands.}
+\label{tab:ch5_ex_commands}
+\end{table}
+
+It is possible to combine commands. for example, you can save and exit \textbf{\texttt{vim}} by issuing a \textbf{\texttt{:wq}} command, instead of two separate \textbf{\texttt{:w}} and \textbf{\texttt{:q}} commands..
+
+By default, \textbf{\texttt{vim}} tries to prevent users from making mistakes, such as quitting before saving edited files, or overwritting existing files. In case you want to override these security measures, you simply need to add an exclamation point (\textbf{\texttt{!}}) to the end of your command. For example, the command \textbf{\texttt{:q}} quits \textbf{\texttt{vim}} without saving any open files.
+
+\begin{my_box}[Reading non simple-text file]
+All tools presented in this chapter will assume that the files being opened are simple-text encoded using an \textbf{ascii} table. I.e., they will translate sequences of 8 bits into characters. For example, a sequence \textbf{\texttt{00100000}} is translated to \textbf{\texttt{Space}}, \textbf{\texttt{01100001}} to \textbf{\texttt{a}} (lower case), and so it goes. For a complete \textbf{ascii} table, see \url{http://www.asciitable.com/}.
+
+In case you try to open a non-simple text file, such as pdf files or binary applications, using the tools presented in this chapter, you will see a seemingly random sequence of ascii characters. This happens because the tool will interpret whichever sequence of bits it finds using an ascii table. Even if these bits were not created to represent a simple text.
+\end{my_box}
+
+
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+
+\begin{exercises}
+  \item What is the relationship between the \textbf{\texttt{more}} and the \textbf{\texttt{less}} commands?
+  \item How can you search for a particular word in \textbf{\texttt{less}}?
+  \item Cite two advantages of using \textbf{\texttt{vim}} over \textbf{\texttt{nano}}.
+  \item Type \textbf{\texttt{vimtutor}} on your shell prompt. It will open an iterative tutorial to help you practice your \textbf{\texttt{vim}} skills.
+  \item Which actions can you perform in \textbf{\texttt{vim}}'s \textbf{extended mode}?
+  \item Which actions can you perform in \textbf{\texttt{vim}}'s \textbf{command mode}?
+  \item Which command you would enter to delete 20 lines of text, starting with the current line?
+  \item Which command you would enter to be able to select parts fo your text using the arrow keys, as opposed to entering the number of lines or words you wish to select?
+  \item Assume that you have two files in your current working directory called \textbf{\texttt{text1}} and \textbf{\texttt{text2}}. Explain, including all commands you need to enter, how can you copy some lines from one file, and paste it into another.
+
+\end{exercises}

@@ -1,0 +1,26 @@
+\tikzstyle{every node}=[thick,anchor=west, font={\scriptsize\ttfamily}, inner sep=2.5pt]
+\tikzstyle{selected}=[draw=black]
+\tikzstyle{created}=[draw=gray,dashed]
+\tikzstyle{root}=[selected, fill=black!20]
+
+\begin{tikzpicture}[%
+    scale=.99,
+    grow via three points={one child at (0.5,-0.65) and
+    two children at (0.5,-0.65) and (0.5,-1.1)},
+    edge from parent path={(\tikzparentnode.south) |- (\tikzchildnode.west)}]
+  \node [root] {/}
+    child { node [selected] {home}
+      child { node [selected] {marcel}
+        child { node [selected] {Documentation}
+           child { node [created] {Examples}}
+           child { node {Example1.txt}}
+           child { node {Example2.txt}}
+        }
+        child { node at (0, -2.0) [selected] {Personal}
+           child { node {bills.doc}}
+           child { node {summer.jpg}}
+        }
+      }
+    }
+    child { node at (0,-5.0) {\dots}};
+\end{tikzpicture}

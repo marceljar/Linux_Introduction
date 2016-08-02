@@ -1,0 +1,272 @@
+\chapter{Basic Shell Commands II}\label{ch:basic_commands_ii}
+
+In our previous chapter, we covered a number of bash commands which could be used to: gather information from the system and user (\textbf{\texttt{date}},  \textbf{\texttt{whoami}}, \textbf{\texttt{pwd}}), get information about files and folders (\textbf{\texttt{ls}}), or to change de current working directory (\textbf{\texttt{cd}}).
+
+None of the commands could be used to alter files, folders, or change the configurations of the system, though. I.e., they have no lasting effect in the system.
+
+In this chapter, we will cover a series of commands that have lasting effects in files, folders, and possibly the system. The commands we are covering in this chapter can be used to create and remove files and folders, as well as to rename and make copies of them.
+
+\section{\textbf{\texttt{mkdir}}}
+
+To create new folders, the \textbf{\texttt{mkdir}}\marginnotes{short for make directory} command can be used, followed by the name(s) of the folder(s) to be created. In the example below, a folder called \textbf{Samples} is created in the current working directory.
+
+\begin{command_line}[Bash]
+@@marcel@dell:~$@@ ls
+Documents      Downloads      Pictures
+Music          Video          seneca.pdf
+@@marcel@dell:~$@@ mkdir Samples
+@@marcel@dell:~$@@ ls
+Documents      Downloads      Pictures    @@Samples@@
+Music          Video          seneca.pdf
+\end{command_line}
+
+Note that, by default, the new directory is created as a subfolder of the working directory. To create folders in other locations, without leaving the current working directory, you can use the \textbf{\texttt{mkdir}} command combined with relative or absolute paths, as shown below:
+
+\begin{command_line}[Bash]
+@@marcel@dell:~$@@ ls Documents
+Seneca      Personal
+@@marcel@dell:~$@@ mkdir ~/Documents/Samples
+@@marcel@dell:~$@@ ls Documents
+Seneca      Personal    @@Samples@@
+\end{command_line}
+
+\begin{my_box}[Files and Folders with spaces in their names]
+  In all examples that were given so far is this book, all files and folders do not contain spaces in their names. Issuing a command such as \textbf{\texttt{mkdir My Documents}} would create two folders, one called \textbf{\texttt{My}} and another called \textbf{\texttt{Documents}}. This is because the shell cannot distinguish between an argument with a space, or two arguments without spaces.
+
+  Linux can handle files and folder with spaces, though. In order to do so, whenever you are refering to a file or folder with sapces in its name, each space needs to be preceeded by a backslash (\textbf{\texttt{\textbackslash}}). For example, you can create a folder called \textbf{\texttt{My Documents}} by issuing a command \textbf{\texttt{mkdir My\textbackslash Documents}}.
+\end{my_box}
+
+
+\section{\textbf{\texttt{rmdir}}}
+
+The \textbf{\texttt{rmdir}}\marginnotes{short for remove directory} command, as the name suggests, deletes existing folders. For example, \textbf{\texttt{rmdir Samples}} will remove a folder \textbf{\texttt{Samples}} from the current working directory. It is important to note that it can only be used to remove empty folders. In case the folder is not empty, the shell returns an error message.
+
+In the example below, the \textbf{\texttt{rmdir}} command is applied to both an empty folder \textbf{Samples}, and to a non-empty folder \textbf{Pictures}.
+\begin{command_line}[Bash]
+@@marcel@dell:~$@@ ls
+Documents      Downloads      Pictures    @@Samples@@
+Music          Video          seneca.pdf
+@@marcel@dell:~$@@ rmdir Samples
+@@marcel@dell:~$@@ ls
+Documents      Downloads      Pictures    Music
+Video          seneca.pdf
+@@marcel@dell:~$@@ rmdir Pictures
+rmdir: failed to remove 'Pictures': Directory not empty
+@@marcel@dell:~$@@
+\end{command_line}
+
+\section{\textbf{\texttt{touch}}}
+
+As shown in Section \ref{sec:ls}, files and folders in Linux have a timestamp indicating when they were edited for the last time. The \textbf{\texttt{touch}} command, when applied to an existing file, updates the timestamp of when it was last edited\marginnotes{Updated timestamps are useful for some backup programs, among other uses}. It is equivalent to opening the file, saving it, and then closing it. As an example, see the command prompt below:
+\begin{command_line}[Bash]
+@@marcel@dell:~$@@ ls -l
+total 0
+-rw-rw-r-- 1 marcel marcel 0 Jul 12 11:31 final_exam.doc
+-rw-rw-r-- 1 marcel marcel 0 Jun 21 20:30 introduction.ppt
+-rw-rw-r-- 1 marcel marcel 0 May 10 21:41 seneca.pdf
+@@marcel@dell:~$@@ touch final_exam.doc
+@@marcel@dell:~$@@ ls -l
+total 0
+-rw-rw-r-- 1 marcel marcel 0 @@Jul 14 22:12@@ final_exam.doc
+-rw-rw-r-- 1 marcel marcel 0 Jun 21 20:30 introduction.ppt
+-rw-rw-r-- 1 marcel marcel 0 May 10 21:41 seneca.pdf
+\end{command_line}
+When applied to non-existing files, the \textbf{\texttt{touch}} command creates empty files, as shown below:
+\begin{command_line}[Bash]
+@@marcel@dell:~$@@ ls -l
+total 0
+-rw-rw-r-- 1 marcel marcel 0 Jul 14 22:12 final_exam.doc
+-rw-rw-r-- 1 marcel marcel 0 Jun 21 20:30 introduction.ppt
+-rw-rw-r-- 1 marcel marcel 0 May 10 21:41 seneca.pdf
+@@marcel@dell:~$@@ touch mid_term.doc
+@@marcel@dell:~$@@ ls -l
+total 0
+-rw-rw-r-- 1 marcel marcel 0 Jul 14 22:12 final_exam.doc
+-rw-rw-r-- 1 marcel marcel 0 Jun 21 20:30 introduction.ppt
+-rw-rw-r-- 1 marcel marcel 0 May 10 21:41 seneca.pdf
+@@-rw-rw-r-- 1 marcel marcel 0 Jul 14 22:15 mid_term.doc@@
+\end{command_line}
+This second usage of the \textbf{\texttt{touch}} command is frequently used for testing purposes\marginnotes{tip: you to use \textbf{\texttt{touch}} and \textbf{\texttt{mkdir}} in order to recreate the examples provided in this chapter.}.
+
+\section{\textbf{\texttt{rm}}}
+
+To delete (remove) files, the \textbf{\texttt{rm}}\marginnotes{short for remove} command can be used, followed by the name(s) of file(s) to be deleted from the working directory. See the example below:
+
+\begin{command_line}[Bash]
+@@marcel@dell:~$@@ ls
+Documents      Downloads      Pictures
+Music          Video          @@seneca.pdf@@
+@@marcel@dell:~$@@ rm seneca.pdf
+@@marcel@dell:~$@@ ls
+Documents      Downloads      Pictures
+Music          Video
+\end{command_line}
+
+The \textbf{\texttt{rm}} command can also be used to remove non-empty folders. To do so, we have to apply the \textbf{\texttt{-r}} (recursive) option followed by the name of the folder, as shown below.
+\begin{command_line}[Bash]
+@@marcel@dell:~$@@ ls
+Documents      Downloads      @@Pictures@@
+Music          Video          seneca.pdf
+@@marcel@dell:~$@@ rm -r Pictures
+@@marcel@dell:~$@@ ls
+Documents      Downloads      Music
+Video          seneca.pdf
+\end{command_line}
+
+%It is important to note that, by default, this command does not ask for confirmation, prior to deleting the file. Also, most Linux distributions do not have a recycle being. Hence, it is important to be careful before using this command.
+
+\begin{my_box}[Bash Design Goals]
+  It is important to note that the commands described in this chapter don't normally ask for confirmation. For example, when deleting a file using the \textbf{\texttt{rm}} command, the \textbf{shell} will not ask the user if he/she is sure he/she wants to delete the file. Nor the file will be sent to a recycle bin from which it can be recovered. The file will simply be deleted.
+
+  The \textbf{shell} performs tasks that might incur in unforeseen consequences, such as accidently deleting a number of files, in a much more direct way because of its design goals. As opposed to \acs{GUI} interfaces where the goal normally is to provide a platform for inexperienced users to perform basic tasks, a \acs{CLI} is normally designed with the goal of allowing experienced users to quickly perform complex tasks.
+\end{my_box}
+
+\section{\textbf{\texttt{mv}}}
+
+The \textbf{\texttt{mv}}\marginnotes{short for move} command can be used in two distinct ways. As the name suggests, it can move a file, a folder, or a number of files and folders from one directory to another. However, it can also be used to rename single files or folders. Both uses of this command are described in what follows.
+
+\subsection{Moving files and folders accross directories}
+
+To move a single file from one directory to another, the \textbf{\texttt{mv}} command needs two arguments. The first being the name of the file in the working directory to be moved, and the second being the absolute or relative path of the directory we are moving the file to. See the example below:
+\begin{command_line}[Bash]
+@@marcel@dell:~$@@ ls
+@@final_exam.doc@@  introduction.ppt  seneca.pdf
+Folder
+@@marcel@dell:~$@@ mv final_exam.doc Folder
+@@marcel@dell:~$@@ ls
+introduction.ppt  seneca.pdf  Folder
+@@marcel@dell:~$@@ ls Folder
+@@final_exam.doc@@
+@@marcel@dell:~$@@
+\end{command_line}
+
+Note that, in this example, the file \textbf{final\_exam.doc} disappears from the working directory and appears in the \textbf{Folder} directory.
+
+Multiple files can be moved with a single \textbf{\texttt{mv}} command. To do so, you first need to provide the names of all files you intend to move as arguments. Then, you need to provide the relative or absolute path of the directory you want to move them to as the very last argument. This technique is  shown in what follows:
+\begin{command_line}[Bash]
+@@marcel@dell:~$@@ ls
+@@final_exam.doc@@  @@introduction.ppt@@  seneca.pdf
+Folder
+@@marcel@dell:~$@@ mv final_exam.doc introduction.ppt Folder
+@@marcel@dell:~$@@ ls
+seneca.pdf  Folder
+@@marcel@dell:~$@@ ls Folder
+@@final_exam.doc@@ @@introduction.ppt@@
+@@marcel@dell:~$@@
+\end{command_line}
+
+Note that, within this context, this command can also be applied to folders (directories). I.e., you can move an entire folder in your working directory into other folders using the exactly same syntax applied for files in this section.
+
+\subsection{Renaming files and folders}
+
+Imagine the \textbf{\texttt{mv}} command being used with two arguments, the first being a file name in the working directory, and the second being a name that doesn't match any directories. In this scenario, the \textbf{\texttt{mv}} command will rename the file indicated by the first argument to the name specified in the second\marginnotes{A command called \textbf{\texttt{rename}} exists in \textbf{\texttt{bash}}. However, it is used to rename multiple files at once using regular expressions. Regular expressions are covered in Chapter XXX}. See the example below:
+\begin{command_line}[Bash]
+@@marcel@dell:~$@@ ls
+@@final_exam.doc@@  introduction.ppt  seneca.pdf
+Folder
+@@marcel@dell:~$@@ mv final_exam.doc final_exam_fall.doc
+@@marcel@dell:~$@@ ls
+@@final_exam_fall.doc@@  introduction.ppt  seneca.pdf
+Folder
+@@marcel@dell:~$@@
+\end{command_line}
+In this example, you can see that the file \textbf{final\_exam.doc} was renamed to \textbf{final\_exam\_fall.doc}.
+
+You can also rename a folder using the same syntax applied for files in this section.
+
+\section{\textbf{\texttt{cp}}}
+
+The \textbf{\texttt{cp}}\marginnotes{short for copy} command can be used to copy files and folders. It can be used in two distinct ways:
+
+
+\subsection{Copying files within the working directory}
+
+To create a copy of a file in the same working direct, the \textbf{\texttt{cp}} command should be used with two arguments. The first argument should be the name of the file to be copied, while the second argument should be the name of the copy, as shown below:
+\begin{command_line}[Bash]
+@@marcel@dell:~$@@ ls
+final_exam.doc  introduction.ppt  seneca.pdf
+Folder
+@@marcel@dell:~$@@ cp final_exam.doc final_exam_fall.doc
+@@marcel@dell:~$@@ ls
+final_exam.doc  @@final_exam_fall.doc@@  introduction.ppt
+seneca.pdf  Folder
+@@marcel@dell:~$@@
+\end{command_line}
+
+To copy an entire folder in your working directory into another folder also in the working directory, you must use the recursive option \textbf{\texttt{-r}}, as shown in the example below:
+\begin{command_line}[Bash]
+@@marcel@dell:~$@@ ls
+final_exam.doc  introduction.ppt  seneca.pdf
+Folder
+@@marcel@dell:~$@@ cp -r Folder Folder_Copy
+@@marcel@dell:~$@@ ls
+final_exam.doc  final_exam_fall.doc  introduction.ppt
+seneca.pdf  Folder  @@Folder_Copy@@
+@@marcel@dell:~$@@
+\end{command_line}
+
+\subsection{Copying files to other directories}
+
+To create a copy of a file in the working directory to another directory, the second argument of the \textbf{\texttt{cp}} command must be the absolute or relative path of the directory in which you want to plae a copy of the file. In this case, the new file will have the same name as the original file. See the example below:
+\begin{command_line}[Bash]
+@@marcel@dell:~$@@ ls
+final_exam.doc  introduction.ppt  seneca.pdf
+Folder
+@@marcel@dell:~$@@ cp final_exam.doc Folder
+@@marcel@dell:~$@@ ls
+final_exam.doc  introduction.ppt  seneca.pdf
+@@Folder@@
+@@marcel@dell:~$@@ ls Folder
+@@marcel@dell:~$@@ ls
+final_exam.doc
+@@marcel@dell:~$@@
+\end{command_line}
+
+Just as with the previous scenario, to copy an entire folder in the working directory to another directory, you also must use the recursive option \textbf{\texttt{-r}}. See the example below:
+\begin{command_line}[Bash]
+@@marcel@dell:~$@@ ls
+final_exam.doc  introduction.ppt  seneca.pdf
+Folder  Music
+@@marcel@dell:~$@@ cp Music Folder
+cp: omitting directory 'Music'
+@@marcel@dell:~$@@ ls Folder
+final_exam.doc  introduction.ppt
+@@marcel@dell:~$@@ cp -r Music Folder
+@@marcel@dell:~$@@ ls Folder
+final_exam.doc  introduction.ppt  @@Music@@
+@@marcel@dell:~$@@
+\end{command_line}
+
+To copy all contents of a folder to another folder, but not the folder itself, you need to add \textbf{\texttt{/.}} to the end of the name of the folder you are copying, as shown below\marginnotes{You can also use this technique with the \textbf{\texttt{mv}} command}:
+\begin{command_line}[Bash]
+@@marcel@dell:~$@@ ls
+final_exam.doc  introduction.ppt  seneca.pdf
+Folder  Music
+@@marcel@dell:~$@@ cp -r Music/. Folder
+@@marcel@dell:~$@@ ls Folder
+arcade_fire-ready_to_start.mp3  foo_fighters-walk.mp3
+@@marcel@dell:~$@@
+\end{command_line}
+
+
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+
+\begin{exercises}
+   \item What is the main difference between using the copy \textbf{\texttt{cp}}, and the move \textbf{\texttt{mv}} commands, when applied to files?
+   \item How can you delete a non-empty folder called \textbf{Archive} that exists in your working directory?
+   \item Which command can be used to move a file called \textbf{README.txt} from your working directory to its parent folder
+   \item Which command can be used to create a folder called \textbf{Examples} inside a subfolder called \textbf{Documentation} that exists in your working directory. See the diagram below.
+   \begin{figure}[!htbp]
+     \centering
+           \input{Images/Chapter3/directory_tree.tex}
+           \caption{Directory tree for questions.}
+           \label{fig:ch3_dirtree}
+   \end{figure}
+   \item Still with regards to the diagram above, how can you move files \textbf{Example1.txt} and \textbf{Example2.txt} from the \textbf{Documentation} folder to its \textbf{Examples} subfolder, without changing your working directory.
+   \item Is it possible to delete multiple empty folders with only one \textbf{\texttt{rmdir}} command? If so, how can you delete two empty folders named \textbf{Tests} and \textbf{Assignments} from your working directory?
+   \item What happens when you apply the \textbf{\texttt{touch}} command to an existing file? Also, what happens when you apply this command to a non-existing file.
+   \item How can you make copies of the contents of a file called \textbf{exams.txt} from your working directory, to a file called \textbf{exams.txt} inside a subfolder \textbf{Classes} that exists in your working directory?
+   \item What happens when the first parameter of a \textbf{\texttt{mv}} command is a file, and the second parameter is a folder?
+   \item Which command can be used to copy the contents of a subfolder named \textbf{Folder1}, that exists in the current working directory, to another subfolder named  \textbf{Folder1Copy} in the same working directory. Note that the subfolder \textbf{Folder1Copy} doesn't exist prior to the command you need to enter.
+\end{exercises}

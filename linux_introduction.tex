@@ -1,0 +1,77 @@
+\documentclass[titlepage,numbers=noenddot,headinclude,
+                footinclude=true,abstractoff,
+                BCOR=5mm,paper=letter,fontsize=11pt,
+                ngerman,american,dottedtoc]{scrreprt}
+
+\input{linux_introduction-config}
+
+\addbibresource{Bibliography.bib}
+\addbibresource[label=ownpubs]{AMiede_Publications.bib}
+
+%\hyphenation{put special hyphenation here}
+
+\makeindex
+
+\begin{document}
+\frenchspacing
+\raggedbottom
+\selectlanguage{american} % american ngerman
+%\renewcommand*{\bibname}{new name}
+%\setbibpreamble{}
+\pagenumbering{roman}
+\pagestyle{plain}
+
+%********************************************************************
+% Frontmatter
+%*******************************************************
+%\include{FrontBackmatter/DirtyTitlepage}
+\include{FrontBackmatter/Titlepage}
+%\include{FrontBackmatter/Titleback}
+%\cleardoublepage\include{FrontBackmatter/Dedication}
+%\cleardoublepage\include{FrontBackmatter/Foreword}
+%\cleardoublepage\include{FrontBackmatter/Abstract}
+%\cleardoublepage\include{FrontBackmatter/Publications}
+\cleardoublepage\include{FrontBackmatter/Acknowledgments}
+\pagestyle{scrheadings}
+\cleardoublepage\include{FrontBackmatter/Contents}
+
+%********************************************************************
+% Mainmatter
+%*******************************************************
+\cleardoublepage
+\pagenumbering{arabic}
+%\setcounter{page}{90}
+% use \cleardoublepage here to avoid problems with pdfbookmark
+\cleardoublepage
+\ctparttext{In the following chapters, we introduce the concept of command line interfaces, and explain how they can be accessed, as well as their relationship with the \textbf{shell}. Following, we present some basic \textbf{shell} commands together with methods to get help about these commmands. Finally, we end this part by introducing a series of tools that can be used to read and edit text files using a command line interface.}
+\part{Introduction to Command Line Interfaces}
+\include{Chapters/Chapter01}
+% \cleardoublepage
+% \ctparttext{You can put some informational part preamble text here.
+% Illo principalmente su nos. Non message \emph{occidental} angloromanic
+% da. Debitas effortio simplificate sia se, auxiliar summarios da que,
+% se avantiate publicationes via. Pan in terra summarios, capital
+% interlingua se que. Al via multo esser specimen, campo responder que
+% da. Le usate medical addresses pro, europa origine sanctificate nos se.}
+%\part{The Showcase}
+\include{Chapters/Chapter02}
+\include{Chapters/Chapter03}
+\include{Chapters/Chapter04}
+\include{Chapters/Chapter05}
+%\addtocontents{toc}{\protect\clearpage} % <--- just debug stuff, ignore
+%\include{Chapters/Chapter03}
+%\include{Chapters/Chapter04}
+% ********************************************************************
+% Backmatter
+%*******************************************************
+\appendix
+%\renewcommand{\thechapter}{\alph{chapter}}
+\cleardoublepage
+%\part{Appendix}
+%\include{Chapters/Chapter0A}
+\printindex
+%\cleardoublepage\include{FrontBackmatter/Bibliography}
+%\cleardoublepage\include{FrontBackmatter/Declaration}
+%\cleardoublepage\include{FrontBackmatter/Colophon}
+
+\end{document}

@@ -1,0 +1,26 @@
+% TikZ styles for drawing
+\tikzstyle{block} = [draw,rectangle, rounded corners, thick,minimum height=2.5em,minimum width=5.0em]
+\tikzstyle{bentright} = [->, >=latex', bend right=30, thick]
+\tikzstyle{bentleft} = [<-, >=latex', bend right=-30, thick]
+
+\begin{tikzpicture}[scale=1, auto, >=stealth']
+
+  % node placement with matrix library: 5x4 array
+  \matrix[ampersand replacement=\&, row sep=0.5cm, column sep=2.3cm] {
+
+    \node[block] (insert) {\begin{tabular}{c} Insert \\ Mode \end{tabular}}; \&
+    \node[block] (command) {\begin{tabular}{c} Command \\ Mode \end{tabular}}; \&
+    \node[block] (extended) {\begin{tabular}{c} Extended \\ Mode \end{tabular}}; \& \\
+  };
+
+  \draw[bentright]
+    ($(insert.east) + (0.0cm,-0.2cm)$) to node[anchor=south,below] {Esc}($(command.west) + (0.0cm,-0.2cm)$);
+  \draw[bentleft]
+    ($(insert.east) + (0.0cm,+0.2cm)$) to node[anchor=south,above] {a,A,i,I,o,O}($(command.west) + (0.0cm,+0.2cm)$);
+
+  \draw[bentright]
+    ($(command.east) + (0.0cm,-0.2cm)$) to node[anchor=south,below] {:}($(extended.west) + (0.0cm,-0.2cm)$);
+  \draw[bentleft]
+    ($(command.east) + (0.0cm,+0.2cm)$) to node[anchor=south,above] {Enter}($(extended.west) + (0.0cm,+0.2cm)$);
+
+\end{tikzpicture}

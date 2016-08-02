@@ -202,17 +202,21 @@
    tabsize=2
 }
 
-\lstnewenvironment{source_code}[1][C++]
-{\lstset{style=numbers, language=#1}}
+\lstnewenvironment{source_code}[1][Bash]
+{\lstset{style=numbers, language=#1, moredelim={[is][\bfseries]{@@}{@@}}}}
 {}
 
 
 \lstnewenvironment{source_code_float}[3]
-{\lstset{style=numbers, language=#1, float=!ht, caption={#2},label=#3}}
+{\lstset{style=numbers, language=#1, float=!ht, caption={#2},label=#3,moredelim={[is][\bfseries]{@@}{@@}}}}
 {}
 
-\lstnewenvironment{command_line}[1][C++]
+\lstnewenvironment{command_line}[1][Bash]
 {\lstset{style=nonumbers, language=#1, moredelim={[is][\bfseries]{@@}{@@}}}}
+{}
+
+\lstnewenvironment{command_line_float}[3]
+{\lstset{style=nonumbers, language=#1, float=!ht, caption={#2},label=#3,moredelim={[is][\bfseries]{@@}{@@}}}}
 {}
 
 % ****************************************************************************************************

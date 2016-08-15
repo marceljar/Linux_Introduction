@@ -153,9 +153,11 @@
 \usetikzlibrary{trees}
 \usepgflibrary{arrows}
 \usetikzlibrary{shapes,arrows}
+\usetikzlibrary{arrows.meta}
 \usetikzlibrary{matrix}
 \usetikzlibrary{calc} % for manipulation of coordinates
 \usetikzlibrary{positioning}
+\usetikzlibrary{decorations.pathreplacing}
 
 
 % ********************************************************************
@@ -763,7 +765,12 @@
 
 \newcommand{\marginnotes}[1]{$^{\ast}$\marginpar{$^{\ast}$#1.}}
 
+\newcommand{\mycommand}[1]{\textbf{\texttt{#1}}}
+
 \RequirePackage{tcolorbox}
 \tcbuselibrary{breakable}
 
 \RequirePackage{longtable}
+\RequirePackage{ltxtable}
+
+\RequirePackage{standalone}

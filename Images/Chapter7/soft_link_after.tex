@@ -1,0 +1,93 @@
+\documentclass{standalone}
+
+\usepackage{tikz}
+\usetikzlibrary{trees}
+\usepgflibrary{arrows}
+\usetikzlibrary{shapes,arrows}
+\usetikzlibrary{matrix}
+\usetikzlibrary{calc} % for manipulation of coordinates
+\usetikzlibrary{positioning}
+\usetikzlibrary{decorations.pathreplacing}
+
+\begin{document}
+% TikZ styles for drawing
+\tikzstyle{block} = [draw,rectangle, rounded corners, thick,minimum height=3.5em,minimum width=5.0em]
+\tikzstyle{directory} = [draw,rectangle, thick,minimum height=4.5em,minimum width=8.0em, fill=black!10]
+\tikzstyle{memory} = [draw,rectangle, rounded corners, thick,minimum height=3.5em,minimum width=30.0em]
+\tikzstyle{superblock} = [draw,rectangle, rounded corners, thick,minimum height=3.5em,minimum width=5.0em, fill=black!25]
+\tikzstyle{inode_table} = [draw,rectangle, rounded corners, thick,minimum height=3.5em,minimum width=8.0em, fill=black!08]
+\tikzstyle{inode} = [draw,rectangle, rounded corners, thick,minimum height=3.5em,minimum width=0.5em, fill=black!80]
+\tikzstyle{file} = [draw,rectangle, rounded corners, thick,minimum height=3.5em,minimum width=0.5em, fill=black!50]
+
+\tikzstyle{bentright1} = [->, bend right=30, thick, dashed]
+\tikzstyle{bentright2} = [<-, bend right=20, thick, dashed]
+\tikzstyle{bentright3} = [->, bend right=50, thick, dashed]
+\tikzstyle{bentright4} = [->, bend right=60, thick, dashed]
+
+\tikzstyle{bentleft1} = [<-, bend right=-30, thick, dashed]
+\tikzstyle{bentleft2} = [<-, bend right=-20, thick, dashed]
+\tikzstyle{bentleft3} = [->, bend right=90, thick, dashed]
+
+\begin{tikzpicture}[scale=1, auto, >=stealth']
+  \node[directory] at (-14.4, 3) (dir1) {};
+  \node at (-14.4,3.4) (students){students | 12854};
+  \node at (-14.4,2.8) (tests){tests \ \ \ \ \ | 12858};
+   \node at (-14.4,1.8) (dir1){\textbf{OPS105} (folder)};
+
+  \node[directory] at (-8.4, 3) (dir2) {};
+  \node at (-8.4,3.4) (students2){students | 12867};
+  \node at (-8.4,2.8) (tests2){\textbf{tests\_ln}\ \ \ | 12858};
+   \node at (-8.4,1.8) (dir2){\textbf{SRT311} (folder)};
+
+  \node[memory] at (-10, 0) (mem) {};
+  \node[superblock] at (-15, 0) (super) {};
+  \node[inode_table] at (-12.5, 0) (table) {};
+  \node[inode] at (-12.8, 0) (i) {};
+  \node[inode] at (-12.3, 0) (i2) {};
+  \node[inode] at (-11.9, 0) (i3) {};
+  \node[inode] at (-11.4, 0) (i4) {};
+
+
+  \node[file] at (-9.5, 0) (f) {};
+  \node[file] at (-8.0, 0) (f2) {};
+  \node[file] at (-6.5, 0) (f3) {};
+   \node[file] at (-5.0, 0) (f4) {};
+
+  \draw[bentright1]
+    ($(i.east) + (0.0cm,-0.6cm)$) to node[anchor=south,below] {\footnotesize{\textbf{}}}($(f.west) + (0.0cm,-0.6cm)$);
+
+  \draw[bentright1]
+    ($(i2.east) + (0.0cm,-0.6cm)$) to node[anchor=south,below] {\footnotesize{\textbf{}}}($(f2.west) + (0.0cm,-0.6cm)$);
+
+  \draw[bentright1]
+  ($(i3.east) + (0.0cm,-0.6cm)$) to node[anchor=south,below] {\footnotesize{\textbf{}}}($(f3.west) + (0.0cm,-0.6cm)$);
+
+  \draw[bentright1]
+  ($(i4.east) + (0.0cm,-0.6cm)$) to node[anchor=south,below] {\footnotesize{\textbf{}}}($(f4.west) + (0.0cm,-0.6cm)$);
+
+\draw[bentright2]
+    ($(i.north) + (0.0cm,-0.0cm)$) to node[anchor=south,below] {}($(tests.east) + (0.0cm,-0.0cm)$);
+
+  \draw[bentright2]
+    ($(i2.north) + (0.0cm,-0.0cm)$) to node[anchor=south,below] {}($(students.east) + (0.0cm,-0.0cm)$);
+
+  \draw[bentleft2]
+    ($(i3.north) + (0.0cm,-0.0cm)$) to node[anchor=south,below] {}($(students2.west) + (0.0cm,-0.0cm)$);
+
+ \draw[bentleft2]
+   ($(i4.north) + (0.0cm,-0.0cm)$) to node[anchor=south,below] {}($(tests2.west) + (0.0cm,-0.0cm)$);
+
+\draw[bentleft3]
+  ($(f4.north) + (0.0cm,-0.0cm)$) to node[anchor=south,below] {}($(students.east) + (0.0cm,-0.0cm)$);
+
+
+   \node at (-15,-2.25) {\textbf{superblock}};
+   \node at (-12.5,-2.2) {\textbf{inode table}};
+   \node at (-7.7,-2.2) {\textbf{data}};
+
+   \draw [decorate,decoration={brace,amplitude=10pt},rotate=90] (-1.5,+4.3) -- (-1.5,+11.0);
+   \draw [decorate,decoration={brace,amplitude=10pt},rotate=90] (-1.5,+11.0) -- (-1.5,+14.0);
+   \draw [decorate,decoration={brace,amplitude=10pt},rotate=90] (-1.5,+14.0) -- (-1.5,+16.0);
+
+\end{tikzpicture}
+\end{document}

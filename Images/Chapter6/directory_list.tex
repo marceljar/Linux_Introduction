@@ -1,0 +1,23 @@
+\begin{longtable}[!tbp]{Xp{93mm}} \toprule
+     \textbf{Directory} & \textbf{Contents} \\ \midrule
+\mycommand{/} & The root directory. It gets its name because it is from it that the whole directory tree starts. Note that even USB sticks,  external hard disks, and optical devices such as DVDs, are mounted on top of the root direcyory. This is an approach very different than what is done on Windows, where each memory device is mounted as a one letter file system (C:, D:, E:, etc).\\
+\mycommand{/bin} & Contains executable programs (binaries) which are needed in single user mode and to bring the system up or repair it. Many important commands, such as \mycommand{ls}, \mycommand{mv}, and even the \mycommand{bash} shell itself are implemented as binary files in this directory. \\
+\mycommand{/boot} & Contains static files for the boot loader. It holds only the files which are needed during the  boot  process.\\
+\mycommand{/dev} & Holds files representing physical devices such as a printer, a network card, etc.\\
+\mycommand{/etc} & This directory is a place for files that did not fit into other previously defined directories. Its name is derived from the latin expression \textit{et cetera}. It mostly contains system configuration files.\\
+\mycommand{/home} & Holds all user's home directories. For example, the home directory of a user called john will likely be located in \mycommand{/home/john}.\\
+\mycommand{/lib} & Contains shared libraries that are necessary to boot the system. Shared libraries are compiled pieces of code that can be used by multiple programs in order to achieve a well-defined goal.\\
+\mycommand{/media} & Contains mount points for removable media such as CDs, DVDs, SD cards, or USB sticks. I.e., by default these memory devices will be mounted as subfolders inside this directory.\\
+\mycommand{/mnt} & Countains mount points for temporarily mounted devices. This directory is the point where a sysadmin should use to manually mount devices. \\
+\mycommand{/opt} & Holds program files for software installed without using the \mycommand{apt-get} or \mycommand{yum} tools (covered on Chapter XX). In other words, software installed without using repositories.\\
+\mycommand{/proc} & holds files with information regarding proccess. It contains runtime system information such as: system memory,  hardware configuration, etc.\\
+\mycommand{/root} & Home directory for the root user (sysadmin) \\
+\mycommand{/sbin} & Holds executables (binaries) for basic commands that are normally executed by the \acs{OS} or by users with root access, such as \mycommand{ifconfig}, \mycommand{fdisk}, etc.\\
+\mycommand{/srv} & Holds files contained data that are served by the system, as opposed to directly accessed. It is where files served via \textbf{ftp}, \textbf{cvs}, or even \textbf{http}, should go, for example. \\
+\mycommand{/tmp} & Holds temporary files. Temporary files are normally created and deleted without the user's input. They can be used to store information necessary during boot time, to retain important information when some types of software are open, or for providing users with recovery file options after crashes. \\
+\mycommand{/usr} & Contains a number of subfolders such as \mycommand{/bin}, \mycommand{/sbin}, and even \mycommand{/lib}. These folders will host binaries and shared libraries deemed non-essential. It also holds binaries and libraries for software installed through the repositories.\\
+\mycommand{/var} & This directory contains files which may change in size, such  as spool and log files. Some systems use this folder to hold files whose size can vary, containing data that are served by the system. Other systems, use the \mycommand{/srv} folder.\\
+\bottomrule
+\caption{Basic directory contents according to the \acs{FHS}. }
+\label{tab:ch6_list_directories}
+\end{longtable}

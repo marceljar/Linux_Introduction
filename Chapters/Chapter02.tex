@@ -121,7 +121,25 @@ This long list provides a number fo columns containing information about each fi
 \label{tab:ch2_list}
 \end{table}
 
+\section{\textbf{\texttt{tree}}}
+The \mycommand{tree} command is somewhat similar to the \mycommand{ls} command. They both display a list of files and folders in the working directory. However, contrary to \mycommand{ls}, in which any subfolder is simply listed alongside files, the \mycommand{tree} command goes inside each subfolder and displays the files contained in them, creating a tree-like structure. See the example below:
+\begin{command_line}
+@@marcel@dell:Seneca$@@tree
+.
+|-- academic_honesty.pdf
+|-- calendar.pdf
+|-- OPS105
+|   |-- students_list
+|   |-- grades.xls
+|-- SRT311
+|   |-- students_list
+|   |-- grades.xls
 
+2 directories, 6 files
+@@marcel@dell:Seneca$@@
+\end{command_line}
+
+The \mycommand{tree} command is not available by default in some Linux distributions. To install it, you must write the command \mycommand{sudo apt-get install tree}, and enter your user password.
 
 \section{\textbf{\texttt{cd}}}
 \label{sub:cd}

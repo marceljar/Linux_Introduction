@@ -1,0 +1,196 @@
+%************************************************
+\chapter{File Links}\label{ch:file_links}
+%************************************************
+
+Hyperlinks are one of the most common features of pages in the world wide web. As you use your browser\marginnotes{Edge, Safari, Chrome, Firefox, etc} to navigate your way to whatever it is you are trying to find, you click on hyperlinks to go from one page to another
+
+File links are not that different. The purpose of a file link is to direct you to another file. Unix-like systems such as Linux have two different types of links: hard links, which were the original way of creating links in Unix, and soft links, also known as symbolic links, which were created to overcome some limitations of hard links\marginnotes{Soft links are similar to shortcuts in Windows}. In what follows, we cover both types of links.
+
+\section{Hard Links}
+
+Following our discussion in Section \ref{sec:data_storage_format}, it is clear that when a file is created, the following steps are taken by the \acs{OS}:
+\begin{itemize}
+\item A new entry is added to its parent directory file containing its name and inode number.
+\item The inode table is updated with the proper information.
+\item The file data is stored in a particular location of the memory device pointed by the inode table.
+\end{itemize}
+
+When a hard link is created, the \acs{OS} simply adds a new entry to the chosen directory file with the same inode number as the original file. Also, this procedure will automatically increment the hard link count associated with the file by one.
+
+In Figure \ref{fig:ch7_hard_link}, you can see a diagram showing how a file system is affected by the addition of a hard link. In this example, a file called \mycommand{tests} initially exists inside a folder \mycommand{/OPS105}, as it can be seen in \ref{fig:ch7_hard_linka}. Then, a hard link to this file, called \mycommand{tests\_ln}, is created inside a folder \mycommand{/SRT311}. You can see in \ref{fig:ch7_hard_linkb} how both the original file \mycommand{tests} and the hard link \mycommand{tests\_ln} point towards the same inode entry.
+
+\begin{figure}[!htbp]
+\centering
+   \hspace*{-2cm}
+        \subfloat[File system before the hard link \mycommand{tests\_ln} was created.]
+        {\input{Images/Chapter7/hard_link_before.tex} \label{fig:ch7_hard_linka}}\\
+   \hspace*{-2cm}
+        \subfloat[File system after the hard link \mycommand{tests\_ln} was created.]
+        {\input{Images/Chapter7/hard_link_after.tex} \label{fig:ch7_hard_linkb}}
+        \caption[]{Schematics diagram of a file system before and after the addition of a hard link.\label{fig:ch7_hard_link}}
+\end{figure}
+
+\subsection{\mycommand{ln}}
+To create a hard link, you simply need to use the \mycommand{ln}\marginnotes{Short for link} command, followed by two arguments: the name of the file you are creating a link for, including its absolute path, and the name of the link, including the path to the folder in which you want to place it. See the example in page \pageref{src:ch7_ex1}.
+\begin{source_code}[Bash]
+@@marcel@dell:/$@@: tree
+.
+|-- OPS105
+    |-- students
+    |-- tests
+|-- SRT311
+    |-- students
+2 directories, 3 files
+@@marcel@dell:/$ln /OPS105/tests /SRT311/tests_ln@@
+@@marcel@dell:/$@@tree
+.
+|-- OPS105
+    |-- students
+    |-- tests
+|-- SRT311
+    |-- students
+    |-- tests_ln
+2 directories, 4 files
+@@marcel@dell:/$@@ stat OPS105/tests
+  File: 'OPS105/tests'
+  Size: 128         	Blocks: 4          IO Block: 4096   regular empty file
+Device: 806h/2054d	@@Inode: 14680422@@    @@Links: 2@@
+Access:(0664/-rw-rw-r--) Uid:(1000/marcel) Gid:(1000/marcel)
+Access: 2016-08-13 14:57:16.437570016 -0400
+Modify: 2016-08-13 14:57:16.437570016 -0400
+Change: 2016-08-13 14:59:33.976563502 -0400
+ Birth: -
+@@marcel@dell:/$@@ stat SRT311/tests_ln
+  File: 'SRT311/tests_ln'
+  Size: 128         	Blocks: 4          IO Block: 4096   regular empty file
+Device: 806h/2054d	Inode: @@14680422@@    @@Links: 2@@
+Access:(0664/-rw-rw-r--) Uid:(1000/marcel) Gid:(1000/marcel)
+Access: 2016-08-13 14:57:16.437570016 -0400
+Modify: 2016-08-13 14:57:16.437570016 -0400
+Change: 2016-08-13 14:59:33.976563502 -0400
+ Birth: -
+@@marcel@dell:/$
+\end{source_code}
+\label{src:ch7_ex1}
+Note that the file \mycommand{tests} first appears on line 5, under the \mycommand{OPS105} folder. After the \mycommand{ln} command, a hard link \mycommand{tests\_ln} appears in the \mycommand{SRT311} folder (see line 17). Moreover, by using the \mycommand{stat} command, we can verify that both files have the same inode number and a links count of 2 (see lines 22 and 31).
+
+\subsection{Hard Link Properties}
+
+A hard link is indistinguishable from the original  file itself. I.e., after the creation of hard links, the \acs{OS} cannot tell which one was the original file and which ones are its hard links. They are all treated the same way.
+
+An interesting, and somewhat counterintuitive, feature of hard links is that they would allow you to access the contents of the original file, even after the original file is deleted. This is easy to understand by looking at Figure \ref{fig:ch7_hard_linkb}. In it, you can see that the hard link provides you with access to the original file's inode entry even if the the original file gets removed. In fact, the inode entry for any file is considered taken until its hard link count goes to zero. A consequence of this behaviour is that, in order to succesfuly delete a file, you need to delete the original file, as well as all of its hard links.
+
+\subsection{Hard link limitations}
+Hard  links have  two important  limitations:
+\begin{itemize}
+\item A hard  link  cannot  reference  a  file  outside  its  own  file  system.  This  means that a  link cannot  reference  a  file  that  is  not  on the  same  disk partition as  the  link  itself. The reason behind this limitation is that each partition has its own inode table. Hence, providing an inode number is not enough for the \acs{OS} to resolve in which partition is the file located.
+\item A hard  link may  not  reference  a  directory. This limitation prevents users from accidently creating link loops while retrieving files. Imagine a scenario where a file \mycommand{/var/log/syslog} exists. Now, let the user create a hard link for the \mycommand{/var} directory using: \mycommand{ln /var /var/log}. In this scenario, the directory \mycommand{/var} would be both a parent, and a child of  \mycommand{/var/log}. Hence, the system would find the files: \mycommand{/var/log/syslog}, \mycommand{/var/log/var/log/syslog}, \newline \mycommand{/var/log/var/log/var/log/syslog}, and so it goes.
+\end{itemize}
+
+\subsection{Hard Link usage}
+
+Hard links are not as common as soft links, but they do appear in two distinct scenarios:
+\begin{itemize}
+\item To save space while performing automatic backups. Whenever a file to be saved as a backup hasn't changed, you can save memory by simply creating a hard link pointing to the last backup that was modified, as opposed to creating a full copy of it. For example, suppose that your system creates a back up version of a file \mycommand{OPS105.zip} every month. Also, suppose it hasn't changed since April 2016. Using hard links, you can create links called \mycommand{OPS105\_04\_2016.zip}, \mycommand{OPS105\_05\_2016.zip}, \mycommand{OPS105\_06\_2016.zip}, etc. Without having to waste any memory. Also, you can delete any one of the hard links, and even the original file, without ending up with a broken link\marginnotes{As long as at least one hard link remains}.
+\item To allow different commands to call the same executable. For example, in Ubuntu, \mycommand{bzcat}, \mycommand{bunzip2}, and \mycommand{bzip2}, are hard links to the same compressing tool.
+\end{itemize}
+
+\section{Soft Links}
+
+Soft  links, also known as symbolic links, or even as symlinks,  were  created  to  overcome  the  limitations  of  hard  links. They work  by  creating  a  special  type  of  file  that  contains  a  text  pointer  to  the  referenced  file  or directory.  In  this  regard,  they  operate  in  much  the  same  way  as  a  Windows  shortcut\marginnotes{They predate  Windows shortcuts by many  years, though}.
+
+In Figure \ref{fig:ch7_soft_link}, you can see a diagram showing how a file system is affected by the addition of a soft link. In this example, which is very similiar to the previous one, a file called \mycommand{tests} initially exists inside a folder \mycommand{/OPS105}, as it can be seen in \ref{fig:ch7_soft_linka}. Then, a soft link to this file, called \mycommand{tests\_ln}, is created inside a folder \mycommand{/SRT311}. You can see in \ref{fig:ch7_soft_linkb} that the soft link points to a new inode. Also, the file pointed by this new inode, in its turn, points to the address of the original file \mycommand{/OPS105/tests}.
+
+\begin{figure}[!htbp]
+\centering
+   \hspace*{-2cm}
+        \subfloat[File system before the soft link tests\_ln was created.]
+        {\input{Images/Chapter7/soft_link_before.tex}\label{fig:ch7_soft_linka}}\\
+   \hspace*{-2cm}
+        \subfloat[File system after the soft link tests\_ln was created.]
+        {\input{Images/Chapter7/soft_link_after.tex} \label{fig:ch7_soft_linkb}}
+        \caption[]{Schematics diagram of a file system before and after the addition of a soft link.\label{fig:ch7_soft_link}}
+\end{figure}
+
+\subsection{\mycommand{ln -s}}
+
+
+Creating a soft link is very similar to creating a hard link. You simply need to use the \mycommand{ln} command with the \mycommand{-s} option, followed by two arguments: the name of the file you are creating a link for, including its absolute path, and the name of the link, including the path to the folder in which you want to place it. See the example below (which continues in Page \pageref{src:ch7_ex2}):
+
+\begin{source_code}[Bash]
+@@marcel@dell:/$@@: tree
+.
+|-- OPS105
+    |-- students
+    |-- tests
+|-- SRT311
+    |-- students
+2 directories, 3 files
+@@marcel@dell:/$ln -s /OPS105/tests /SRT311/tests_ln@@
+@@marcel@dell:/$@@tree
+.
+|-- OPS105
+    |-- students
+    |-- tests
+|-- SRT311
+    |-- students
+    |-- tests_ln -> /OPS105/tests
+2 directories, 4 files
+@@marcel@dell:/$@@ stat OPS105/tests
+  File: 'OPS105/tests'
+  Size: 128         	Blocks: 4          IO Block: 4096   regular empty file
+Device: 806h/2054d	@@Inode: 14680422@@    @@Links: 1@@
+Access:(0664/-rw-rw-r--) Uid:(1000/marcel) Gid:(1000/marcel)
+Access: 2016-08-13 14:57:16.437570016 -0400
+Modify: 2016-08-13 14:57:16.437570016 -0400
+Change: 2016-08-13 14:59:33.976563502 -0400
+ Birth: -
+@@marcel@dell:/$@@ stat SRT311/tests_ln
+  File: 'SRT311/tests_ln'
+  Size: 128         	Blocks: 4          IO Block: 4096   regular empty file
+Device: 806h/2054d	Inode: @@14680425@@    @@Links: 1@@
+Access:(0664/-rw-rw-r--) Uid:(1000/marcel) Gid:(1000/marcel)
+Access: 2016-08-13 14:57:16.437570016 -0400
+Modify: 2016-08-13 14:57:16.437570016 -0400
+Change: 2016-08-13 14:59:33.976563502 -0400
+ Birth: -
+@@marcel@dell:/$
+\end{source_code}
+\label{src:ch7_ex2}
+
+Note that the file \mycommand{tests} first appears on line 5, under the \mycommand{OPS105} folder. After the \mycommand{ln} command, a soft link \mycommand{tests\_ln} appears in the \mycommand{SRT311} folder (see line 17)  pointing towards \mycommand{/OPS105/tests}. Moreover, by using the \mycommand{stat} command, we can verify that these files have different inode numbers, and that their links count is only 1 (see lines 22 and 31).
+
+\begin{my_box}[Absolute vs Relative paths for links]
+It is possible to use a relative path, as opposed to an absolute path, when creating a soft link. However, this practice is not recommended.
+
+The reason for absolute paths being preferred when creating soft links is that the link must contain a path that can lead from it to the original file. I.e., it must be given a relative path with regards to the location of the link, not with regards to the location of the current working directory at the time the link was created. This can be quite confusing and lead to errors.
+
+Another reason for preferring absolute paths, over relative paths, is that soft links created with relative paths become broken when the link is moved to a different directory. Soft links created with an absolute path, on the other hand, still work after moving to different locations.
+
+Note that for hard links, it doesn't matter if you create them with a relative path, or with an absolute path. Once created, they will keep pointing towards the proper inode even if they are moved.
+\end{my_box}
+
+\subsection{Soft link properties}
+
+When you try to access the contents of a soft link, the \acs{OS} redirects you to the original file. For  example,  if  you try to open a soft link in \mycommand{vim}, the original file is opened. If any edits are made to it, the original file changes\marginnotes{Note that, commands such as \mycommand{mv}, \mycommand{cp}, or \mycommand{rm} will affect the link itself, not the original file}.
+
+If the original file is deleted before the symbolic link, the link  will  continue to  exist, but will point to nothing, resulting in a broken link. In many Linux distributions, the ls command displays broken links in a different color, such as red, to indicate that they are broken.
+
+\begin{exercises}
+  \item Can you access a file using a soft link, after the soft link is moved to a different folder after being created?
+
+Given the directory tree shown in Figure \ref{fig:ch7_ex_dirtree}, answer the following questions:
+\begin{figure}[!htbp]
+  \centering
+        \input{Images/Chapter7/directory_tree.tex}
+        \caption{Directory tree for questions 2 and 3.}
+        \label{fig:ch7_ex_dirtree}
+\end{figure}
+  \item Create a hard link for the file \mycommand{ops105.sh}, inside the folder \mycommand{Seneca}. Assume that your current working directory is the root ()\mycommand{/}).
+  \item Create a soft link for the file \mycommand{srt311.py}, inside the folder \mycommand{Seneca}. Assume that your current working directory is the root ()\mycommand{/}).
+  \item Can you create a hard link to another hard link? How about creating a soft link that points towards another soft link?
+  \item What happens to a soft link when the original file it points to is deleted?
+  \item What happens to a hard link when the original file it points to is deleted?
+  \item In which scenarios are hard links preferred over soft links? In which scenarios are soft links preferred over hard links?
+  \item why is it important to use absolute paths while creating soft links?
+\end{exercises}

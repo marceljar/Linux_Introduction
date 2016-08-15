@@ -1,0 +1,24 @@
+\tikzstyle{every node}=[thick,anchor=west, font={\scriptsize\ttfamily}, inner sep=2.5pt]
+\tikzstyle{selected}=[draw=black]
+\tikzstyle{root}=[selected, fill=black!20]
+
+\begin{tikzpicture}[%
+    scale=.99,
+    grow via three points={one child at (0.5,-0.65) and
+    two children at (0.5,-0.65) and (0.5,-1.1)},
+    edge from parent path={(\tikzparentnode.south) |- (\tikzchildnode.west)}]
+  \node [root] {/}
+    child { node [selected] {home}
+      child { node [selected] {marcel}
+          child { node {ops105.sh}}
+          child { node {srt311.py}}
+        }
+      }
+    child { node at (0,-2.0) [selected] {media}
+      child { node [selected] {Seneca}
+        child { node {bts490.c}}
+        child { node {btn415.cpp}}
+      }
+    }
+    child { node at (0,-4.0) {\dots}};
+\end{tikzpicture}

@@ -1,0 +1,156 @@
+%************************************************
+\chapter{Linux File Systems}\label{ch:file_system}
+%************************************************
+
+In Linux, the expression \textbf{file system} can refer to two distinct concepts, which can lead to some confusion. One of such concepts has to do with the \textbf{format} in which data is stored. The other one has to do with the \textbf{hierarchy} of directories and subdirectories that are present in a Linux \acs{OS}. In what follows, we explain these two concepts separately.
+
+\section{File System: Data Storage Format}
+\label{sec:data_storage_format}
+
+In order to access data in hard-disks, USB devices, optical devices (CD, DVD, etc), etc., the \acs{OS} kernel needs to know the format in which this data is written. You can think about this format as the language that has been used to write the data. It specifies how the memory is divided in blocks and how data is stored inside these blocks. Also, it specifies which information about the data, also known as metadata, is stored. Finally, it also specifies in which blocks and what type of metadata needs to be stored.
+
+\subsection{Linux File System Evolution}
+
+Originally, the Linux kernel used the MINIX file system\marginnotes{MINIX was the Unix-like system Linus Torvalds used as a starting point for creating  Linux}. The first file system format created specifically for the Linux kernel is called the extended file system, or \mycommand{ext}. Over the years, this file system has been improved upon, leading to three different formats being in use today, as described in what follows:
+
+\begin{description}
+\item[ext2] This first update on the \mycommand{ext} file system works on systems with up to 32 Terabytes (compared to only 2 Gigabytes in ext). Also, it keeps track of different timestamps for when files were last accessed, modified, and changed\marginnotes{I.e., had its metadata, such as its permissions, changed}. This file system is still widely used for SD cards and USB flash drives.
+\item[ext3] This update improves upon \mycommand{ext2} by introducing a \textbf{journalling system}. Under this system, the kernel keeps a journal\marginnotes{The journal is saved as a hidden file} of all modifications it needs to make in order to properly save (or delete) data in the memory. In case there is a crash, the system can avoid data corruption by checking the contents of the journal. Journalling is normally avoided in SD cards and USB flash drives because it requires additional memory writes, which decreases their lifespan.
+\item[ext4] This update improves upon \mycommand{ext3} by allowing an infinite number of subdirectories, as opposed to ``only'' 32,000, and by working with volums of up to 1 Exabyte. Also, it allows some administrative tasks, such as repairing file systems, a lot faster. Finally, \mycommand{ext4}, as opposed to \mycommand{ext3},  allows journalling to be turned on and off.
+\end{description}
+
+As pointed above, \mycommand{ext2} is still widely used for smaller data storage devices. Also, some non-Linux \acs{OS}s still lack full compatibility with \mycommand{ext4}, making the use of \mycommand{ext3} a better approach in some situations. In summary, even though \mycommand{ext4} is the most up to date system format for Linux systems, there are some scenarios in which using \mycommand{ext2}, or \mycommand{ext3} are more apropriate.
+
+It is important to note that other \acs{OS}s have their own file systems such as \mycommand{FAT32} and \mycommand{NTFS} for Windows, as well as \mycommand{HFS+} and \mycommand{APFS} for macOS and iOS. Android normally uses \mycommand{ext4}. A Linux \acs{OS} normally needs to be installed in a partition formatted with \mycommand{ext2}, \mycommand{ext3}, or \mycommand{ext4}. However, most Linux distributions contain drivers that allow users to work with devices such as SD cards and USB flash drives formatted using other file systems.
+
+\subsection{Linux File System Format}
+
+File systems in Linux are divided in blocks. These blocks can be divided in three major components\marginnotes{Strictly speaking, there are other components. However, they are ommitted here for the sake of simplicity}: \textbf{superblock}, \textbf{inode table}, and regular \textbf{data}.
+
+\begin{description}
+\item[Superblock] In Linux, superblocks store information about the file system, such as: its size, the size of each block, which blocks are full and which blocks are empty, which inodes are taken and which inodes are free, etc.
+
+\item[Inode Table] The inode table stores information about each folder or file, including its permissions, timestamps (access, modify, change), size, location in memory, etc. Note that the inode table does not store the filename\marginnotes{Folder names and file names are stored in directory files, as discussed in the block Secion \ref{sec:ch6_directories}}. Each file is assigned to an inode entry (in other words an inode number) in the inode table. Hence, the \acs{OS} can quickly retrieve information about any group of files by simply consulting the inode table.
+
+\item[Data] The vast majority of the memory of any device is allocated for the storage of user and system data. To access the data contained in any file, the \acs{OS} first consults the inode table to check for permissions, as well as for the location of the required data in memory.
+\end{description}
+
+\subsection{\mycommand{stat}}
+To check the data stored in the inode table for a particular file, the  \mycommand{stat} command can be used. It takes as an argument the name of the file or folder for which the information is required, as shown in the example below:
+\begin{command_line}[Bash]
+@@marcel@dell:~$@@ stat poem
+  File:  'poem'
+  Size: 210       	Blocks: 8          IO Block: 4096   regular file
+Device: 805h/2053d	Inode: 12075464    Links: 1
+Access:(0664/-rw-rw-r--)  Uid:(1000/marcel)  Gid:(1000/marcel)
+Access: 2016-08-01 17:54:19.553690653 -0400
+Modify: 2016-07-27 21:49:03.334173611 -0400
+Change: 2016-07-27 21:49:03.334173611 -0400
+ Birth: -
+@@marcel@dell:~$@@
+\end{command_line}
+The \mycommand{stat} command displays the size of the file in bytes, the number of blocks, the block size, the type of file, a number that identifies the device\marginnotes{Hard-disk, USB stick, DVD, etc.} in which the file exists (both in hex and in decimal format), its inode number, and how many hard links the file have. Also, the \mycommand{stat} command displays the access permissions for the file, as well as the name of its user owner and group owner ids. Finally, the \mycommand{stat} command shows the timestamps for access, modify, and change. Note that it does not display the timestamp for when the file was created, which can be seen by the fact that the \textbf{Birth} field is empty. This is a future feature that hasn yet been implemented.
+
+\subsection{Directories in Linux}
+\label{sec:ch6_directories}
+
+Directories in Linux are nothing else than special files\marginnotes{As we explain in Section~\ref{sec:ch6_hierarchy}, everything in Linux is a file}. They  hold tables containing the following information about its files and subfolders: their names and their corresponding inode numbers. As an example, Table \ref{tab:ch6_contents_directory} below depicts the contents of the directory file for \mycommand{/home/marcel}.
+
+\begin{table}[!htbp]
+   \myfloatalign
+   \begin{tabular}{l@{\hskip 1in}l} \toprule
+    \tableheadline{File Name} & \tableheadline{inode}\\ \midrule
+   \textbf{Documents} & 12583653 \\
+   \textbf{Downloads} & 12583650 \\
+   \textbf{Pictures} & 12583655 \\
+   \textbf{Music} & 12583654 \\
+   \textbf{Video} & 12583652 \\
+   \textbf{Seneca.pdf} & 12583421 \\
+   \bottomrule
+ \end{tabular}
+ \caption{Contents of the \mycommand{/home/marcel} directory file.}
+ \label{tab:ch6_contents_directory}
+ \end{table}
+
+\subsection{Accessing data and metadata}
+
+After learning the format in which Linux file systems are implemented, it is important to understand how the \acs{OS} performs some basic file operations. In what follows, we present a few examples of file operations, and we describe how they are performed, under the hood, by the  \acs{OS}.
+
+For example, when you issue an \mycommand{ls} command, the \acs{OS} needs only to check the names of all entries in the directory file. However, if you issue an \mycommand{ls -l} command, the \acs{OS} needs to check the inode table entries for all files in the directory. This is due to the fact that permission access information is stored  in inode tables, and not on directory files.
+
+As another example, when a file is deleted, for instance using the \mycommand{rm} command, the \acs{OS} simply sets the status of its inode number as free in the superblock.
+
+Retrieving data from files is a bit more complex. In this scenario, the \acs{OS} needs to navigate its way, starting from the root directory (\mycommand{/}) until reaching the desired file. See the example below, where a user is trying to access data from a file \mycommand{/home/marcel/script.sh}
+
+\begin{enumerate}
+\item The \acs{OS} starts by checking the inode number 2 in the inode table, which always points to the location of the root directory (\mycommand{/}).
+\item The inode number of \mycommand{/home} is retrieved from the root directory file.
+\item The  inode entry of the \mycommand{/home} directory file is used to retrieve its location in memory.
+\item The \mycommand{/home} directory file provides the inode number for the \mycommand{/home/marcel} directory file.
+\item The inode entry of the \mycommand{/home/marcel} directory file is used to retrieve its location in memory.
+\item The \mycommand{/home/marcel} directory file is analyzed to retrieve the inode number of \mycommand{/home/marcel/script.sh}
+\item Finally, the system uses the info located in the inode entry of \mycommand{/home/marcel/script.sh} to retrieve the data in \mycommand{script.sh}.
+\end{enumerate}
+
+This sequence of steps is depicted in Figure~\ref{fig:ch6_accessing_file}.
+
+\begin{figure}[!htbp]
+  \centering
+        \input{Images/Chapter6/accessing_file.tex}
+        \caption{Sequence of steps to access a text file.}
+        \label{fig:ch6_accessing_file}
+\end{figure}
+
+\subsection{Performing actions on files, directories, and inodes}
+
+Even though the sequence of steps presented in Figure~\ref{fig:ch6_accessing_file} might appear to be more complex than necessary, the Unix file system\marginnotes{Which all Unix-like file system, including Linux, follow} was designed with security, speed, and reliability in mind, as the examples below illustrate:
+\begin{itemize}
+  \item When a file moves from one location to another, within the same partition,  only the contents of some directory files change. The data itself remains at the same position in memory. Again, this operation is very fast regardless of the size of the files.
+  \item This system keeps metadata, such as access permissions, separated from the data itself. This separation allows, among other things, the data to be stored in an encrypted format, and only decrypted when the user trying to access it has the proper access permissions.
+  \item As stated above, when a file is deleted, the \acs{OS} simply sets the status of its inode number as free. This way, the memory this file used to occupy becomes free for other files to use in the future. Because only an inode entry needs to have its status changed, deleting files is a very fast process regardless of the size of the file.
+  \item This file system design allows file links to be created in a fast and efficient way, as we will discuss in Chapter XXX.
+\end{itemize}
+
+\subsection{\mycommand{shred}}
+When a file is deleted in Linux, using a command such as \mycommand{rm}, the \acs{OS} simply sets the status of its inode to free, as explained above. However, the data itself still exists in the memory device until it gets rewritten by other data. This can pose a security risk, as there are methods to read data in a memory device even if its inode entry is declared free.
+
+In order to really erase sensitive data from a memory device, you need to replace the bits representing the data with random bits. This can be accomplished with the \mycommand{shred} command. Calling shred with a file name as an argument, such as in \mycommand{shred poem}, replaces the bits in the \mycommand{poem} file with random bits. If the option \mycommand{-u} is given, such as in \mycommand{shred -u poem} the \mycommand{shred} command first replaces the bits from the \mycommand{poem} file with random ones, and then deletes the file.
+
+\section{Directories Hierarchy}
+\label{sec:ch6_hierarchy}
+
+A crucial aspect of the Linux file system is that it implements just about everything as a file\marginnotes{This approach, first proposed for Unix, is employed in all Unix-like \acs{OS}s} In other words, a text file is a file, an application binary is a file, a directory is a file, processes are managed as files, and even pieces of hardware such as a printer or a mouse are represented by files.
+
+The idea of representing everything as a file greatly simplifies the design of the \acs{OS}. In fact, following this methodology, the role of the \acs{OS} is to simply pass text and bytes back and forth between different files. For example, to print a text file using a printer, the \acs{OS} must pass the information in the text file to the file that represents the printer device.
+
+A clear requirement for an \acs{OS} to function properly, given this ``everything is a file'' design methodology, is that it needs to know where all the files necessary for its proper operation are. In order to accomplish this goal, the Linux File system Hierarchy Standard (\acs{FHS}) established the basic directory hierarchy that Linux distributions should use\marginnotes{Most distributions deviate slightly from the proper standards. To see your distribution basic directory hierarchy, enter \mycommand{man hier}}. Having all distributions using the same directory hierarchy layout results in a series of advantages, among which it is worth to cite:
+\begin{itemize}
+  \item It helps different systems to communicate effectively with one another.
+  \item It allows applications to be designed for multiple distributions without requiring any modifications.
+  \item System administrators can easily find system configuration and log files when dealing with multiple distributions.
+\end{itemize}
+
+In what follows, on Table \ref{tab:ch6_list_directories}, we present a list of the most important basic directories ina Linux file system hyerarchy, as specified by the \acs{FHS} standard. We also explain what types of files these directories should hold.
+
+\LTXtable{\textwidth}{Images/Chapter6/directory_list.tex}
+
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+
+\begin{exercises}
+  \item Are there good reasons to use the \mycommand{etx2} or \mycommand{etx3} formats, as opposed to the newest \mycommand{etx4} format? If so, provide a few.
+  \item With regards to file systems, what is a journalling system?
+  \item Can a Linux \acs{OS} read memory devices formatted with a FT32 or an NTFS file system?
+  \item Where in the file system is the information about which inodes are free, and with inodes are taken? In the superblock, in the inode table, in the directory files, or in the data section of the memory device?
+  \item Where are the names of the files stored? In the superblock, in the inode table, in the directory files, or in the data section of the memory device?
+  \item What is the difference between the \textbf{Modify} and \textbf{Change} timestamps?
+  \item What type of information is stored in directory files?
+  \item It is said that Linux systems follow a ``everything is a file'' design. Explain what does this design methodology mean.
+  \item What happens with the data in a particular file when the file is deleted from the system using a \mycommand{rm} command.
+  \item Why is it important for different Linux distributions to follow a standardized directory hierarchy?
+  \item What is the difference between the \mycommand{/bin} and \mycommand{/sbin} directories?
+  \item What is the difference between the \mycommand{/media} and \mycommand{/mnt} directories?
+  \item What type of information is stored in the \mycommand{/lib} directory?
+  \item Where are temporary files stored in a Linux distribution that follows the \acs{FHS} standard?
+  \item Assume you have a web server providing/collecting information to/from users using an \textbf{http} protocol. Where would you store the contents you are providing to your users?
+\end{exercises}

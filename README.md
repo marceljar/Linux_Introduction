@@ -7,13 +7,14 @@ This book, once finished, will be divided in six parts, plus an appendix. Each p
   * What is an Operating System
   * Historical Background
   * Linux Distributions
-* Introduction to Command Line Interfaces 
+* Introduction to Command Line Interfaces
   * Introduction and terminology
   * Basic commands I: date, pwd, whoami, ls, cd, clear
   * Basic commands II: touch, mkdir, rmdir, rm, cp, mv
   * Getting help: help, man, and info pages
   * Reading and Editing text files: more, less, nano, and vim
 * Advanced Command Line Interfaces
+  * Linux File System
   * File links
   * Using wildcards
   * grep and Regular Expressions
@@ -21,7 +22,6 @@ This book, once finished, will be divided in six parts, plus an appendix. Each p
   * rename, find, and gawk
   * Redirection and piping
 * System Management
-  * Linux File System
   * Process Management (ps, top, nice, renice, fg, bg)
   * User and Groups Management (useradd, usermod, groupadd, chown, chgrp, file permissions)
   * Software Management (apt-get)

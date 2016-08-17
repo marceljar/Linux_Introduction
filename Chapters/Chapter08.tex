@@ -1,0 +1,134 @@
+%************************************************
+\chapter{File Globbing: Using Wildcards}\label{ch:file_globbing}
+%************************************************
+
+System administrators, very often, have to act on multiple files at once. For example, they might want to move all \mycommand{.pdf} files from one folder to another. As another example, they might want to list all files within a particular directory that have the string\marginnotes{A string is a sequence of characters} \mycommand{net} as part of its file name, such as \mycommand{netcat}, \mycommand{netstat}, or \mycommand{networkctl}, in the \mycommand{/bin} directory.
+
+Up until now, we have only learned how to run commands with specific file names passed as arguments. For example, \mycommand{mv grades.xls old\_grades.xls} renames a file called \mycommand{grades.xls} in the current working directory. As another example, \mycommand{rm midterm.pdf final.pdf} deletes both files \mycommand{midterm.pdf} and \mycommand{final.pdf}.
+
+This approach used in the previous paragraph, i.e., specifiying the name of each file we want to work upon in the arguments list, works well when we are dealing with a small number of files. However, it is clearly impractical in scenarios where we need to deal with dozens, hundreds, or even thousands of files at once. For these scenarios, we can use wildcards\marginnotes{Wildcards get their name because they work as a Joker card in some card games. They can represent different things, depending on the situation} that can be used to match all files that follow a particular pattern.
+
+In the \textbf{Bash} shell, there are three wildcards that can be used for different purposes:
+
+\begin{description}
+\item[star - *]: This wildcard can replace any number of characters from file names, including none.
+\item[Question mark - ?] : This wildcard can replace one, and only one, character from a file name.
+\item[Square brackets - {[}{]}] : Square brackets can replace one, and only one, character from a file name. However, the space occupied by the square brackets can only be occupied by characters from a specified list.
+\end{description}
+
+In what follows, we cover each one of these three wildcards and provide a number of examples.
+
+\section{star - \mycommand{*}}
+
+The star wildcard is by far the most used one. One particularly common usage of this wildcard is by itself, when it expands to all files in the current working directory. For example, by issuing a \mycommand{rm *} command, all files in the working directory are deleted.
+
+Another very common use of this wildcard is to allow users to specify all files with a specific file name ending. See the following example:
+\begin{command_line}[Bash]
+marcel@dell:~$ tree
+.
+@@|-- filea.pdf@@
+@@|-- fileb.pdf@@
+|-- pdf_folder
+1 directory, 2 files
+@@marcel@dell:~$ mv *.pdf pdf_folder@@
+marcel@dell:~$ tree
+.
+|-- pdf_folder
+@@    |-- filea.pdf@@
+@@    |-- fileb.pdf@@
+1 directory, 2 files
+\end{command_line}
+In this example, two \mycommand{.pdf} files in the working directory are sent to a folder called \mycommand{pdf\_folder}. Note that the files are not specified by name, but rather by a file globbing expression \mycommand{*.pdf}. If there were more \mycommand{.pdf} files in the working directory, they would also be transferred to the \mycommand{pdf\_folder}.
+
+The star wildcard can also be used to specify all files starting with a particular string, or even to specify files that start with a particular string and end with another string. See the examples below.
+\begin{command_line}[Bash]
+@@marcel@dell:~$@@ tree
+.
+|-- script1.sh
+|-- script2.sh
+|-- scripts   <-- directory
+|-- script_test
+|-- test1
+|-- test2
+1 directory, 5 files
+@@marcel@dell:~$ rm test*@@
+@@marcel@dell:~$@@ tree
+.
+|-- script1.sh
+|-- script2.sh
+|-- scripts  <-- directory
+|-- script_test
+1 directory, 3 files
+@@marcel@dell:~$ mv script*.sh scripts@@
+@@marcel@dell:~$@@ tree
+.
+|-- scripts
+|   |-- script1.sh
+|   |-- script2.sh
+|--  script_test
+1 directory, 3 files
+\end{command_line}
+
+In this example, all files that start with the string \mycommand{test} are deleted at once using the command \mycommand{rm test*}. Also, all files that start with the string \mycommand{script}, and end with \mycommand{.sh}, such as \mycommand{script1.sh}, \mycommand{script2.sh}, etc., are moved to a folder called \mycommand{scripts}, using a command \mycommand{mv script*.sh scripts}.
+
+\begin{my_box}[File Globbing: Under the Hood]
+The file globbing mechanism is quite interesting. For instance, you may have assumed that the commands \mycommand{rm} and \mycommand{mv}, when we entered \mycommand{rm test*} and \mycommand{mv script*.sh} above, received \mycommand{test*} and \mycommand{script*.sh} as arguments, respectively. However, this is incorrect. In fact, it was the \textbf{Bash} shell that expanded these file globbing expressions into all files that match them, before calling the \mycommand{rm} and \mycommand{mv} commands.
+
+In other words, the shell expanded these expressions so that, from the point of view of the \mycommand{rm} and \mycommand{mv} commands, they were called with: \mycommand{rm test1 test2} and \mycommand{mv script1.sh script2.sh}. This is clearly a smart system design choice, as it requires only the shell to implement a file globbing algorithm, as opposed to requiring all commands to implement it individually.
+\end{my_box}
+
+\section{Question Mark - \mycommand{?}}
+
+The question mark, as we said before, replaces one character, and one character only. It is frequently used to match sequences of file names that end on numbers, as seen in the following example:
+\begin{command_line}[Bash]
+@@marcel@dell:~$@@ ls
+@@script1@@  @@script2@@  script2a  script_test
+@@marcel@dell:~$ rm script?@@
+@@marcel@dell:~$@@ ls
+script2a  script_test
+\end{command_line}
+In this example, the files \mycommand{script1} and \mycommand{script2}, where deleted from the current working directory. The files \mycommand{script2a} and \mycommand{script\_test}, on the other hand were left untouched.
+
+Note that you can use more than one wildcard at once, for example, if we had used \mycommand{rm script??} in the example above, we would have deleted the file \mycommand{script2a}, while all other files would be left untouched.
+
+\section{Square Brackets - \mycommand{{[}{]}}}
+Square brackets can be used to substitute one character, and one character only, by a set of characters or numbers, or even by a range of characters or numbers. Note that they are similar to the question mark wildcard in which they substitute one, and only one character. However, they are more restrictive, as they enforce a list of options for possible replacement. See the following example:
+\begin{command_line}[Bash]
+@@marcel@dell:~$@@ ls
+@@script1@@  @@script2@@  scripta  scriptb
+@@marcel@dell:~$ rm script[1234]@@
+@@marcel@dell:~$@@ ls
+scripta  scriptb
+\end{command_line}
+In this example, the files \mycommand{script1} and \mycommand{script2}, where deleted from the current working directory, while \mycommand{scripta} and \mycommand{scriptb}, were not. Note that if there were files with names \mycommand{script3}  or \mycommand{script4}, they would also be deleted from the current working directory.
+
+The expression \mycommand{[1-4]} could have been used in the example above to replace \mycommand{[1234]}. It means: any number in the range between 1 and 4. We could also have used \mycommand{[a-z]} or \mycommand{[A-Z]} to replace any lowercase or uppercase alphabetical character, respectively\marginnotes{In order to replace any alphabetical character, regardless of its case, we could have used the expression \mycommand{[a-zA-Z]}, or \mycommand{[A-z]}}. It is possible to select a list of forbiden charactes, as opposed to a list of acceptable characters. To do so, you simply need to start the list with an exclamation mark (\mycommand{!}). For example, to allow anything but lowercase characters to replace a particular character in a file name, you can use \mycommand{[!a-z]}.
+
+\section{Escaping special characters}
+
+The shell will, by default, assume that the characters \mycommand{*}, \mycommand{?}, and square brackets \mycommand{{[}{]}} are to be expanded as wildcards. However, there might be scenarios in which your file names have these characters. In order to match these specific characters, as opposed to use them as wildcards, you simply need to escape them with a backslash character \mycommand{\textbackslash}\marginnotes{The backslash character also needs to be escaped. For example, to create a file called \mycommand{script\textbackslash}, we should enter \mycommand{touch script\textbackslash\textbackslash}}. See the example below:
+\begin{command_line}[Bash]
+@@marcel@dell:~$@@ ls
+@@script*@@  script1  script2 scripta  scriptb
+@@marcel@dell:~$ rm script\*@@
+@@marcel@dell:~$@@ ls
+script1  script2 scripta  scriptb
+\end{command_line}
+In this example, only the file \mycommand{script*} was deleted with the command \mycommand{rm script\textbackslash*}. Note that if we had used \mycommand{rm script*}, instead, all files would have been deleted from this directory.
+
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+
+For the exercises below, create an empty directory and run the following command within this directory: \mycommand{touch} \mycommand{myscript} \mycommand{script} \mycommand{script.sh} \mycommand{script1.sh} \mycommand{script2.sh} \mycommand{scripta.sh} \mycommand{scriptb.sh} \mycommand{mytest}  \mycommand{test} \mycommand{test.sh} \mycommand{testa.sh} \mycommand{testb.sh}. Also, create subfolders called \mycommand{scripts} and \mycommand{tests} with a \mycommand{mkdir scripts tests} command.
+
+For each question, you need to issue a single command that will perform the required task. The use of wildcards is required. After each question, make sure to restore the directory back to its initial state by running \mycommand{rm *}, and then the \mycommand{touch} and \mycommand{mkdir} commands specified above.
+
+\begin{exercises}
+  \item Delete all files containing the string \mycommand{script}.
+  \item Move all files ending in \mycommand{.sh} to the \mycommand{scripts} folder.
+  \item Delete the files \mycommand{script1.sh} \mycommand{script2.sh}.
+  \item Move the files \mycommand{scripta.sh}, \mycommand{scriptb.sh}, and \mycommand{script1.sh} to the \mycommand{scripts} folder.
+  \item Move all files containing the string \mycommand{test} to the \mycommand{tests} folder.
+  \item Delete all files containing the string \mycommand{test} in it that end with \mycommand{.sh}.
+  \item Delete all files from this directory.
+\end{exercises}

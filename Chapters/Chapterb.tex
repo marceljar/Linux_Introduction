@@ -1,0 +1,71 @@
+%************************************************
+\chapter{A Brief History of Linux}\label{ch:history}
+%************************************************
+
+Most operating systems, such as Microsoft Windows or Apple OS X are well-defined products from a particular company. As a result, all users of one of these systems have exactly the same \acs{OS} installed on their computers\marginnotes{Some releases of Microsoft Windows may have different editions such as Server, Home, or Professional}.
+
+When talking about Linux, quite the opposite is true. There is a myriad of versions of Linux out there, and each one caters for a different type of public or need. There are versions of Linux tailored to run on low-power devices with little amount of memory, such as Raspberry Pis, and versions of Linux running on the world fastest super computers. There are versions of Linux with only a command line interface used to control industrial equipment, and versions of Linux with very friendly graphical user interfaces for phnes, tablets, and laptops. There are even versions of Linux powering servers that control most of the traffic of information in the World Wide Web.
+
+In fact, due to its flexibility, and contrary to popular belief, Linux \acs{OS}s are the most popular operating systems in the world. Even though, in many cases, users are not even aware they are using Linux. For example, Linux was the basis upon which Google's Android \acs{OS} was developed. They are also the \acs{OS} of choice for the vast majority of smart devices such as TVs, thermostats, wireless routers, etc. Also, they dominate the server market, with major corporations such as Google and Facebook currently using\marginnotes{As of 2016} Linux servers to run their searche engines and host their social media data, respectively.
+
+To understand how Linux became so popular, and why there are so many different versions of it, it is crucial to learn from where it came from. In what follows, we present a brief overview of its history.
+
+\section{Unix}
+
+The history of Linux, as well as that of most operating systems, starts in 1969 when Ken Thompson, Dennis Ritchie, and other scientists from AT\&T Bell Labs released the first version of the Unix \acs{OS}.
+
+During the late seventies and early eighties, the popularity of Unix grew tremendously amongst academia and corporations. Part of its popularity had to do with its visionary design choices, such as:
+\begin{itemize}
+\item It was written using the C language\marginnotes{First it was written in Assembly, but later it was rewritten in C}, which made it easier to port it to multiple devices.
+\item It allowed multiple users to use multiple applications concurrently (at the same time). This was very important back then, when many universities and corporations had hundreds of users, but only a handful of mainframe computers.
+\item It had an easy-to-use modular design. Instead of relying on complex tools to perform complex operations, it relied on simple tools that could easily be combined to perform complex operations. See the Unix philosophy box below.
+\end{itemize}
+Another reason behind the surge in Unix's popularity was its price tag. Due to antitrust restrictions, AT\&T Bell labs could not sell products that weren't specifically targeted for telecommunications. As a matter of fact, they were required to provide the Unix \acs{OS} source code, free of charge, to anyone who asked for it. As word of mouth had been quite positive, many Universities and corporations required the Unix \acs{OS} source code and started using it. Also, given that they had access to the source code, they improved it by removing bugs, porting it to more systems, and adding more features to it. In fact, a lot of tools used in Unix to this day were written by students, professors, and developers, and then made freely available.
+
+\vspace{0.5cm}
+\begin{my_box}[Unix Philosophy]
+The Unix philosophy is not a formal design method nor an academic driven methodoloy. Instead, it is a bottom-up, pragmatic, and grounded in experience way of designing operating systems and software in general.
+
+It was summarized by Peter H. Salus, autor of \textit{A Quarter-Century of Unix}, as a set of three simple rules:
+\begin{itemize}
+\item Write programs that do one thing and do it well.
+\item Write programs to work together.
+\item Write programs to handle text streams, because that is a universal interface.
+\end{itemize}
+\label{box:philosophy}
+\end{my_box}
+
+\section{GNU}
+
+In the early eighties, the computer industry grew into a multi-billion dollar business. Thus, as an attempt to increase their profits, some companies started to market their own modified versions of Unix, normally called Unix-like \acs{OS}s, as closed-source \acs{OS}s\marginnotes{Perhaps the most famous closed-source Unix-like systems today are Apple's OS X (laptops) and iOS (iPhones and iPads)}.
+
+All of a sudden, the Unix world had changed. It went from an open community in which everyone had access to use it, change it as they pleased, and share their results, to one where people and companies had to pay thousand of dollars to use an \acs{OS} which they could only treat as a black box.
+
+Many people, as one would expect, were very displeased by this paradigm shift for several reasons. One of the reasons was that they didn't think it was fair to have to pay to use a tool they had helped to develop. Another reason was that, as different companies were changing their Unix-like \acs{OS}s in different ways, and the source code was been kept confidential, tools developed in one Unix-like system would often not work properly in other Unix-like system.
+
+One of the more famous voices against this paradigm shift was Robert Stallman. In order to try to re-stablish a culture of collaboration, as it was the case during the early days of Unix, he created the Free Software Foundation (\acs{FSF}) to support a project called \acs{GNU}\marginnotes{A recursive acronym meaning \acs{GNU} is not Unix}, with the goal of re-creating Unix using an open-source model. His efforts were quite succesful, as many important UNIX tools that were rewritten for the \acs{GNU} project are still used to this day. Also, the license models championed by the GNU Project, which allowed anyone to use, modify, and redistribute source code, fostered hundreds of other projects. Nevertheless, there was one glaring missing piece in their quest to create an Unix-like \acs{OS} built entirely using open source code. Their progress in re-creating the Unix kernel was going very slow.
+
+\section{Linux}
+
+In 1991, a Finnish student from the University of Helsinki called Linus Torvalds started working in his own re-implementation of the Unix kernel. More specifically, he used an Unix-like system called MINIX as a basis for his own system.
+
+The source code for the resulting kernel, which was dubbed Linux\marginnotes{A combination of the words Linus and Unix}, was made freely available, together with a call for comments and suggestions for improvement. Because a kernel by itself is not very useful, Torvalds also published a list of \acs{GNU} tools for Linux users in order to have a functional \acs{OS}.
+
+Many computing enthusiasts started using, and contributing to the further development of an open source \acs{OS} consisting of a Linux kernel and \acs{GNU} tools. Over time, the name Linux started to be commonly used to denote the entire \acs{OS}, as opposed to just the kernel\marginnotes{Some people refer to it as GNU/Linux, though}.
+
+%It is interesting to note that the Linux kernel development jumpstarted a new collaborative software development model. As a matter of fact, some versions of the Linux kernel had more than a thousand different developers who contributed lines to its source code. This collaborative model is now employed in many other open source projects.
+
+At first, Linux users had to download and compile the kernel and all required tools separately. Hence, Linux acquired a reputation of being difficult to use. However, over time, different developers started to create packages containing the kernel and sets of tools in order to make it easier for other users to install and use it. This resulted in the rise of a number of different Linux distributions that we discuss in our next chapter.
+
+\vspace{0.5cm}
+\begin{my_box}[The Rise of MS Windows]
+From the middle to late eighties, while Unix was gaining traction in academia and high-tech corporations, a competing \acs{OS} from Microsoft, called DOS, together with its graphical user interface, called Windows, was making great strides in the households and offices market.
+
+The reasons behind the dominance that Microsoft still holds on these markets are plenty, but it is worth to cite a few:
+\begin{itemize}
+\item A deal with IBM in the eighties guaranteed that Microsoft products would come installed by default in all IBM personal computers \acs{PC}s.
+\item These \acs{PC}s found a sweet spot in the computer market. They were significantly cheaper than the more powerful Apple computers at the time, but they were still powerful enough to run the types of applications most users needed at the time. This led to IBM \acs{PC}s, which used Microsoft Windows, to dominate the computer market by the early nineties.
+\item They were considered easier to use, as they were focused on a Graphical User Interface (\acs{GUI}), as opposed to Command Line Interfaces (\acs{CLI}) common in Unix-like systems at te time.
+\item Microsoft cemented their \acs{OS} dominance with Windows-exclusive applications that became ubiquitous in offices and households such as: Word, Excel, and Power Point, which would later be bundled into Microsoft Office.
+\end{itemize}
+\end{my_box}

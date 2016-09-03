@@ -1,0 +1,80 @@
+%************************************************
+\chapter{What is an Operating System}\label{ch:os}
+%************************************************
+
+To understand Linux Operating Systems, it is necessary first to understand what an Operating System (\acs{OS}) is. In a nutshell, an operating system is a fundamental piece software that manages both hardware and software resources, while also providing users with a set of core utilities.
+
+
+\section{Operating System Components}
+
+An \acs{OS} is normally divided in many components in order to make the different parts of a computer work together. Amongst those components, it is worth to cite:
+\begin{description}
+\item[kernel] The kernel is the most crucial part of any \acs{OS}. It serves as an intermediate between software applications and the hardware, having complete control over everything that happens in the system. It controls which software processes are running at any given time, how much memory each process is assigned to, and also provide a gateway between these processes and hardware such as printers, network cards, keyboards, etc.
+\item[user interface] In order to be useful, an \acs{OS} needs to provide users with a way to access the data stored in it, as well as run different types of applications. In the past, most \acs{OS}s had only command line interfaces. However, most modern systems nowadays provide users with increasingly easier to use graphical user interfaces.
+\item[File system] The responsibility to store and retrieve data into/from memory devices, as well as ensure that it hasn't been corrupted, belongs to the \acs{OS}.
+\item[Security] Any respectable \acs{OS} must provide methods for users to control access to the system itself, as well as to control access to individual files and processes.
+\item[Core utilities] The \acs{OS} is also expected to provide the user with basic utilities to perform things such as: find files, edit text files, control system settings, control processes, etc.
+\end{description}
+
+Probably, the most famous \acs{OS} is Microsoft Windows, whose version 10 now comes installed by default in a large number of laptops and desktops. It is easy to see that Windows has all the components described above, as seen in Table \ref{tab:windows_os}.
+
+\begin{table}[!htbp]
+   \myfloatalign
+   \begin{tabularx}{\textwidth}{Xp{85mm}} \toprule
+   %\tableheadline{Shell} & \tableheadline{Description}\\ \midrule
+   \textbf{Kernel} & The Windows kernel contains a large set of device drivers that allows it to interact with a very wide array of hardware components, from external keyboards to virtual reality glasses. It is able to run multiple applications at once, and allow users to control which applications get more priority. \\
+   \textbf{User Interface} &  The graphical interface for Windows is classicaly composed of a Start Buttom, a Taskbar, as well as ``Windows,'' where each ``Window'' normally correspond to an specific application. \\
+   \textbf{File System} & Windows is normally installed using an NTFS file system that ensures the reliability of the stored data.\\
+   \textbf{Security} & Windows provides control access to the system, as you normally need to enter a password to access it. Also, some versions of Windows allow users to set specif access rights to individual files.\\
+   \textbf{Core Utilities} & Windows comes with multiple core utilities such as: File Explorer to retrieve any file in its memory, Notepad to edit text files, Control Panel to modify systems settings, etc.\\
+
+\bottomrule
+   \end{tabularx}
+\caption{Windows \acs{OS} Components.}
+\label{tab:windows_os}
+\end{table}
+
+\section{Computer Architecture Basics}
+
+In order to better appreciate the role the kernel, it is important to understand the architecture of modern computers. In Figure~\ref{fig:cha_kernel}, you can see how the kernel fits within a basic computer architecture. In it, it is clear that the kernel acts as a bridge between applications (at the top), and hardware components (at the bottom). Note that the kernel also provides a bridge between different applications, as well as different hardware components.
+
+\begin{figure}[!htbp]
+  \centering
+        \input{Images/Chaptera/architecture.tex}
+        \caption{Basic computer architecture.}
+        \label{fig:cha_kernel}
+\end{figure}
+
+In what follows, we provide a brief introduction of some of the most important hardware components of a modern computer.
+
+\subsection{CPU}
+The Central Processing Unit, \acs{CPU}, is the computer's ``brain''. It is responsible for arithmetic and logical operations, as well as control and input/output (I/O) operations. Whenever an application needs to perform an operation, it requests the kernel to send instructions to the \acs{CPU}. After the \acs{CPU} processes the given instructions, it sends outputs back to kernel which, in turn, sends it back to the application.
+
+A single-core computer can only execute one instruction at the time\marginnotes{Dual core computers can execute two, and quad-core computers can execute four instructions at time}. When multiple applications are open at the same time, it is the job of the kernel to control access to the \acs{CPU}. The kernel accomplishes it by having applications taking turns in sending instructions to the \acs{CPU}. The kernel also ensures that applications with higher priority levels will get more turns to access the \acs{CPU} than applications with lower priority levels.
+
+\subsection{RAM}
+
+Random Access Memory, \acs{RAM}, is a type of memory which provides very fast access to retrieve and edit the data stored in it. When an application starts, the kernel normally loads its contents into \acs{RAM}, together with any data it requires during start-up. Once the application closes, it is the job of the kernel to free \acs{RAM} in order to be used by other applications.
+
+It is also the job of the kernel to ensure that, when multiple applications a are open, one applications cannot access or overwrite memory addresses used by another applications.
+
+\subsection{HD}
+
+The hard disk, \acs{HD}, is where all data is ultimately stored in a computer. Historically, computers have always used magnetic hard-disks for this purpose. However, some new laptops use solid-state drives \acs{SSD}\marginnotes{Which are normally faster, but more expensive than magnetic devices}. Both \acs{HD}s and \acs{SSD}s can hold data even without a power source. However, they require a power source to retrieve the data.
+
+All your personal files, as well as application files, and even system files are stored in the \acs{HD}. Whenever an user starts an application, the kernel retrives the application data in the \acs{HD} and loads it into the \acs{RAM}. This process is the reason why some applications take a few seconds to start\marginnotes{This is also why computers equipped with \acs{SSD} have faster application boot times}. When an application opens a personal file, the file is retrieved from the \acs{HD} and stored in the \acs{RAM}. When an user creates a new file, or edit an existing file, the kernel is responsible for transferring it from the \acs{RAM} into the \acs{HD}.
+
+\subsection{Peripherals}
+
+Modern computers are normally connected to multiple devices that can request data from the computer, or send data to it. As some examples, we have wireless adaptors, keyboards, computer screens, printers, etc. It is the kernel, using device drivers, that provides a bridge that allow applications to interact with these devices.
+
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+
+
+\begin{exercises}
+\item With your own words, explain what an oepraing system is.
+\item With your own words, explain what is the role of a kernel.
+\item What is the role of the CPU?
+\item Why do most computers have two types of memory? I.e., why do computers have RAM memory as well as HD (or SSD) memory?
+\end{exercises}

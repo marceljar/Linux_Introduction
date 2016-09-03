@@ -1,0 +1,143 @@
+%************************************************
+\chapter{grep and Regular Expressions}\label{ch:grep}
+%************************************************
+
+I have, many times in the past, googled excerpts of song lyrics that got stuck in my head, in the hope that I would find the rest of it, or at least the song's title. Similarly, system administrators can find themselves looking for a specific file whose name they cannot recall, but they can remember excerpts of its contents. In other cases, the sysadmin might want to find in which line of a given file (which can be pretty long), a particular string occurs\marginnotes{This is a very common scenario when dealing with configuration files}.
+
+To help with the scenarios presented in the previous paragraph, most Linux distributions come by default with a tool called \mycommand{grep}\marginnotes{Short for global regular expression print} to search for specific strings, or string patterns, inside text files.
+
+In wat follows, we will cover some basic usage of the \mycommand{grep} tool. Following, we will introduce the concept of regular expressions, which are often used while performing grep searches.
+
+\section{\mycommand{grep}}
+
+The \mycommand{grep} command is called with the following syntax:
+\begin{command_line}[Bash]
+grep "STRING" LIST OF FILENAMES
+\end{command_line}
+\noindent I.e., it takes at least two arguments: first, the string of characters we are looking for\marginnotes{It is a good practice to always write the string of characters inside double quotation marks}, and then the names of the files in which we are performing this search on. In its output, \mycommand{grep} prints on the terminal the lines in the specified files in which the string was found. See the example below:
+\begin{command_line}[Bash]
+@@marcel@dell:~$@@ more poem
+Nature's first green is gold,
+Her hardest hue to hold.
+Her early leafs a flower;
+But only so an hour.
+Then leaf subsides to leaf.
+So Eden sank to grief,
+So dawn goes down to day.
+Nothing gold can stay.
+@@marcel@dell:~$ grep "gold" poem@@
+Nature's first green is @@gold@@,
+Nothing @@gold@@ can stay.
+@@marcel@dell:~$@@
+\end{command_line}
+Note that we can use file globbing expressions, as opposed to writing a complete list of files. For example, if we wanted to search for lines in all files in the current working directory containing the string \mycommand{gold}, we could have used \mycommand{grep "gold" *}.
+
+\subsection{grep options}
+The \mycommand{grep} command offers to system administrators a plethora of options. For instance, it can print line numbers together with the lines in which the required string was found. As yet another example, it can print just the name of the file in which a particular string was found, which is particularly useful when using file globbing techniques. A small list of \mycommand{grep} options is listed below in Table~\ref{tab:grep_options}\marginnotes{For a complete list, check \mycommand{grep}'s manual page}.
+
+\begin{table}[!htbp]
+   \myfloatalign
+   \begin{tabularx}{\textwidth}{Xp{95mm}} \toprule
+     \mycommand{-i} & \mycommand{grep} is, by default, case insensitive. Using this option makes it become case insensitive. \\
+     \mycommand{-w} & Searches for isolated words. Without this option, a \mycommand{grep} search for a string \mycommand{"cat"} would also return lines with words such as \mycommand{cat}terpilar, \mycommand{cat}ch, con\mycommand{cat}enate, etc. Using this option, \mycommand{grep} looks for strings that are complete words on their own right.\\
+     \mycommand{-v} & Reverse grep. Displays only the lines in which there are no matches. \\
+     \mycommand{-l} & Displays only the name of the files in which at least one match was found. \\
+     \mycommand{-n} & Shows the line numbers in front of the lines in which matches were found. \\
+   \bottomrule
+   \end{tabularx}
+\caption{\mycommand{grep} options.}
+\label{tab:grep_options}
+\end{table}
+
+\section{Regular Expressions}
+
+Sometimes we want to search for strings that follow a particular pattern, instead of specific strings. For example, postal codes in canada always follow the pattern \mycommand{LNL NLN}, where each \mycommand{L} stands for an uppercase alphabetical character, and each \mycommand{N} stands for a number between 0 and 9. So, \mycommand{M3J 3M6}, \mycommand{M5V 1J1}, and \mycommand{T6G 2R3} are valid postal codes, whereas \mycommand{ABC 123}, \mycommand{A12345}, and \mycommand{456-1234} are not.
+
+Clearly, there are more scenarios in which we might want to search for strings that follow a particular pattern. Among these: phone numbers, addresses, social insurance numbers, emails, are just a handful of examples.
+
+In order to work with patterns, as opposed to specific strings, \mycommand{grep} makes use of regular expressions, also known as \mycommand{regex}. A \mycommand{regex} normally contains a number of literal characters, as well as special characters, that are interpreted in order to delineate a desired pattern. In Table \ref{tab:regex}, we introduce a few \mycommand{regex} special characters. Following, we present a few examples.
+
+\begin{table}[!htbp]
+   \myfloatalign
+   \begin{tabularx}{\textwidth}{Xp{97mm}} \toprule
+     \mycommand{\textbackslash} & If applied to an special character, it indicates that the special characer should be treated as a regular character. \newline \textit{ex: "\textbackslash *" matches the star character.}\\
+     \mycommand{\textbackslash s} & Matches a space.\\
+     \mycommand{\textasciicircum} & Forces the pattern to match at the beginning of the line. \newline \textit{ex: "\textasciicircum A" provides no matches in a line: "an A"}.\\
+     \mycommand{\$} & Forces the pattern to match at the end of the line. \newline \textit{ex: "\$\textbackslash ." provides no matches in a line: "No periods here"}\\
+    \mycommand{*} & Matches the preceding character 0 or more times. \newline \textit{ex: "bo*" provides matches in lines with "b", "bo", "boo", etc.}\\
+     \mycommand{\textbackslash +} & Matches the preceding character 1 or more times. \newline \textit{ex: "bo\textbackslash +" provides matches in lines with "bo", "boo", "booo", etc., but not with "b"s not followed by at least one "o"}\\
+     \mycommand{\textbackslash ?} & Matches the preceding character 0 or 1 time. \newline \textit{ex: "bo\textbackslash ?" provides matches in lines with "b" or "bo". Note that, unless the option \mycommand{-w} is used, "boo" would also provide a match, as it contains the string "bo"}\\
+     \mycommand{\textbackslash\{N\textbackslash\}} & Matches the preceding character exactly \mycommand{N} times. \newline \textit{ex: "bo\{2\}" provides matches in lines with "boo", but not lines with the character "b" by itself or with "booo"}\\
+     \mycommand{\textbackslash\{N,M\textbackslash\}} & Matches the preceding character \mycommand{N} to \mycommand{M} times.\\
+     \mycommand{\textbackslash\{N,\textbackslash\}} & Matches the preceding character \mycommand{N} or more times.\\
+     \mycommand{.} & The period character matches any single character. \newline \textit{ex: "c.t" provides matches in lines with "cat", "cut", etc.}\\
+     \mycommand{{[}{]}} & Square brackets matches single characters, as long as they belong to a specified list. \newline \textit{ex: "c[ae]t" provides matches in lines with "cat" and "cet", but not with "cit", "cut", etc.}\\
+   \bottomrule
+   \end{tabularx}
+\caption{Special characters for \mycommand{regex}.}
+\label{tab:regex}
+\end{table}
+
+Note that these special characters are often employed together. For example, the \mycommand{regex} \mycommand{"[0-9]\textbackslash\{5\textbackslash \}"} matches any number with 5 digits. As another example, the \mycommand{regex} \mycommand{".*"} matches everything.
+
+\subsection{Examples of \mycommand{grep} commands using \mycommand{regex}}
+
+Email addresses always have the following structure: they start with a few characters, followed by an \mycommand{@}, followed by a few more characters, followed by a period sign, an finished by a few more characters. For example, john@mycommany.com, jane@mycollege.ca. To capture lines containing emails from a file called \mycommand{students}, we can use the following command: \newline \mycommand{grep "[a-z]*@[a-z]*\textbackslash .[a-z]*" students}
+\vspace{0.5cm}
+\newline
+Note that in this example, emails containing numbers, underlines, or period signs before the \mycommand{@} character would not be detected. In order to detect these emails, we could change our command to to:\newline \mycommand{grep "[a-z0-9\textbackslash .\_]*@[a-z0-9\textbackslash .\_]*\textbackslash .[a-z]*" students}
+\vspace{0.5cm}
+\newline
+Postal codes in Canada, as discussed at the beginning of this section, follow the pattern \mycommand{LNL NLN}. Hence, a simple \mycommand{grep} command that would capture lines containing postal codes in the \mycommand{students} file would be: \newline
+\mycommand{grep "[A-Z][0-9][A-Z] [0-9][A-Z][0-9]" students}
+\vspace{1cm}
+
+\begin{my_box}[Regular expressions facts]
+\begin{itemize}
+\item In some ways, regular expressions are similar to file globbing expressions. However, they tackle a very different problem. Indeed, while file globbing deals with matching complete file names, regular expressions aim at finding strings within large chunks of text. As a result, they are implemented very differently.
+\item Regular expressions are used in many areas. In fact, most search and find tools implement them. Also, many programming languages such as Pearl, Python, and JavaScript, among others work with regular expressions.
+\item Regular expressions can be quite complex. In fact, a number of books have been dedicated solely to them. In our case, we will simple cover the basics.
+\end{itemize}
+\end{my_box}
+
+\newpage
+
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+
+For all questions below, you should write \mycommand{grep} commands to capture all lines containing the required patterns without capturing any lines not containing the required patterns. Use the following \mycommand{students} text file (copy and paste it into a text file):
+
+\begin{command_line}[Bash]
+@@marcel@dell:~$@@ more students
+John Smith
+(416) 123-2345
+M4Z 2P3
+john.smith@myseneca.ca
+K23a!5
+
+Mohammad Ali
+(905) 231-3381
+N3P 4A1
+mali@myseneca.ca
+jE_3sa4G
+
+Akira Kurosawa
+(905) 872-1221
+M4S 1X4
+akira@myseneca.ca
+2S!aTe6
+
+Priyanka Singh
+(416) 431-3231
+M3S 5N2
+psingh4@myseneca.ca
+X32Dsa
+\end{command_line}
+
+\begin{exercises}
+  \item Student names. Doesn't contain special characters, just alphabetical characters and spaces.
+  \item Telephone numbers. (NNN) NNN-NNNN
+  \item Postal codes. LNL NLN
+  \item Student emails. Note that all students should have an email ending with @myseneca.ca
+  \item Passwords. Only have alphanumerical characters, as well as the special characters \_, !, and ?. Should have between 6 to 8 digits.
+\end{exercises}

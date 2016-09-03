@@ -1,0 +1,91 @@
+%************************************************
+\chapter{Linux Distributions}\label{ch:distributions}
+%************************************************
+
+As mentioned in the previous chapter, in the beginning of its history, Linux wasn't an \acs{OS} that catered for unexperienced users. For starters, in order to install it, users needed to download the source code for the Linux kernel, as well the source code for \acs{GNU} tools, and compile them in their target systems.
+
+In order to remove this technical entrance barrier, some Linux users started to compile the kernel's source code, as well as the source code for a number of \acs{GNU} tools, for popular computer models. The resulting binaries were then combined into single packages, normally called distributions, which were made available for other users to download. This allowed Linux \acs{OS}s to be installed without requiring the technical expertise to compile the source code.
+
+Given the open nature of Linux and GNU, anyone could package different sets of tools together in order to create their own distribution. That is exactly what happened. Over time, more and more users packaged their distributions with different sets of components\marginnotes{It is important to note that, over time, many tools that are not part of the \acs{GNU} project were added to different distributions}.
+
+\section{Distribution Components}
+
+The one piece of source code that defines an operating system as a Linux \acs{OS} is the Linux Kernel. Apart from it, the other components can vary tremendously from one distribution to another. In what follows, we describe some of the most important components of Linux distributions.
+
+\subsection{Desktop Environment}
+
+The most noticiable aspect of a Linux distribution is its Desktop Environment. A Desktop Environment provides a graphical interface for users to access different applications, files, as well as control the system settings. Multiple desktop environments were created over the years, with different design proposals, and tackling different issues. A small list of popular desktop environments is provided in what follows. We also provide a few examples of popular distributions that use the discussed environments by default\marginnotes{Many Linux Distributions allow users to switch their Desktop Environment from its default}.
+
+\begin{description}
+\item[KDE]  The K Desktop Environment, \textbf{KDE}, was the first popular desktop environment created for Linux \acs{OS}s that is still in use today. It follows a design proposal similar to that of the classical Windows \acs{OS}. I.e., it provides users with a start button from where the users can start different applications, a taskbar, and a Desktop where the user can drag and drop files and shortcuts. \textbf{KDE} provides many extras bells and whistles that are nto available in Windows though, such as multiple workspaces, Desktop Folders, etc. \textit{Ex: OpenSUSE}
+\item[GNOME] \textbf{KDE} required tools that were not open source\marginnotes{More specifically the \textbf{QT} framework}. As a result, members of the \acs{GNU} project started to work towards creating a Desktop Environment composed entirely of open source code. The \acs{GNU} Network Object Model Environment, \textbf{GNOME}, was the result of this iniciative. The \textbf{GNOME} Desktop Enviroment was built with a focus in productivity and provides a set of accessibility tnools for users with disabilities. It is currently in its third version (\textbf{GNOME 3}). \textit{Ex: Debian, Red Hat, Fedora, CentOS}
+\item[Unity] Unity is a Desktop Environment specifically designed for the Ubuntu distribution. It was designed to make a more efficient use of smaller screens. One of its most noticiable aspects is its laucher bar at the left of the screen. The launcher, as the name suggests can launch different applications, switch between open applications, as well as launch the \textbf{dash}, an overlay that allows the user to search quickly for applications, files, folders, etc., both locally and remotely. \textit{Ex: Ubuntu}
+\item[others] There are many other desktop environment available that cater for different types of users. Some of these environment were designed for low-power systems, such as \textbf{Xfce} and \textbf{LXDE}. Other environments are forks of the \textbf{GNOME 2}\marginnotes{See the \textbf{GNOME 3} controversy box below} with added features, for example \textbf{Cinnamon} and \textbf{MATE}.
+\end{description}
+
+\begin{my_box}[GNOME 3 controversy]
+The third version of \textbf{GNOME}, released in 2011, departured significantly from the previous desktop metaphor used in its second version. In this new version, users were no longer provided with a start button and a taskbar that are always visible. Instead, it requires users to constantly switch to an overview mode in which a series of elements such as a dash, a search bar, a list of current workspaces, etc. are available.
+
+Many users complained about such abrupt change in their desktop environment. This lead some users to create other desktop environments based (forked) on \textbf{GNOME 2}, such as \textbf{Cinnamon} and \textbf{MATE}. These environments aim at keeping \textbf{GNOME 2}'s  desktop metaphor, while at the same time, keeping it up to date with the most modern Linux technology.
+\end{my_box}
+
+\subsection{Software Management}
+
+Virtually all smart phones come with app management tools. These tools are used to download new apps, as well as to keep them up to date. For example, the \textbf{App Store} fullfils this role on iOS devices, whereas \textbf{Google Play} does the same for Android devices.
+
+Similarly, most Linux distributions come with software management tools which allow users to download and maintain software in their systems. Amongst the most popular package management tools are \mycommand{apt}\marginnotes{We cover Software Management on Chapter XXX} (\textbf{Debian}, \textbf{Ubuntu}, etc.), and \mycommand{yum} (\textbf{Fedora}, \textbf{Red Hat}, etc).
+
+Most distributions also maintain their own online databases with a list of certified and up-to-date software packages (applications). These databases, called repositories, allow users to quickly retrieve and install new applications. They also allows the system to check which applications are up to date, by comparing the version of the installed application to the latest version in the repositories.
+
+
+\subsection{Default Applications}
+
+Most Linux Distributions nowadays come with basic terminal \acs{GNU} tools\marginnotes{These tools are extensively covered in this book}, \textbf{Mozilla Firefox} installed as its browser, and an office application suite called \textbf{LibreOffice}, which presents great alternatives for Microsoft Office programs such as Microsoft Word, Microsoft Excel, etc. However, apart from these two applications, different distributions may come with different sets of applications that are installed by default.
+
+For example, some distributions come with \textbf{Mozilla Thunderbird} pre-installed and set as its default email client, while other distributions may come with \textbf{Evolution Email}, instead. Some distributions might not come with any pre-installed email client.
+
+Some specialized distributions come with a set of applications for specific purposes. For example, \textbf{Kali Linux} is a distribution designed for security experts. Hence, it comes with a set of penetration testing tools. As another example, \textbf{Scientific Linux} is a distribution that comes with a set of tools for mathematical modelling, staristical inferencing, and data analysis.
+
+\section{Popular Distributions}
+
+There are, literaly, hundreds of Linux distributions available today. This fragmentation comes as a direct result of the open nature of Linux development. Anyone can modify an existing open source distribution to create a new one. This process is normally called forking.
+
+While it is impossible to list all available distributions, it is worth to take a look at some of the most popular ones
+
+
+\subsection{Ubuntu, Mint, Kubuntu}
+\textbf{Ubuntu} is, nowadays, the most popular Linux distribution for desktops by a large margin. It has a clear focus on usability and comes with a full gamma of applications to allow users to start being productive without having to make any changes to the system.
+
+Due to its popularity, \textbf{Ubuntu} has been forked into a number of new distributions, such as \textbf{Linux Mint}, and \textbf{Kubuntu}. These distributions mostly differ form \textbf{Ubuntu} by presenting different Desktop Environments by default\marginnotes{MATE and Cinammon for \textbf{Linux Mint}, and KDE for \textbf{Kubuntu}}.
+
+All the examples in the remaining chapters of this book were performed on an Ubuntu \acs{OS}. However, unless specifically stated otherwise, they should work on any other Linux distribution.
+
+
+\subsection{Debian}
+\textbf{Debian} is one of the oldest and most succesful Linux Distributions. Its first release dates back to 1993, and so far it has undergone eight major releases\marginnotes{Each \textbf{Debian} release is named after a characer from the Toy Story movies}.
+
+The reason behind \textbf{Debian} only having had eight major releases is due to its focus on stability. \textbf{Debian} development is conducted using three branches: \textit{unstable}, \textit{testing}, and \textit{stable}. Any changes are first tried at the \textit{unstable} branch. Then, after extensive testing by multiple users at the \textit{testing} branch, the change finally finds its way to the \textit{stable} branch.
+
+Due to its focus on stability, \textbf{Debian} is one of the favorite distributions for servers. Also, many other Linux distributions are derived from one of the three Debian branches, including \textbf{Ubuntu}.
+
+\subsection{SUSE, OpenSUSE}
+\textbf{SUSE} is a Linux distribution aimed at enterprises. In contrast to most other Linux Distributions, it cannot be downloaded for free. It needs to be purchased together with an online support plan.
+
+\textbf{SUSE} is based on the \textbf{OpenSUSE} distribution, which as the name suggests, can be downloaded and used for free. Novell, the company the owns \textbf{SUSE}, refines and enhances \textbf{OpenSUSE} to create \textbf{SUSE} \acs{OS}s for specific enterprise goals, such as data center deployments, server deployments, business desktops, etc.
+
+\subsection{Red Hat, Fedora, CentOS}
+Like \textbf{SUSE}, \textbf{Red Hat} is an enterprise Linux distribution\marginnotes{Its full name is Red Hat Enterprise Linux} that needs to be purchased together with an online support plan. It is mantained by Red Hat, Inc.
+
+Also, just like \textbf{SUSE} is based upon \textbf{OpenSUSE}, \textbf{Red Hat} is based on \textbf{Fedora} \acs{OS}, a popular Linux distribution sponsored by Red Hat, Inc., but made publicly available for free\marginnotes{Its source code is also publicly available}. \textbf{Fedora} \acs{OS} is known for its fast development pace, where multiple releases can happen in a year.
+
+Due to its leading position in enterprise Linux, many \textbf{Red Hat} clones have appeared through the years. The most popular of these clones, \textbf{CentOS}, is sponsored by no one lese than Red Hat, Inc itself. The main difference between these two distributions is that \textbf{CentOS} is an open source project. Hence, it can be obtained and modified free of charge and it comes with no official support.
+
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+
+
+\begin{exercises}
+\item With your own words, explain what is a Linux distribution.
+\item With your own words, explain what is a Desktop Environment.
+\item List at leat two differences between a Fedora Distribution, and an Ubuntu Distribution.
+\end{exercises}

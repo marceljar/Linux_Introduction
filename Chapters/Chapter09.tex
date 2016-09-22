@@ -55,7 +55,7 @@ Sometimes we want to search for strings that follow a particular pattern, instea
 
 Clearly, there are more scenarios in which we might want to search for strings that follow a particular pattern. Among these: phone numbers, addresses, social insurance numbers, emails, are just a handful of examples.
 
-In order to work with patterns, as opposed to specific strings, \mycommand{grep} makes use of regular expressions, also known as \mycommand{regex}. A \mycommand{regex} normally contains a number of literal characters, as well as special characters, that are interpreted in order to delineate a desired pattern. In Table \ref{tab:regex}, we introduce a few \mycommand{regex} special characters. Following, we present a few examples.
+In order to work with patterns, as opposed to specific strings, \mycommand{grep} makes use of regular expressions, also known as \acs{regex}. A \acs{regex} normally contains a number of literal characters, as well as special characters, that are interpreted in order to delineate a desired pattern. In Table \ref{tab:regex}, we introduce a few \acs{regex} special characters. Following, we present a few examples.
 
 \begin{table}[!htbp]
    \myfloatalign
@@ -74,13 +74,13 @@ In order to work with patterns, as opposed to specific strings, \mycommand{grep}
      \mycommand{{[}{]}} & Square brackets matches single characters, as long as they belong to a specified list. \newline \textit{ex: "c[ae]t" provides matches in lines with "cat" and "cet", but not with "cit", "cut", etc.}\\
    \bottomrule
    \end{tabularx}
-\caption{Special characters for \mycommand{regex}.}
+\caption{Special characters for \acs{regex}.}
 \label{tab:regex}
 \end{table}
 
-Note that these special characters are often employed together. For example, the \mycommand{regex} \mycommand{"[0-9]\textbackslash\{5\textbackslash \}"} matches any number with 5 digits. As another example, the \mycommand{regex} \mycommand{".*"} matches everything.
+Note that these special characters are often employed together. For example, the \acs{regex} \mycommand{"[0-9]\textbackslash\{5\textbackslash \}"} matches any number with 5 digits. As another example, the \acs{regex} \mycommand{".*"} matches everything.
 
-\subsection{Examples of \mycommand{grep} commands using \mycommand{regex}}
+\subsection{Examples of \mycommand{grep} commands using \acs{regex}}
 
 Email addresses always have the following structure: they start with a few characters, followed by an \mycommand{@}, followed by a few more characters, followed by a period sign, an finished by a few more characters. For example, john@mycommany.com, jane@mycollege.ca. To capture lines containing emails from a file called \mycommand{students}, we can use the following command: \newline \mycommand{grep "[a-z]*@[a-z]*\textbackslash .[a-z]*" students}
 \vspace{0.5cm}

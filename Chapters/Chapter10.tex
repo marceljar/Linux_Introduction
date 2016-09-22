@@ -1,0 +1,289 @@
+%************************************************
+\chapter{Basic Filters}\label{ch:filters}
+%************************************************
+
+In this chapter, a number of filters that can be used on text files is presented. These filters can be used to join (concatenate) multiple text files (\mycommand{cat}), show only the first few lines of a text file (\mycommand{head}), show only the last lines of a text file (\mycommand{tail}), sort the contents of a text file based on some criteria pertaining one of its columns (\mycommand{sort}), remove unwanted columns of a text file (\mycommand{cut}) or even make small changes to a text file such as substituting one word by another (\mycommand{sed}).
+
+\section{\mycommand{cat}}
+
+The \mycommand{cat}\marginnotes{Short for concatenate} command can be used for two distinct goals:
+\begin{itemize}
+\item To display the contents of a short text file
+\item To concatenate the contents of multiple text files
+\end{itemize}
+
+For the first goal, \mycommand{cat} works in a very similar way to \mycommand{more}. You need only to call it together with the name of the file you wish to display. The contents of the file are then displayed on the terminal and you are granted with a new command prompt. In this regard, the major difference between \mycommand{cat} and \mycommand{more} is that, for long text files, \mycommand{cat} doesn't provide the user with a way to navigate the file page by page. The whole file is displayed at once. See the example below:
+\vspace{0.5cm}
+\begin{command_line}[make]
+@@marcel@dell:~$cat poem@@
+Nature's first green is gold,
+Her hardest hue to hold.
+Her early leafs a flower;
+But only so an hour.
+Then leaf subsides to leaf.
+So Eden sank to grief,
+So dawn goes down to day.
+Nothing gold can stay.
+@@marcel@dell:~$ @@
+\end{command_line}
+\vspace{0.5cm}
+For the second goal, you need only to call \mycommand{cat} together with a list of files you are trying to concatenate. The shell will display the contents of all the required files on your terminal one on top of another, and then providing you with a new command prompt. See the following example, where the following text files were used:
+
+\begin{command_line_float}{Bash}{Poem1 text file}{ref:poem1}
+Nature's first green is gold,
+Her hardest hue to hold.
+Her early leafs a flower;
+But only so an hour.
+Then leaf subsides to leaf.
+So Eden sank to grief,
+So dawn goes down to day.
+Nothing gold can stay.
+\end{command_line_float}
+
+\begin{command_line_float}{make}{Poem2 text file}{ref:poem2}
+What's in a name? That which we call a rose
+By any other name would smell as sweet.
+\end{command_line_float}
+
+
+\begin{command_line}[make]
+@@marcel@dell:~$ cat poem1 poem2@@
+Nature's first green is gold,
+Her hardest hue to hold.
+Her early leafs a flower;
+But only so an hour.
+Then leaf subsides to leaf.
+So Eden sank to grief,
+So dawn goes down to day.
+Nothing gold can stay.
+What's in a name? That which we call a rose
+By any other name would smell as sweet.
+@@marcel@dell:~$ @@
+\end{command_line}
+
+It is important to note that the original files are not modified in any way. The shell simply displays the concatenation of their contents on the terminal, without altering them. We will cover methods to create text files based on the results of tools such as \mycommand{cat} in Chapter XXX.
+
+\section{\mycommand{head}}
+ Sometimes, a system adminstrator or developer is not interested in all the contents of a text file, but rather in just a part of it. For example, most professional source codes start with a few lines describing its functionality. For such scenarios, opening the entire file is simply a waste of time.
+
+ A tool called \mycommand{head} is provided for cases in which only the first few lines of a text file is of interest. This tool behaves nearly identically to the first usage of the \mycommand{cat} described previously. The only difference is that it only displays, by default, the first ten (10) lines of the file. In case you want to display a number of lines different than ten, this command can be called with the \mycommand{-n} option, followed by the number of lines you wish to display. See the example below:
+
+\begin{command_line}[Bash]
+@@marcel@dell:~$ head -n 4 poem1@@
+Nature's first green is gold,
+Her hardest hue to hold.
+Her early leafs a flower;
+But only so an hour.
+@@marcel@dell:~$ @@
+\end{command_line}
+
+\section{\mycommand{tail}}
+ Quite frequently, when we analize log files, we are most interested into the latest events that have been logged. These events are normally written a the bottom of the log file. For example, in a server, there can be a log file that keeps tracks of all network requests. If a malicious request caused the system to shut down, you can verify which request caused the shut down by looking at the last entry in the log file.
+
+ For scenarious such as browsing log files, as discussed above, a tool called \mycommand{tail} is made available. Its behaviour is nearly identical to that of \mycommand{head}. The only differece is that, instead of showing the first ten (10) lines of the file, it shows the last ten (10) lines of it. Also, just like with the \mycommand{head} command, you can specify the number of lines to display using the \mycommand{-n} option followed by the number of lines you wish to display. See the example below:
+
+ \begin{command_line}[Bash]
+@@marcel@dell:~$ tail -n 3 poem1@@
+So Eden sank to grief,
+So dawn goes down to day.
+Nothing gold can stay.
+@@marcel@dell:~$ @@
+\end{command_line}
+
+If you want to look at log files that are currently being updated, you can use \mycommand{tail} with the \mycommand{-F} option. For example, \mycommand{tail -F /var/log/syslog} will display the last ten lines of \mycommand{syslog}\marginnotes{This is a log file that collects messages from various programs and services, including the kernel}, and update these lines if a new content is added to file. To stop monitoring the file, and get a command prompt back, you need to press \mycommand{Crt+C}.
+
+\section{\mycommand{tac}}
+
+In some scenarios, such as when analyzing some log files, you may want to display an entire file with the last lines appearing first. I.e., you may wish to read the a particular file with its lines displayed in reverse order. For these scenarios, the \mycommand{tac}\marginnotes{Stands for \mycommand{cat} spellt backwards} is made available. Like \mycommand{cat}, \mycommand{tac} can also be used to concatenate files. However, in the result, each individual file will appear with its lines in reverse order. See the example below:
+
+\begin{command_line}[make]
+@@marcel@dell:~$ tac poem2@@
+By any other name would smell as sweet.
+What' s in a name? That which we call a rose
+@@marcel@dell:~$ @@
+\end{command_line}
+
+
+
+
+\section{\mycommand{sort}}
+
+Suppose you have data stored in a text file like the one shown below, where each line represents one element, and each column represents one category.
+\begin{command_line_float}{Bash}{Countries file.}{fil:countries}
+USA     321     9,826
+China   1,367   9,596
+UK      64      243
+Brazil  204     8,511
+Canada  35      9,984
+India   1,251   3,287
+Egypt   88      1,001
+\end{command_line_float}
+
+In this example, the first column represents the country's name, the second line its population (in millions), and the third line represents its area (in thousands of square kilometers). Each line, or row, represents one country.
+
+It is clear that this file is not sorted in any obvious way. Not alphabetically, not by population, and neither by area. However, there is a tool called \mycommand{sort} that can be used to sort files like this in any way you choose. The choices of how to sort the file, i.e., by which column, in which order, etc.,  are made by calling \mycommand{sort} with the proper set of options. In Table \ref{tab:sort_options}, we present some of the most common options:
+
+\begin{table}[!htbp]
+   \myfloatalign
+   \begin{tabularx}{\textwidth}{Xp{95mm}} \toprule
+     \mycommand{-k N} & Sorts the file based on its N\textit{th} column. \\
+     \mycommand{-r} & Sorts in reverse order, i.e., from Z to A, in case of an alphabetical sorting, or from larger to smaller in case of a numerical sort.\\
+     \mycommand{-n} & Sorts numerically. \\
+     \mycommand{-t} & Chooses a column separator other than non-blank to blank. You need to enter the column separator inside double quotation marks\\
+   \bottomrule
+   \end{tabularx}
+\caption{\mycommand{sort} options.}
+\label{tab:sort_options}
+\end{table}
+
+In he examples below, we show a number of sorting operations on the Listing \ref{fil:countries}. Note that, just like with \mycommand{cat}, \mycommand{sort} does not alter the files provided as an argument. It simply displays the sorted version of it on your terminal. We will cover a method to save these alterations in Chapter XXX.
+
+\begin{command_line}[Bash]
+@@marcel@dell:~$ sort countries@@
+Brazil    204     8,511
+Canada    35      9,984
+China     1,367	  9,596
+Egypt     88      1,001
+India     1,251	  3,287
+UK        64      243
+USA       321     9,826
+@@marcel@dell:~$ sort -k2 -n countries@@
+Canada 	35	9,984
+UK	64	243
+Egypt 	88	1,001
+Brazil 	204	8,511
+USA	321	9,826
+India 	1,251	3,287
+China	1,367	9,596
+@@marcel@dell:~$ sort -k3 -n -r countries@@
+Canada    35      9,984
+USA       321	    9,826
+China     1,367	  9,596
+Brazil    204	    8,511
+India     1,251	  3,287
+Egypt     88      1,001
+UK        64      243
+\end{command_line}
+
+In Listing \ref{fil:countries}, different columns (fields) are separated by tabs. By default, \mycommand{sort} uses blank to non-blank transitions, i.e., transitions from spaces and tabs to visible characters, to mark the beginning of each column. In case we have a different separator\marginnotes{Such as in comma-separated values, \acs{CSV}, files}, we need to indicate the separator we are using with the option \mycommand{-t} followed by the chosen separator written inside double quotes, as seen in the example below:
+
+\begin{command_line}[Bash]
+@@marcel@dell:~$sort -t"," -k2 -n countries@@
+Canada,35,9984
+UK,64,243
+Egypt,88,1001
+Brazil,204,8511
+USA,321,9826
+India,1251,3287
+China,1367,9596
+\end{command_line}
+
+\begin{my_box}[Numerical versus Alphabetical sorting]
+When we want to sort a number of items alphabetically, we need only to compare the first character of each item. For example, we can use the fact that \mycommand{Adam} starts with an \mycommand{A}, and \mycommand{Bryan} with a \mycommand{B}, to sort these two items, regardless of the rest of them. In the cases where the first character of two different items is the same, we need to check the second character. For example, we can check that \mycommand{Adam} comes before \mycommand{Aidan}, because \mycommand{d} comes before \mycommand{i}. The same goes if the first two characters are the same, in which case the third item is compared, and so it goes.
+
+When performing a numerical sort, we always need to look at the whole number. If we only look at the first character, we would have reached the conclusion that the number \mycommand{9} is greater than \mycommand{10}, because \mycommand{9} is greater than \mycommand{1}. This is clearly not what we want when sorting numbers. Hence, this is why \mycommand{sort} needs to know if the user is trying to sort things numerically or alphabetically. By default, \mycommand{sort} assumes that an alphabetical sort is taking place.
+\end{my_box}
+
+\section{\mycommand{cut}}
+
+When dealing with data stored in text files, we are often only interested in a subset of it. For example, in Listing \ref{fil:countries}, we could be interested only in the countries population, or only in their area, as opposed of both. For scenarios like these, \mycommand{cut} comes in handy. As the name suggests, it is used to cut, or in other words remove, any contents from a text file that the user doesn't need.
+
+In the example shown below, we first use this filter to remove the information about the countries' area. Following, we use it to remove all information about their population.
+
+\begin{command_line}[Bash]
+@@marcel@dell:~$ @@cut -f 1,2 countries
+USA     321
+China   1,367
+UK      64
+Brazil  204
+Canada  35
+India   1,251
+Egypt   88
+@@marcel@dell:~$ @@cut -f 1,3 countries
+USA     9,826
+China   9,596
+UK      243
+Brazil  8,511
+Canada  9,984
+India   3,287
+Egypt   1,001
+\end{command_line}
+
+Note that, with \mycommand{cut}, we need to specify the fields, or categories, that we wish to keep, not the ones we want to cut. This is done by using the \mycommand{-f} option, followed by the column numbers separated by commas. If you are insterested in a range of columns, for example columns one (1) to three (3), you can use a dash, as in \mycommand{cut -f 1-3 countries}.
+
+Note that, \mycommand{cut} uses a tab as its default delimiter, not the transition from blank to non-blank characters like \mycommand{sort}. If multiple tabs, or spaces and tabs occur between two columns, \mycommand{cut} will probably not behave the way you expect. In case any other separator is used, for example, commas or colons, the user needs to specify the separator using the \mycommand{-d} option followed by the desired separator, written between single quotes. See the example below for a \mycommand{cut} command being applied to a \acs{CSV} version of Listing \ref{fil:countries}.
+
+ \begin{command_line}[Bash]
+@@marcel@dell:~$ @@cut -d','-f 1,2 countries
+USA,321
+China,1,367
+UK,64
+Brazil,204
+Canada,35
+India,1,251
+Egypt,88
+\end{command_line}
+
+\section{\mycommand{sed}}
+
+\mycommand{sed}\marginnotes{Short for stream editor} can be used to find lines containing a particular word or \acs{regex}, similarly to \mycommand{grep}, or to display all lines that do not contain a particular word or \acs{regex}, which can also be done using \mycommand{grep}. However, there is one particular task for which \mycommand{sed} excels, and for which it is arguably the best tool available: replacing particular words or expressions in a text file with other words or expressions\marginnotes{Like find and replace tools that exist in most text editors}.
+
+\mycommand{sed} works by parsing the provided text file line by line, and then making changes whenever there is a match to the provided word or \acs{regex}. The syntax to use \mycommand{sed} to search and replace words or \acs{regex} inside a text file is the following: \mycommand{sed "s/original\_word/replacement\_word/" file\_name}. See the example below:
+
+\begin{command_line}[make]
+@@marcel@dell:~$ cat poem@@
+A rose is a rose is a rose
+Gertrud Stein
+@@marcel@dell:~$ sed "s/rose/flower/" poem@@
+A flower is a rose is a rose
+Gertrud Stein
+\end{command_line}
+
+Note that, in the example above, only the first occurrence of the word \mycommand{rose} was replaced by \mycommand{flower} on the first line. This happens because, by default, \mycommand{sed} skips to the next line after finding a match. In order to replace all words or \acs{regex} in these scenarios, you need to specify that you want to perform a global search an replace, using the following syntax: \mycommand{sed "s/original\_word/replacement\_word/g" file\_name}.
+
+\begin{command_line}[make]
+@@marcel@dell:~$ @@cat poem
+A rose is a rose is a rose
+Gertrud Stein
+@@marcel@dell:~$ @@sed "s/rose/flower/g" poem
+A flower is a flower is a flower
+Gertrud Stein
+\end{command_line}
+
+Note that, just like all other filters discussed in this chapter, \mycommand{sed} does not alter the text file provided as an input. It will simply display its result in the terminal. In Chapter XX, we will discuss methods to save the alterations made by \mycommand{sed}.
+
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+
+For all questions below, you should use the following text files (copy and paste them into three text files called \mycommand{poem1},  \mycommand{poem2}, and \mycommand{countries} repectively):
+
+\begin{command_line}[make]
+What's in a name? That which we call a rose
+By any other name would smell as sweet.
+\end{command_line}
+
+\begin{command_line}[Bash]
+A rose is a rose is a rose
+\end{command_line}
+
+\begin{command_line}[Bash]
+USA     321     9,826
+China   1,367   9,596
+UK      64      243
+Brazil  204     8,511
+Canada  35      9,984
+India   1,251   3,287
+Egypt   88      1,001
+\end{command_line}
+
+\begin{exercises}
+  \item Concatenate both poems, displaying the result on the terminal.
+  \item Concatenate both poems, but displaying each one of them in reverse order. I.e., each poem should start at its last line, and proceed all the way to its the first.
+  \item Display only the first three lines of the file \mycommand{countries}.
+  \item Display only the last three lines of the file \mycommand{countries}.
+  \item Use \mycommand{tail} with the proper options to keep track of the last five~(5) lines of a log file called \mycommand{sysgen.log} that is currently being updated.
+  \item Sort the \mycommand{countries} file based on its population (second column) in crescent order.
+  \item Sort the \mycommand{countries} file based on its area (third column) in descent order.
+  \item Use \mycommand{sed} to display the contents of \mycommand{poem2} with all instances of the word \mycommand{rose} replaced by \mycommand{flower}.
+  \item Does the \mycommand{sed} command changes the file provided as an argument? For example, after running a \mycommand{sed} command on a file called \mycommand{poem2}, do the modifications performed by \mycommand{sed} get stored in memory?
+\end{exercises}

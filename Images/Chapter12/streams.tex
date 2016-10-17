@@ -1,0 +1,19 @@
+% TikZ styles for drawing
+\tikzstyle{block} = [draw,rectangle, rounded corners, thick,minimum height=4.0em,minimum width=6.0em]
+\tikzstyle{bentright} = [->, >=latex', bend right=00, thick]
+\tikzstyle{bentleft} = [<-, >=latex', bend right=-00, thick]
+
+\begin{tikzpicture}[scale=1, auto, >=stealth']
+
+\node at (6,0.5) (stdout) {stdout};
+\node at (0,0) (stdin) {stdin};
+\node[block] at (3,0) (bash) {\mycommand{shell}};
+\node at (6,-0.5) (stderr) {stderr};
+
+  \draw[bentright]
+    ($(stdin.east) + (0.0cm,-0.0cm)$) to node[anchor=south,below] {}($(bash.west) + (0.0cm,-0.0cm)$);
+\draw[bentright]
+    ($(bash.east) + (0.0cm,+0.5cm)$) to node[anchor=south,below] {}($(stdout.west) + (0.0cm,-0.0cm)$);
+    \draw[bentright]
+        ($(bash.east) + (0.0cm,-0.5cm)$) to node[anchor=south,below] {}($(stderr.west) + (0.0cm,-0.0cm)$);
+\end{tikzpicture}

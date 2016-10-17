@@ -1,0 +1,234 @@
+%************************************************
+\chapter{Introduction to Scripting}\label{ch:intro_scripting}
+%************************************************
+
+In movies and plays, a script is a document containing the lines that the actors and actresses should say, as well as the actions they should perform, i.e., running, jumping, fighting, etc. Similarly, in computing, a script is a text file containing a sequence of lines of code that we issue to a system in order for it to print outputs and execute particular actions.
+
+In this chapter, we will start by introducing a very basic script. Then, we explain how to run scripts using the terminal. Following, we discuss the concepts of variables and shell environments. Finally, we end this chapter by showing how a script can work with inputs provided by the user in real-time.
+
+
+\section{Hello World Script}
+
+Most programming languages books start  by introducing a source code to print the sentence "\textit{Hello World}" on the terminal. This book is no exception, in Listing \ref{fil:hello} we show a very basic \mycommand{bash} script\marginnotes{There is a discussion about the meaning of the words \textbf{script} and \textbf{source code} in the Compile languages vs Interpreted languages box on page \pageref{box:compile_interpreted}} that, once executed, prints this sentence.
+
+\begin{source_code_float}{Bash}{Script for a Hello World example.}{fil:hello}
+#!/bin/bash
+#Hello World example
+
+echo "Hello World!"
+\end{source_code_float}
+
+Even though this is a very simple script, it already contains a number of basic features that will be present in almost all \mycommand{bash} scripts we are going to be writing in the course of this book. These features are discussed in what follows.
+
+\subsection{\mycommand{shebang} line}
+
+The first line of any terminal script, no matter which language they were written with, must tell the shell which interpreter to use in order to read the script. This line is usually called a \mycommand{shebang} line.
+
+A \mycommand{shebang} line starts with a pound sign (hashtag), \mycommand{\#}, followed by an exclamation sign, \mycommand{!}, followed by the location of the tool used to interpret the script. Because we are writing \mycommand{bash} scripts in this book, we need to provide the location of \mycommand{bash}. In most distributions, \mycommand{bash} is at the \mycommand{/bin} folder\marginnotes{You can confirm \mycommand{bash}'s location in different distributions by issuing a \mycommand{which bash} command}. Hence, in the first line of our script we have a shebang line: \mycommand{\#!/bin/bash}.
+
+\subsection{Comments}
+
+Many times we want to write some information into a script that we don't want the interpreter to process. For example, you may want to write the name of the author of the script, or provide a brief description of what it does. In both cases, the information you are providing is just for yourself, or other users, to read. The interpreter should simply ignore these lines.
+
+For scenarios such as the ones described above, we can make use of comments. A comment is a block of text that follows a pound sign (hashtag) \mycommand{\#}. With the sole exception of the \mycommand{shebang} line we discussed in the previous section, the interpreter ignores everything written between a \mycommand{\#} sign and the end of the line. In Listing \ref{fil:hello}, we have a comment on the second line. Note that in our example, we wrote a comment on a blank line. However, nothing prevents us from adding a comment to the right of a non-empty line.
+
+In large scripts, comments are often used to describe specific parts of it. They can be very helpful for others, and even your future self, to understand the script. It is a good practice, in such cases, to explain what is it that the script does, not how it does it.
+
+\subsection{\mycommand{echo}}
+
+\mycommand{echo} prints on the terminal the arguments passed to it. In Listing \ref{fil:hello}, we use it in line \mycommand{4} to print the string "Hello World!".
+
+Note that whenever we want to print a string, i.e., a sequence of words, we need to write it inside quotes. There are two types of quotes that can be used:
+
+\begin{description}
+\item[single quotes] Also know as hard quotes, allows \mycommand{echo} to print what is inside the quotes in verbatim. I.e., exactly as it is written.
+\item[double quotes] Allow \mycommand{echo} to replace the name of variables preceded by a dollar sign \mycommand{\$} with the value stored in it. We will cover variables later in this chapter.
+\end{description}
+
+\begin{my_box}[Compiled languages vs Interpreted languages]
+\label{box:compile_interpreted}
+There is a plethora of computer languages available today, each one catering for a different kind of public, or different kind of application scenarios. There are multiple ways to categorize these languages. However, one of the most fundamental divides between computer languages is that some are compiled languages, and others are interpreted languages.
+
+A compiled languaged requires a tool called compiler to translate a \textbf{source code}, which is written by a software developer, into an executable file. Then, this executable file can be easilly called by the user to perform whatever tasks it was designed to do. If the developer needs to change the application, he or she will need to alter the original source code and recompile it. Note that, once the executable file has been created, the system does not need the source code anymore.  \mycommand{C}, \mycommand{C++}, and \mycommand{Java}, are some examples of compiled languages.
+
+An interpreted language, on the other hand, requires a tool called interpreter. This tool reads the script line by line, processing all commands it finds as it goes through the script. \mycommand{Bash}, \mycommand{Python}, \mycommand{PHP}, and \mycommand{JavaScript} are some examples of interpreted languages.
+
+Note that in the paragraphs above, I am calling the text files that serve as input to compilers \textbf{source codes}, and files that serve as input to interpreters \textbf{scripts}. This distiction is applied by this book's author, but is not universal. Some developers might talk about \textbf{source codes} for Python applications. That said, you will rarely see the expression \textbf{bash source code} being used instead of \mycommand{bash script}.
+\end{my_box}
+
+
+\section{Using the terminal to run scripts}
+
+To run a \textbf{script}, you simple have to call it by its name using the terminal so that the shell can execute it. In fact, most of the tools this book has covered so far, such as \mycommand{ls}, \mycommand{cat}, \mycommand{awk}, etc., are nothing but binary scripts that are located at the \mycommand{/bin} directory.
+
+Clearly, in order to execute scripts, the shell needs first to know where to find them. That is where a variable called \mycommand{PATH} plays an important role, as we discuss in what follows:
+
+\subsection{\mycommand{PATH} variable}
+
+A variable called \mycommand{PATH} is used to store the paths of all directories that \mycommand{bash} searches while it looks for scripts to execute. By default, in an Ubuntu distribution, it contains:
+
+\begin{command_line}[Make]
+@@marcel@dell:~$ echo $PATH@@
+/home/marcel/bin:/home/marcel/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
+\end{command_line}
+
+Note that in your own system, your username should repalce mine (\mycommand{marcel}) in the PATH fodlers that are under the user's home folder.
+
+When a user enters any command, the shell searches through all these directories, one by one, while trying to find a script which name matches the provided command. Once a match is found, the search is interrupted and the script is executed\marginnotes{This means that if two scripts with the same name exist in different directories in the \mycommand{PATH}, the one that comes first in the \mycommand{PATH} is the one that gets executed}.
+
+It is important to note that the current folder is not usually in the path. However, we can always execute a script by providing the shell with its path. This means that, in case we want the shell to execute a script with name \mycommand{script\_name.sh} within the current folder\marginnotes{Which is always indicated by a period sign (\mycommand{.})}, we use the following syntax:
+
+\begin{command_line}[Bash]
+@@marcel@dell:~$./script_name.sh@@
+\end{command_line}
+Note that we could have used a similar notation to run scripts in any other directories by providing the shell with its relative or absolute paths.
+
+\subsection{Granting permission to execute a Script}
+
+Suppose that you save the script provided in Listing \ref{fil:hello} in a text file called \mycommand{script.sh}\marginnotes{Ending \mycommand{bash} script names with \mycommand{.sh} is not necessary, but it is a good convention to follow} in your working directory. You should expect to be able to run it by simply writing down the command: \mycommand{./script.sh}. However, when you do so, you get the error message shown below:
+
+\begin{command_line}[Bash]
+@@marcel@dell:~$./script_name.sh@@
+bash: ./script.sh: Permission denied
+\end{command_line}
+
+What happens is that, by default, files created in most linux systems are created with only reading and writing permissions, not with executing permissions\marginnotes{A comprehensive discussion on file permissions can be seen in Chapter XXX}. To change this, you need to grant yourself permission to run your script. This can be accomplished by issuing the command: \mycommand{chmod +x script\_name}, as shown below:
+
+\begin{command_line}[Bash]
+@@marcel@dell:~$./script_name.sh@@
+bash: ./script.sh: Permission denied
+@@marcel@dell:~$chmod +x script.sh@@
+@@marcel@dell:~$./script.sh@@
+hello world
+
+\end{command_line}
+
+Note that, once we granted the script permission to be executed, we were able to call it without any problems. As a result, it printed \mycommand{Hello World} on the terminal as expected, and exited.
+
+It is important to note that, apart from the fact that it requires executing permission, a script is no different than any other text file. In fact, just like any other text fiIe, it can be opened for reading using \mycommand{more}, \mycommand{less}, \mycommand{cat}, or opened for editing in \mycommand{nano}, \mycommand{vim} or even with \acs{GUI} tools such as \mycommand{Gedit}.
+
+\section{Variables and Environments}
+
+A variable is a name we assign to a place in memory that we can use to store a particular value. For example, if we enter \mycommand{var=6}, in our terminal, the shell saves the value \mycommand{6} in memory on a variable called \mycommand{var}. To retrieve the contents of a variable, we need only to call its name with a preceding dollar sign, \mycommand{\$}. See the example below:
+
+\begin{command_line}[Make]
+@@marcel@dell:~$var=6@@
+@@marcel@dell:~$echo "The value stored in var is \$var"@@
+The value stored in var is 6
+@@marcel@dell:~$var=8@@
+@@marcel@dell:~$echo "The value stored in var is \$var"@@
+The value stored in var is 8
+\end{command_line}
+
+As shown above, a variable can have its value changed after it was first defined. Hence the name variable. Note that we used double quotes in the example above, instead of single quotes. This was done to ensure that the shell would translate \mycommand{\$var} into the value stored in \mycommand{var}, before printing the message. In case we had used single quotes, the result would have been quite different, as shown below:
+
+\begin{command_line}[Make]
+@@marcel@dell:~$var=6@@
+@@marcel@dell:~$echo 'The value stored in var is \$var'@@
+The value stored in var is $var
+\end{command_line}
+
+Variables are extensively used when working with scripts. They can be used to store numbers, words or sentences\marginnotes{Which in computing jargon are called strings}, and even filenames.
+
+When a user logs into the system, the shell normally sets up an environment for this specific user with number of variables that control the behaviour of the terminal. The \mycommand{PATH} variable we discussed before is an example of a variable that is normally set with default values. Other examples are \mycommand{LOGUSER}, and \mycommand{HOSTNAME}, which store the user name of the user that is currently logged, and the host name, respectively. You can see all default variables by issuing a \mycommand{env} command.
+
+It is important to note that each user that logs into the system is assigned his or her own exclusive environment. Also, it is important to know that a variable is only defined within its own environment. This guarantees that multiple users can access the system at the same time without the risk of one user altering another user's variables.
+
+
+\subsection{\mycommand{source}}
+
+When a user calls a script, the shell creates a separate environment to store all variables created by the script. I.e., the shell executes the script within its own environment\marginnotes{You can think about environments as sandboxes}. Executing scripts in their own environments results in two important features:
+\begin{itemize}
+\item A script does not have access to any variables set prior to the start of the script by the user, or by the system.
+\item Any variables set by the script will cease to exist as soon as the script finishes execution.
+\end{itemize}
+
+By creating an exclusive evironment for each script that is executed, the shell guarantees that scripts will not accidently overwrite any variables that exist outside them. For example, if a script defines a variable called \mycommand{PATH}, this variable will have no relationship to the default \mycommand{PATH} variable defined by the shell. Furthermore, once the script has finished execution, the value stored in the \mycommand{PATH} will be the same value it had before the script was executed. The example below demonstrates this behaviour for the \mycommand{USER} variable. It calls a script called \mycommand{change\_user.sh}, shown in Listing \ref{fil:change_user}.
+
+\begin{source_code_float}{Bash}{Script for changing the \mycommand{USER} variable.}{fil:change_user}
+#!/bin/bash
+#script that changes the LOGNAME variable
+LOGNAME=Jar
+echo "The current username is: $LOGNAME"
+\end{source_code_float}
+
+
+\begin{command_line}[Bash]
+@@marcel@dell:~$echo "The current username is: $LOGNAME"@@
+The current username is: marcel
+@@marcel@dell:~$./script.sh@@
+The current username is: Jar
+@@marcel@dell:~$echo "The current username is: $LOGNAME"@@
+The current username is: marcel
+\end{command_line}
+
+
+It is possible to run scripts without creating an exclusive environment for them. I.e., running scripts in the same environment as the shell itself. To do so, you simply need to use the \mycommand{source} command in front of the script call, using the syntax: \mycommand{source ./script\_name.sh}\marginnotes{Assuming the script is in your current working directory}. This is called sourcing the script. An obvious scenario for which sourcing a script is useful is the one in which a user wants to alter or use shell variables from within the script. See the example below:
+
+\begin{command_line}[Bash]
+@@marcel@dell:~$echo "The current username is: $LOGNAME"@@
+The current username is: marcel
+@@marcel@dell:~$source ./script.sh@@
+The current username is: Jar
+@@marcel@dell:~$echo "The current username is: $LOGNAME"@@
+The current username is: Jar
+\end{command_line}
+
+\section{Gathering user's input}
+
+There are two ways in which we can gather inputs from users that are calling a script. Using the \mycommand{read} keyword, or passing user input as arguments. Both methods are discussed in what follows.
+
+\subsection{\mycommand{read}}
+
+The \mycommand{read} keyword, as the name suggests, reads an input from the user and saves it into a variable. Its syntax is: \mycommand{read variable\_name}. Note that the user can enter numbers, words, or even full sentences. See the example below:
+
+\begin{command_line}[Bash]
+@@marcel@dell:~$./read_input.sh@@
+Enter your name:
+Marcel
+Hello Marcel
+@@marcel@dell:~$./read_input.sh@@
+Enter your name:
+Marcel Jar
+Hello Marcel Jar
+\end{command_line}
+This example uses the script \mycommand{read\_input.sh} in Listing \ref{fil:read_keyword}, shown below:
+\begin{source_code_float}{Bash}{Script that uses the \mycommand{read} keyword.}{fil:read_keyword}
+#!/bin/bash
+echo "Enter your name:"
+read name
+echo "Hello $name"
+\end{source_code_float}
+
+\subsection{Passing arguments to a script}
+
+You can also gather inputs from users by having them passing arguments to the script during its call. This is done by writing all arguments, separated by spaces, when the script is called. The value of each argument can be retrieved from inside the script using the syntax \mycommand{\$N}, where \mycommand{N} stands for the argument number. I.e., if it is the first argument, the second, etc. You can also get the total number of arguments passed to the script using the syntax \mycommand{\$\#}. In the example below, we pass three arguments to a script call:
+
+\begin{command_line}[Bash]
+@@marcel@dell:~$./read_arguments.sh Marcel Jar 25@@
+Hello Marcel Jar you are 25 years old
+I was given 3 arguments.
+\end{command_line}
+This example uses the script \mycommand{read\_arguments.sh} in Listing \ref{fil:read_arguments}.
+
+\begin{source_code_float}{Bash}{Script that takes arguments from the user's script call.}{fil:read_arguments}
+#!/bin/bash
+echo "Hello $1 $2 you are $3 years old"
+echo "I was given $# arguments."
+\end{source_code_float}
+
+
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+
+\begin{exercises}
+  \item Explain, with your own words, what is the purpose of a \mycommand{shebang} line. Also, write the proper shebang lines for \mycommand{Bash}, \mycommand{Python} and \mycommand{Pearl} scripts. \textit{hint: use the \mycommand{which} tool to find the location of the proper script interpreter.}
+  \item Write a \mycommand{bash} script that simply prints on your screen a message: \textbf{This is my first script!}. Make sure to include a \mycommand{shebang} line, and one comment line containing your name as the script's author. Also, remember that you need to grant the script permission to be executed with: \mycommand{chmod +x script\_name}.
+  \item Using your own words, explain what is a variable?
+  \item How can you create a variable called \mycommand{name} and assign to it your own name using \mycommand{bash}.
+  \item How can you create a variable called \mycommand{age} and assign to it your own age?
+  \item Explain, with your own words, the advantage of having the shell creating a different environment for each user that logs into the system. Also, explain the advantage of creating, by default, separate environments for scripts, when the user calls them.
+  \item Explain, with your own words, what is the difference between calling a script with or without the \mycommand{source} command.
+  \item Write a script that asks the user to enter its name, its job, and its age. Following, your script should print: \mycommand{Hi USERNAME, you are a USERJOB, and you are USERAGE years old.}, where the values of \mycommand{USERNAME}, \mycommand{USERJOB}, and \mycommand{USERAGE} are taken from the user's inputs. \textit{Hint: Use the \mycommand{read} keyword}
+  \item Rewrite the script from the previous question. In this new version, instead of using \mycommand{read} to gather the user's input, the script takes three arguments during its call: \mycommand{USERNAME}, \mycommand{USERJOB}, and \mycommand{USERAGE}, respectively.
+\end{exercises}

@@ -1,0 +1,192 @@
+%************************************************
+\chapter{awk, Rename, and Find}\label{ch:awk}
+%************************************************
+
+In our previous chapter, we have covered a number of simple tools that could be applied to text files, such as \mycommand{cat}, \mycommand{sort}, \mycommand{sed}, etc. In this chapter, we will cover some slightly more complex, but incredible powerful, tools that allow us to filter lines of a text file based on a chosen criteria (\mycommand{awk}), rename multiple files at once (\mycommand{rename}), and find specific files according to different search criteria (\mycommand{find}).
+
+\section{\mycommand{awk}}
+
+In previous chapters, we showed how to use \mycommand{grep} to display lines of text that contained a particular word or \acs{regex}. However, what if we want to display all lines of a particular text file that satisfy a particular pattern (condition), instead of a \acs{regex}? For example, see the text file below:
+
+\begin{command_line_float}{make}{Car dearlership text file.}{fil:cars}
+toyota corolla 1970 2500
+chevy malibu 1999 3000
+ford mustang 1965 10000
+volvo s80 1998 9850
+ford thundbd 2003 10500
+chevy malibu 2000 3500
+honda civic 1985 450
+honda accord 2001 6000
+ford taurus 2004 17000
+toyota rav4 2002 750
+chevy impala 1985 1550
+ford explor 2003 9500
+\end{command_line_float}
+
+Listing \ref{fil:cars} contains a number of columns with information about cars at a car dealership. The first column contains the car model, the second column its manufacturer, the third its year, and the fourth its price.
+
+Clearly, we can use \mycommand{grep} to display all the lines in which the car manufacturer is \mycommand{Toyota} or \mycommand{Ford}. However, we we cannot simply write a \acs{regex} and use \mycommand{grep} to display all lines in which the car is from 1999 or newer. Also, we wouldn't be able to use a \acs{regex} to display all lines in which the cars' prices are less than 15,000 CADs. For these scenarios, another tool, called \mycommand{awk}\marginnotes{The name of this command stands for the first letter of the name of its authors} can very useful.
+
+\mycommand{awk} is a pattern-scanning and processing language designed for Unix, and later rewritten by the \acs{GNU} project as \mycommand{gawk}\marginnotes{See the \mycommand{awk} vs \mycommand{gawk} text box}. It searches for patterns and/or conditions in text files and displays the lines in which they were found. For instance, using Listing \ref{fil:cars}, we could have retrieved all lines containing cars made during or after 1999 with the following syntax:
+\begin{command_line}[make]
+@@marcel@dell:~$ awk '$3 >= 1999' cars@@
+chevy malibu 1999 3000
+ford thundbd 2003 10500
+chevy malibu 2000 3500
+honda accord 2001 6000
+ford taurus 2004 17000
+toyota rav4 2002 750
+ford explor 2003 9500
+\end{command_line}
+
+Also, we could have retrieved all lines containing cars with a price tag at or below 9,000 CADs, with the following syntax:
+
+\begin{command_line}[make]
+@@marcel@dell:~$ awk '$4 <= 9000' cars@@
+toyota corolla 1970 2500
+chevy malibu 1999 3000
+chevy malibu 2000 3500
+honda civic 1985 450
+honda accord 2001 6000
+toyota rav4 2002 750
+chevy impala 1985 1550
+\end{command_line}
+
+Note that we use the notation \mycommand{\$N}, where \mycommand{N} denotes the number of the column we want to check for an specific pattern. Also, note that we should always put the complete pattern statement within single quotes. Some of the most important patterns that can be used with \mycommand{awk} are described in Table~\ref{tab:awk_patterns}.
+
+\begin{table}[!htbp]
+   \myfloatalign
+   \begin{tabularx}{\textwidth}{Xp{105mm}} \toprule
+     \mycommand{<} & Less than \\
+     \mycommand{<=} & Less or equal than\\
+     \mycommand{==} & Equal to \\
+     \mycommand{!=} & Not equal to\\
+	 \mycommand{>} & Greater than\\
+   \bottomrule
+   \end{tabularx}
+\caption{\mycommand{awk} patterns.}
+\label{tab:awk_patterns}
+\end{table}
+
+Note that nothing prevents us from applying multiple patterns at once. For example, if we wanted to display all lines containing cars made during or after 1999 with a price tag at or below 15,000 CADs, we could have used the following syntax:
+
+\begin{command_line}[make]
+@@marcel@dell:~$ awk '$4 <= 15000 && $3 >= 1999' cars@@
+chevy malibu 1999 3000
+chevy malibu 2000 3500
+honda accord 2001 6000
+toyota rav4 2002 750
+\end{command_line}
+
+Where the \mycommand{\&\&} operator denotes a logical \mycommand{and}. I.e., it only returns the lines in which both conditions are met. If we wanted to display all lines in which either one condition \mycommand{or} another condition were met (or both), we could have used the \mycommand{||} operator.
+
+Before we conclude this section, it is worth to note that \mycommand{awk} is capable of doing much more than what we have described here. However, most of its other uses can also be carried out by other commands we have previously discussed such as \mycommand{grep}, \mycommand{cut}, or by combining commands, as we will discuss in Chapter XXX.
+
+\begin{my_box}[\mycommand{awk} vs \mycommand{gawk}]
+In this book, we have been using tools such as \mycommand{ls}, and \mycommand{cat}, that were rewritten by the GNU Project to replace Unix tools with the same name. For example, when we discussed \mycommand{cat}, we discussed the GNU Project implementation of the \mycommand{cat} tool originally written for Unix. However, when the \mycommand{awk} tool was rewritten, the GNU Project developers added a \mycommand{g} to its name, and then called it \mycommand{gawk}.
+
+As a result of this name change, some Linux distributions nowadays require users to write \mycommand{gawk} to use this tool, whereas other distributions require users to write \mycommand{awk}. Some Linux distributions even allow users to write \mycommand{gawk} or \mycommand{awk} to call the same tool.
+\end{my_box}
+
+\section{\mycommand{rename}}
+
+We have seen in Chapter \ref{ch:basic_commands_ii} that the we can use \mycommand{mv} to rename individual files. For example, \mycommand{mv original\_name new\_name} changes a file name from \mycommand{original\_name} to \mycommand{new\_name}. However, what if we want to change the name of multiple files at once? For example, what if we want to change the ending of all \mycommand{.html} files from a website to \mycommand{.php} so that they could be processed by a server-side script prior to be delivered to the end-user? For such scenarios, \mycommand{rename} can be a very helpful tool.
+
+\mycommand{rename} uses \acs{regex} to match patterns for filenames, and substitute it by a string literal. It also uses wildcards to indicate in which files the pattern matching should be applied upon. For instance, to change the ending of all \mycommand{.log} files in a directory to \mycommand{.bak}, we could have used the following command\marginnotes{The syntax presented below only works in Debian based systems, such as Ubuntu}:
+
+\begin{command_line}[make]
+@@marcel@dell:website$ ls@@
+index.html contact.html about.html
+@@marcel@dell:website$ rename 's/\.html$/\.php/' *@@
+@@marcel@dell:website$ ls@@
+index.php contact.php about.php
+\end{command_line}
+
+Note that \mycommand{rename} uses a syntax very similar to \mycommand{sed}, discussed in the previous chapter. I.e., it is called with:
+\begin{command_line}[make]
+rename 's/original\_regex/replacement\_string/' wildcard
+\end{command_line}
+
+Also, note that \mycommand{\textbackslash .} is used to indicate that we want to use the period as a literal, as opposed to be a \acs{regex} that can stand for any character.
+
+As another example, we might have wanted to delete the ending of \mycommand{.log} files, as opposed to switched it to something else. This could have been accomplished with:
+
+\begin{command_line}[make]
+@@marcel@dell:log$ ls@@
+netlist.log tcpdump.log read_me
+@@marcel@dell:log$ rename 's/\.log$//' *.log@@
+@@marcel@dell:log$ ls@@
+netlist tcpdump read_me
+\end{command_line}
+
+\section{\mycommand{find}}
+
+As the name suggests, \mycommand{find} can be used to find files based on a number of possible search criteria. For example, you can search all files in a given directory whose name matchs a particular wildcard pattern\marginnotes{Note that we need to use wildcards, not \acs{regex} with this tool}. As another example, you can use \mycommand{find} to search for all files in your system that were created after a certain date. You can even use this tool to search for all files that belong to a particular user, or have a particular set of permissions, among other possibilities. The syntax for the \mycommand{find} is:
+\begin{command_line}[make]
+find target\_directory criteria\_type criteria\_match
+\end{command_line}
+In case \mycommand{criteria\_match} uses wildcards, it needs to be placed within single quotes.
+
+On table \ref{tab:find_criteria}, you can find a list of different types of searches that can be done using \mycommand{find}. Note that this list is not complete. For a complete list, refer to \mycommand{find}'s man page.
+
+\begin{table}[!bp]
+   \myfloatalign
+   \begin{tabularx}{\textwidth}{Xp{93mm}} \toprule
+     \mycommand{-name} & Searches for files that match a provided wildcard. \\
+     \mycommand{-size} & Searches for files whose size is smaller, equal, or greater than a provided number.\\
+     \mycommand{-type} & Searches for all files of a particular type. Possible types are: regular files (\mycommand{-f}), directories (\mycommand{-d}), symbolic links (\mycommand{-l}), among others.\\
+     \mycommand{-user} & Searches for all files that belong to a particular user. \\
+     \mycommand{-samefile} & Searches for all files with the same inode number as a file provided as an argument. In other words, it finds all hard links of a particular file.\\
+   \bottomrule
+   \end{tabularx}
+\caption{\mycommand{find} search criteria types.}
+\label{tab:find_criteria}
+\end{table}
+
+Below we have a few examples of \mycommand{find} being used in different forms:
+
+\begin{command_line}[make]
+@@marcel@dell:~$ ls -l@@
+-rw-rw-r-- 1 marcel marcel    125  Sep 18 10:52 assign.pdf
+-rw-rw-r-- 1 john john        3212 Sep 23 21:51 classes.docx
+-rw-rw-r-- 1 john john        450  Sep 15 14:22 test1.pdf
+-rw-rw-r-- 1 marcel marcel    1232 Jul 19 12:44 honesty.pdf
+@@marcel@dell:~$ find . -name '*.pdf'@@
+.
+./assign.pdf
+./test1.pdf
+./honesty.pdf
+@@marcel@dell:~$ find . -user john@@
+.
+./classes.docx
+./test1.pdf
+@@marcel@dell:~$ find . -mtime -10@@ #today is September 23
+.
+./assign.pdf
+./classes.docx
+./test1.pdf
+@@marcel@dell:~$ find . -maxdepth 1 -size +1k
+.
+./classes.docx
+./honesty.pdf
+\end{command_line}
+
+By default, \mycommand{find} searches not only the provided directory, but also all its subfolders. You can change this behaviour by using the \mycommand{-maxdepth} option with a value of \mycommand{1}. You can also use it to perform searches on the current working directory and its imediate subfolders, by setting \mycommand{-maxdepth} to \mycommand{2}, and so on.
+
+\newpage
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+
+\begin{exercises}
+  \item Which command can be used to list all cars in Listing \ref{fil:cars} that were built after 2000?
+  \item Which command can be used to list all cars in \ref{fil:cars} that cost less than 15000 CADs?
+  \item Which command can be used to list all cars in \ref{fil:cars} that were built after 2000 and cost less than 15000 CADs?
+  \item Which command can be used to change the ending of all \mycommand{.jpeg} files in the current working directory to \mycommand{.jpg}?
+  \item Which command can be used to change the ending of all \mycommand{.jpeg} files in the current working directory to \mycommand{.jpg}?
+  \item Which command can be used to change all uppercase letters, in all files in the current working directory, to lowercase?\\
+  \textit{hint: check \mycommand{rename}'s man page.}
+  \item Write down a command to search all files with more than 20kb inside the current working directory, as well as inside its imediate subfolders (but not on subfolders of subfolders).
+  \item Write down a command to search all files that have been modified in the past week inside the current working directory, as well as in all its subfolders.
+  \item Write down a command to search all files that have been accessed after a file named \mycommand{syslog} has been modified.
+  \item Write down a command to search for all hard links of a file called \mycommand{file}, that exists in your current working directory, in your entire file system.
+\end{exercises}

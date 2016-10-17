@@ -1,0 +1,185 @@
+%************************************************
+\chapter{Redirection and Piping}\label{ch:piping}
+%************************************************
+
+In Chapters \ref{ch:filters} and \ref{ch:awk}, the results of all examples were displayed on the terminal. I.e, no permanent changes were made to the text files provided as arguments, or any other files in the system. Also, we have worked with each tool by itself. I.e., we did not try to combine tools together, as according to the Unix philosophy.
+
+In this chapter, we will address these two issues. First, we will show how to use redirection to save outputs in text files, as opposed to displaying them in the terminal. Following, we will cover how to combine two or more tools together using the concept of piping.
+
+\section{Redirection}
+
+The concept of redirection is connected to that of data streams, which are the the source of system inputs, as well as the destination of system outputs.
+
+There are three data streams in \mycommand{bash}, one input, and two outputs, which are listed on Table \ref{tab:data_streams}.
+
+\begin{table}[!htbp]
+   \myfloatalign
+   \begin{tabularx}{\textwidth}{Xp{75mm}} \toprule
+     \mycommand{stdin} &  The standard input, as the name suggests, refers to the source of the data that is being fed into the shell. It is normally linked to the keyboard. \\
+     \mycommand{stdout} & The standard output, as the name suggests, refers to where the output of any sucessful commands should go. By default, it is linked to the terminal. \\
+     \mycommand{stderror} & The standard error stream refers to where the output of unsucessful commands should go. Like \mycommand{stdout}, it is also linked to the terminal by default. \\
+   \bottomrule
+   \end{tabularx}
+\caption{Bash data streams.}
+\label{tab:data_streams}
+\end{table}
+
+In Figure \ref{fig:data_streams}, you can see a depiction of these three data streams, as well as their relationship with the shell.
+
+\begin{figure}[!htbp]
+  \centering
+        \input{Images/Chapter12/streams.tex}
+        \caption{Visual representation of data streams.}
+        \label{fig:data_streams}
+\end{figure}
+
+Even tough both output streams are linked to the terminal display by default, separating them has one great advantage. It allow users to deal with the output of commands in different ways, depending if they were succesful or not. For example, you can choose to save the output of succesful commands to a particular file, but send error messages to \mycommand{/dev/null}\marginnotes{See \textbf{/dev/null} box below}.
+
+\begin{my_box}[\mycommand{/dev/null}]
+In Linux systems, \mycommand{/dev/null} is a simple device implemented in software, which does not correpond to any hardware device. Simply put, it is used to throw information away, or to test reading with empty information. In a nutshell:
+\begin{itemize}
+\item \mycommand{/dev/null} looks as an empty file when you try to read from it using commands such as \mycommand{cat} or \mycommand{less}.
+\item Redirecting data to \mycommand{/dev/null} results in that data being thrown away. It simply ``disappears'' from the system.
+\end{itemize}
+\end{my_box}
+
+\subsection{Redirection Syntax}
+
+\subsection*{stdout}
+
+To redirect the standard output, \mycommand{stdout}, to a given file, you need just to add \mycommand{> file\_name},  or \mycommand{1> file\_name},   to the end of the command. In the example below, which uses the file \mycommand{countries} presented in Listing \ref{fil:countries}, we save the output of a sorting operation into a file called \mycommand{countries\_sorted}.
+
+\begin{command_line}[Bash]
+@@marcel@dell:~$ sort countries > countries\_sorted@@
+@@marcel@dell:~$ cat countries\_sorted@@
+Brazil    204     8,511
+Canada    35      9,984
+China     1,367	  9,596
+Egypt     88      1,001
+India     1,251	  3,287
+UK        64      243
+USA       321     9,826
+\end{command_line}
+
+It is important to note that because we are redirecting the output of the sorting operation, we don't get any feedback on our terminal. If we want to see the result, we need to use a command to read the \mycommand{countries\_sorted} file. In the example above, we used \mycommand{cat}. Also, note that if the file  \mycommand{countries\_sorted} already exists, it is overwritten. In case the command results in an error, the file \mycommand{countries\_sorted} will be empty.
+
+In fact, when applying redirection, the first action taken by the shell is to erase any data from the destination file. This can lead, sometimes, to an unexpected behaviour. For example, a command \mycommand{sort -k2 countries > countries} will result in an empty file. This happens because the file  \mycommand{countries} will be emptied prior to the sorting operation.
+
+\subsection*{stderr}
+
+To redirect the standard error, \mycommand{stdout}, to a given file, you need just to add \mycommand{2> file\_name}, to the end of the command.
+
+You can also redirect both output streams to the same file by adding \mycommand{\&> file\_name}, or you can redirect each stream to an specified file using \mycommand{1> file\_name1 2> file\_name2} at the end of the command.
+
+\subsection*{\mycommand{stdin}}
+
+The standard input normally comes from the keyboard, in the form of arguments that we provide. For example, \mycommand{ls folder\_name} uses the \mycommand{stdin} to provide the argument \mycommand{folder\_name} to the \mycommand{ls} command.
+
+More often than not, commands that are regularly applied to files accept both the file name, or a redirection from the file. For example, both commands below are equivalent:
+
+\begin{command_line}[Bash]
+@@marcel@dell:~$ head -n3 countries\_sorted@@
+Brazil    204     8,511
+Canada    35      9,984
+China     1,367	  9,596
+@@marcel@dell:~$ head -n3 < countries\_sorted@@
+Brazil    204     8,511
+Canada    35      9,984
+China     1,367	  9,596
+\end{command_line}
+
+Because of equivalences such as the one showed in the example above, scenarios in which you need to redirect the \mycommand{stdin} are not as common as scenarios in which \mycommand{stderr} and \mycommand{stdout} are redirected.
+
+\section{Piping}
+
+The concept of piping commands together is quite simple. It can be summarized as: \textit{``using the output of one command as an input to another command''}. In fact, the name piping derives from an analogy with a real world pipeline, where the output of each pipe becomes the input of another pipe further down the pipeline.
+
+Regardless of its simplicity, piping is a very powerful concept. To better understand its implications, we will discuss in what follows a scenario in which piping commands together solves a particular problem.
+
+\subsection{Piping Application Scenario}
+
+A college keeps the records of all their students in separate files, with each file corresponding to the programs they are enrolled such as the ones shown in Listings \ref{fil:cs} and \ref{fil:fa}\marginnotes{In a real world scenario, these files would be much bigger}. Now, suppose that you are requested to come up with a list of the top three students in the entire college, based on their GPAs.
+
+
+\begin{command_line_float}{make}{Computing Science students information (cs.info).}{fil:cs}
+John Smith john.smith@mycollege.ca 2.9
+Jane Doe jane.doe@mycollege.ca 3.9
+Mohammad Ali mohammad.ali@mycollege.ca 3.4
+Chun Li chun.li@mycollege.ca 3.1
+\end{command_line_float}
+
+\begin{command_line_float}{make}{Fine Arts students information (fa.info).}{fil:fa}
+Aditya Kapoor aditya.kapoor@mycollege.ca 3.9
+Juan Sanchez juan.sanchez@mycollege.ca 2.8
+Klaus Klein klaus.klein@mycollege.ca 3.6
+Marc Belleville marc.beleville@mycollege.ca 2.6
+\end{command_line_float}
+
+Clearly, this scenario could use a tool that combines the power of \mycommand{cat} to concatenate text files, \mycommand{cut} to get rid of unnecessary columns, and \mycommand{sort} to sort the students according to their GPAs (as well as \mycommand{head} or \mycommand{tail}, to limit the output to only three students).
+
+With piping, the solution to this problem is quite simple. We first use \mycommand{cat} to join all text files with students information. However, instead of displaying the results on the terminal, or redirect it to a file, we pipe it to \mycommand{cut} which uses a space as its delimiter and keeps only the first, second, and fourth fields. Following, we send the output of \mycommand{cut} to \mycommand{sort}, which should sort students using its third column,\marginnotes{Note that the output of the \mycommand{cut}, which is the input of \mycommand{sort}, has only three columns} numerically, and in descending order. Finally, we pipe the output of \mycommand{sort} to \mycommand{head}, which is used to display only the first three lines of the result, as seen below:
+
+\begin{command_line}[make]
+@@marcel@dell:~$ cat cs.info fa.info | cut -d" " -f 1,2,4 | sort -r -n -k3 | head -n3 @@
+Jane Doe 3.9
+Aditya Kapoor 3.9
+Klaus Klein 3.6
+@@marcel@dell:~$ @@
+\end{command_line}
+
+\subsection{Piping Syntax}
+
+To pipe the output of one command as an input to another command, as shown in the example above, we use the piping operator \mycommand{|}.
+
+\begin{command_line}[make]
+@@marcel@dell:~$ command1 options input_arguments | command2 options | command3 options | ... @@
+\end{command_line}
+
+Note that there is no limit on the number of pipes that can be used. Also, note that we exclude the input arguments\marginnotes{Which are normally file names} for all pipelined commands besides the first. This happens because, for these commands, the input should come from the pipe, not from another file. In other words, the input coming from the pipe replaces the input arguments we normally use.
+
+\subsection{Piping examples}
+
+The application scenario we presented had a quite complex pipeline of commands. To get a better grasp of the concept of piping, see the examples below, were simpler pipelined commands are used:
+
+\begin{command_line}[make]
+@@marcel@dell:ls | less@@
+\end{command_line}
+In this example, we simply redirect the list of files and folders in the current directory to be displayed in \mycommand{less}, as opposed to be printed in the terminal. This is a very common use of pipes, as it allows users to check the contents of large directories that would not fit the terminal screen.
+
+\begin{command_line}[make]
+@@marcel@dell:cat *.log | grep "error" | less@@
+\end{command_line}
+In this example, we first concatenate all files with a \mycommand{.log} ending, and then we use \mycommand{grep} to find the lines in which the string \mycommand{error} can be found. Finally, the result is displayed in \mycommand{less}.
+
+\begin{command_line}[make]
+@@marcel@dell:find /  -user john | xargs grep "password"@@
+\end{command_line}
+In this example, we first use \mycommand{find} to get the name of all files that belong to a user called \mycommand{john}. Then, we use \mycommand{grep} to search for the string \mycommand{password} inside all of these files. Note that we used a command called \mycommand{xargs}\marginnotes{The \mycommand{xargs} command breaks the list of arguments passed by the pipe into its individual elements} between the pipe and \mycommand{grep}. This was done because we wanted \mycommand{grep} to search inside the files whose names and paths were passed by the pipe. Without \mycommand{xargs}, \mycommand{grep} would perform its search on the list of filenames, as opposed to performing the search inside all files presented by this list.
+
+\subsection{Piping and Redirection}
+
+Just like we did for regular commands, you can redirect the final result of a pipeline into a text file using the \mycommand{>} operator.
+
+In all examples from the previous section, we could have written the results into a text file called \mycommand{file}, as opposed to displaying it in \mycommand{less} or printing it in the terminal, by using:
+
+\begin{command_line}[make]
+@@marcel@dell:ls > file@@
+@@marcel@dell:cat *.log | grep "error" > file@@
+@@marcel@dell:find / -user john | xargs grep "password" > file@@
+\end{command_line}
+
+\subsection{\mycommand{tee}}
+
+In our previous section, we showed how to redirect the final result of a pipeline. However, we cannot simply redirect the output of a pipeline midway. For example, the command below will result in an error.
+
+\begin{command_line}[make]
+@@marcel@dell:cat *.log > my\_file | grep "error" | less@@
+\end{command_line}
+
+This should come to no surprise, if we think about our pipeline real world analogy. If we dump the contents of a pipe, we cannot expect it to proceed further down the pipeline.
+
+In order to be able to save intermediate results, we need to use \mycommand{tee}\marginnotes{The name of this tool derives from the format of the letter~\mycommand{t}}. This tool allow us to copy the output of a pipe into a file, but also send it further down the pipeline. For example, we can fix the previous example by using \mycommand{tee} to send the output of \mycommand{cat} to a file called \mycommand{my\_file}, but also send it further down the pipeline, using the following syntax:
+
+\begin{command_line}[make]
+@@marcel@dell:cat *.log | tee my\_file | grep "error" | less@@
+\end{command_line}

@@ -1,0 +1,296 @@
+%************************************************
+\chapter{Logical Statements}\label{ch:logical_statements}
+%************************************************
+
+In real life, we often need to make decisions based on what is happening around us. For example, during a weekend, you might decide to go to the beach \textbf{if} it is sunny and warm, or \textbf{else} in case it is cold and rainy, you might go to the movies. In computing, these \textbf{if/else} blocks of sentences, which allow us to make decision based on \textbf{logical expressions}, arise quite frequently. In this chapter, we will study how to make decisions in \mycommand{bash} scripts based on results of previous commands, based on information stored in variables, or even based on the input from users. 
+
+\section{Basic \mycommand{if/else} syntax}
+
+The script presented in Listing \ref{fil:simple_if} demonstrates the proper syntax for working with a simple \mycommand{if/else} block.
+ 
+\begin{source_code_float}{Bash}{Script containing a simple \mycommand{if/else} block.}{fil:simple_if}
+#!/bin/bash
+#Simple if/else statement
+
+echo "How is the weather today?"
+read weather
+
+if [ $weather == "sunny" ] ; then
+    echo "I am going to the beach"
+else
+    echo "I am going to the movies"
+fi
+\end{source_code_float}
+
+In this script, we start by asking the user about the weather. Then, we save the user's input into a variable called \mycommand{weather}. Following, we write an \mycommand{if/else} block to display different sentences depending on the value stored in the variable \mycommand{weather}. This is done using the following syntax:
+
+\begin{command_line}[Bash]
+if [ LOGICAL EXPRESSION ] ; then
+    #Lines executed if the LOGICAL EXPRESSION is true
+else
+    #Lines executed if the LOGICAL EXPRESSION is false
+fi
+\end{command_line}
+
+A logical expression is always a statement that evaluates to either \textbf{true} or \textbf{false}. In our example, we check if the string stored in the \mycommand{weather} variable is identical to the string \mycommand{sunny} using the \mycommand{==}~operator\marginnotes{This will be true if the user answers \mycommand{sunny}}. This will result in the script executing line 8 of Listing \ref{fil:simple_if}, and skipping line 10 of the same script. Otherwise\marginnotes{I.e., in case the user answers anything but \mycommand{sunny}}, the script will skip line 8 and execute line 10.
+
+Note that in \mycommand{bash} scripting, proper syntax needs to be followed very closely. Even omiting spaces can result in errors. For example, imagine that we had written ``\mycommand{if [\$weather == "sunny"] ; then}'' on line 7 of Listing \ref{fil:simple_if}. I.e., we omitted the spaces between the brackets and the logical expression. In this case, running the script would have resulted in an error. This is due to the fact that there must be spaces between the opening and closing brackets of the \textbf{if} statement and the logical expression. We would also have an error if we omitted the \mycommand{then} keyword, or the \mycommand{fi} keyword that ends the \textbf{if/else} block.
+
+\section{Logical Expressions}
+
+There are three basic types of logical expressions in \mycommand{bash}. There are \textbf{string expressions,} where we can compare two strings to see if they are the same, different, or to see if one comes after the other\marginnotes{In alphabetical order}. There are also \textbf{integer expressions}, where we can do the same with two numbers. Finally, there are \textbf{file expressions}, where we can check if a file exists, if it is a directory or a regular file, or if a file is older than another, among other expressions.
+
+\subsection{String Expressions}
+
+The most common string expressions available in \mycommand{bash} are listed in Table \ref{tab:string_expressions}. You can see an example of a script that makes use of these expressions in Listing \ref {fil:string_expression} .
+
+\begin{table}[!htbp]
+   \myfloatalign
+   \begin{tabularx}{\textwidth}{Xp{70mm}} \toprule
+   \tableheadline{Expression} & \tableheadline{Returns \mycommand{true} if:}\\ \midrule
+   \mycommand{string1 == string2} & The two strings are identical. \\
+   \mycommand{string1 =! string2} & \mycommand{string1} comes before \mycommand{string2}. \\
+   \mycommand{string1 < string2} & \mycommand{string1} comes before \mycommand{string2}. \\
+   \mycommand{string1 > string2} & \mycommand{string1} after before \mycommand{string2}. \\
+   \mycommand{-n string} & The length of \mycommand{string} is greater than zero. \\
+   \mycommand{-z string} & The length of \mycommand{string} is equal to zero. \\
+   \mycommand{string} & The \mycommand{string} exists. \\
+   \bottomrule
+   \end{tabularx}
+\caption{String Expressions.}
+\label{tab:string_expressions}
+\end{table}
+
+\begin{source_code_float}{Bash}{Script containing two string expressions.}{fil:string_expression}
+#!/bin/bash
+#String expression example
+
+echo "What is your name?"
+read name
+
+if [ $name < "Thomas" ] ; then
+    echo "You come before Thomas in the attendance list."
+fi
+if [ $name <= "James" ] ; then
+    echo "You come before James in the attendance list, or your name is also James."
+fi
+\end{source_code_float}
+
+In this example, we ask the user for his name, and then we store it in a variable called \mycommand{name}. Then, we compare this name with \mycommand{Thomas}, to see who would come first in the attendance list. Following, we do the same process and compare the user's name to \mycommand{James}. 
+
+This example demonstrates a few interesting aspects of \mycommand{if/else} blocks, as well as string expressions. First, it shows that we can ommit the \textbf{else} part of an \textbf{if/else} statement. Second, it shows that we can have multiple \mycommand{if/else} blocks in the same script. Finally, it is important to notice that string comparisons are made based on the integer values of each character in the ASCII\marginnotes{which shows, for example, that lowercase letters are considered greater in value than uppercase letters} table (http://www.asciitable.com/).
+
+\subsection{Integer Expressions}
+
+The most important integer expressions available in \mycommand{bash} are listed in Table \ref{tab:integer_expressions}. You can see an example of a script that makes use of some of these expressions in Listing \ref{fil:integer_expression} .
+
+\begin{table}[!htbp]
+   \myfloatalign
+   \begin{tabularx}{\textwidth}{Xp{70mm}} \toprule
+   \tableheadline{Expression} & \tableheadline{Returns \mycommand{true} if:}\\ \midrule
+   \mycommand{number1 -lt number2} & \mycommand{number1} is lower than \mycommand{number2}. \\
+   \mycommand{number1 -le number2 } & \mycommand{number1} is lower or equal to \mycommand{number2}. \\
+   \mycommand{number1 -eq number2 } & \mycommand{number1} is equal to \mycommand{number2}. \\
+   \mycommand{number1 -ne number2 } & \mycommand{number1} is not equal to \mycommand{number2} \\
+   \mycommand{number1 -ge number2 } & \mycommand{number1} is greater or equal to \mycommand{number2} . \\
+   \mycommand{number1 -gt number2 } & \mycommand{number1} is greater than \mycommand{number2} \\
+   \bottomrule
+   \end{tabularx}
+\caption{Integer Expressions.}
+\label{tab:integer_expressions}
+\end{table}
+
+\begin{source_code_float}{Bash}{Script containing an integer expression.}{fil:integer_expression}
+#!/bin/bash
+#Integer expression example
+
+echo "Enter a number?"
+read number
+
+if [ $number -le 10 ] ; then
+    echo "Your number is lower or equal to ten."
+else
+    echo "Your number is greater then ten."
+fi
+\end{source_code_float}
+
+In this example, we start by asking for a user input and we store it in the variable \mycommand{number}. Then, we check if this number is lower or equal to 10 or not, and we display a different message for each scenario.
+
+\subsection{File Expressions}
+
+The most important file expressions available in \mycommand{bash} are listed in Table \ref{tab:file_expressions}. You can see an example of a script that makes use of some of these expressions in Listing \ref{fil:file_expression} .
+
+\begin{table}[!htbp]
+   \myfloatalign
+   \begin{tabularx}{\textwidth}{Xp{70mm}} \toprule
+   \tableheadline{Expression} & \tableheadline{Returns \mycommand{true} if:}\\ \midrule
+   \mycommand{-e file1} & \mycommand{file} exists. \\
+   \mycommand{-s file1} & \mycommand{file} exists and has a size greater than 0. \\
+   \mycommand{-f file1} & \mycommand{file} exists and it is a regular file. \\
+   \mycommand{-d file1 } & \mycommand{file} exists and it is a directory. \\
+   \mycommand{-w file1 } & \mycommand{file} exists and the current user has permission to write (edit). \\
+   \mycommand{-x file1 } & \mycommand{file} exists and the current user has permission to execute it as a script. \\
+   \mycommand{file1 -nt file2} & \mycommand{file1} is newer than \mycommand{file2}. \\
+   \mycommand{file1 -ot file2} & \mycommand{file1} is older than \mycommand{file2}. \\
+   \bottomrule
+   \end{tabularx}
+\caption{File Expressions.}
+\label{tab:file_expressions}
+\end{table}
+
+\begin{source_code_float}{Bash}{Script containing two file expressions.}{fil:file_expression}
+#!/bin/bash
+#Integer expression example
+
+echo "Enter a file or directory name?"
+read file_name
+
+if [ -e $file_name ] ; then
+    echo "The file $file_name exists"   
+fi
+if [ -s $file_name ] ; then
+    echo "The file $file_name exists and it is not empty"   
+fi
+
+\end{source_code_float}
+
+In this example, we start by asking the user for an input containing the name of a file in the current working directory. Following, we store this input in the variable  \mycommand{file\_name}. Finally, we check if the file exists and  if it is non-empty.
+
+\section{Combining expressions using \&\& and ||}
+
+There are situations in which we might want to take one course of action in case more than one condition is met. For example, you might decide to go to the beach if, and only if it is a weekend and it is sunny. In this scenario, you would not go to the beach if it is a weekday, and you would also not go in case the weather isn't nice. For such scenarios, \mycommand{bash} makes use of the \mycommand{\&\&} operator\marginnotes{which corresponds to a logical \mycommand{and}}. An example of a script making use of a \mycommand{\&\&} operator is shown in Listing \ref{fil:and_operator} .
+
+\begin{source_code_float}{Bash}{Script using a \mycommand{\&\&} operator.}{fil:and_operator}
+#!/bin/bash
+#and operator script example
+
+echo "Is today a weekend day?"
+read weekend
+echo "Is the weather sunny?"
+read weather 
+
+if [ $weekend == "yes" && $weather == "yes" ] ; then
+    echo "I am going to the beach"   
+else
+    echo "I am going work or I will just stay home."   
+fi
+\end{source_code_float}
+Note that in the example in Listing \ref{fil:and_operator}, the script will print "\textit{I am going to the beach}" if and only if the user has answered \mycommand{yes} to both \textit{Is today a weekend day?} \mycommand{and} \textit{Is the weather sunny?} If the user replies \mycommand{no} to any one of these questions, or if he replies \mycommand{no} to both questions, the script will print "\textit{I am going work or I will just stay home.}".
+
+In other scenarios, you might want to follow one particular course of action if at least one out of a number conditions is met. For example, you can become an American citizen if one of your parents is American, or if you were born in American soil. I.e., as long as at least one of these two conditions is met, you are eligible to apply to an American citizenship. For such scenarios, \mycommand{bash} makes use of the \mycommand{||} operator\marginnotes{which corresponds to a logical \mycommand{or}}. An example of a script making use of a \mycommand{||} operator is shown in Listing \ref{fil:or_operator} .
+
+\begin{source_code_float}{Bash}{Script using a \mycommand{||} operator.}{fil:or_operator}
+#!/bin/bash
+#or operator script example
+
+echo "Is one of your parents American?"
+read parents
+echo "Where you born in American soil?"
+read soil
+
+if [ $parents == "yes" || $soil == "yes" ] ; then
+    echo "You can apply for an American citizenship."   
+else
+    echo "You can apply for an American citizenship. "   
+fi
+\end{source_code_float}
+Note that in the example in Listing \ref{fil:or_operator}, the script will print "\textit{You are eligible to apply for an American citizenship.}" if the user has answered \mycommand{yes} to \textit{ Is one of your parents American?} or if the user has answered \mycommand{yes} to \textit{ Where you born in American soil?}, or if he has answered \mycommand{yes} to both questions. The only case in which the script will print "\textit{You are not eligible to apply for an American citizenship.}" is if the user has answered something different than \mycommand{yes} for both questions.
+
+
+\section{Basic \mycommand{if/elif/else} syntax}
+
+So far, we have only dealt with situations in which we would could only follow two courses of action. One if the logic expression being evaluated was \mycommand{true}, or else we would follow a different course of action. However, there are situations in which we might have multiple courses of action. For example, in North America, we have the following age restricitons for movies:
+\begin{itemize}
+\item People over or at the age of 17 can watch any movies. 
+\item People with ages between 13 and 17 can watch \textbf{G}, \textbf{PG}, and \textbf{PG-13} movies, but they need a guardian to watch \textbf{R} rated movies, and they cannot watch \textbf{NC-17} rated movies. 
+\item Finally, anyone under the age of 13 can only watch \textbf{G} and \textbf{PG} movies by themselves, but need a guardian to watch \textbf{PG-13} movies or \textbf{R} rated movies. 
+\end{itemize}
+For scenarios such as these, \mycommand{bash} provides \mycommand{if/elif/else}\marginnotes{\mycommand{elif} is a contraction of \mycommand{else if}} blocks. In an \mycommand{if/elif/else} block, the shell works as follows:
+
+\begin{enumerate}
+\item First, the shell checks the logical expression in the line with the \mycommand{if} keyword. In case this expression is true, the shell executes the lines associated with this expression being true, and skips all the rest of the \mycommand{if/elif/else} block. 
+\item If the logical expression associated with the \mycommand{if} keyword is false, the shell will move to check the logical expression in the line of the first \mycommand{elif} keyword. In case this expression evaluates to true, the shell executes the lines associated with it and skips the rest of the \mycommand{if/elif/else} block. Note that multiple \mycommand{elif} keywords can be used, each one associated with a different logical expression. 
+\item In case all logical expressions associated with the \mycommand{if} keyword, as well as all \mycommand{elif} keywords are false, the shell executes the lines of code associated with the \mycommand{else} keyword.
+\end{enumerate}
+
+In the script presented in Listing \ref{fil:elif}, we provide the user with information about what types of movies he or she can watch, based on the age they provide as an input\marginnotes{Note that, just like the line with the \mycommand{if} keyword, the lines with \mycommand{elif} keywords require a \mycommand{then} keyword}. 
+
+\begin{source_code_float}{Bash}{Script using an \mycommand{if/elif/else} syntax.}{fil:elif}
+#!/bin/bash
+#if/elif/else script example
+
+echo "How old are you"
+read age
+
+if [ $age -ge 17 ] ; then
+    echo "You can watch any movie you want"   
+elif [ $ age -ge 13 ] ; then
+    echo "You need a guardian for R-rated movies."   
+else
+    echo "You need a guardian for PG-13 and R-rated movies."   
+fi
+\end{source_code_float}
+
+Note that, for the script in Listing \ref{fil:elif}, we did not have to check if the user was below the age of \mycommand{17} in the \mycommand{elif} expression on line~9. We simply checked if he or she was over the age of \mycommand{13}. As it was explained before, in case the logical expression associated with the \mycommand{if} keyword\marginnotes{I.e., if the user were \mycommand{17} years old or older}, the lines of code associated with this expression would be executed and the script would skip the rest of the \mycommand{if/elif/else} block. In other words, this script only checks if the user is above \mycommand{13} if it already knows that the user is below \mycommand{17}.
+
+\section{Nested logical expressions}
+
+In some scenarios, making one decision affects other decisions you can possibly make in the future. For example, choosing to eat an entire chocolat cake in the morning will prevent you from running a marathon or an ``iron man'' in the afternoon. As another example, choosing to learn another language will allow you to apply for a number of positions in which knowledge of this language is mandatory.
+
+In the script presented in Listing \ref{fil:nested_if}, a user is asked a series of questions about possible positions to apply to at a hotel in Montreal. This script starts by asking the user if he or she is fluent in French because some positions, such as manager and receptionist, are only available for fluent French speakers. Then, depending on the answer for this question, the script asks more questions offering the user different kinds of jobs. 
+
+\begin{source_code_float}{Bash}{Script using nested \mycommand{if/elif/else} blocks.}{fil:nested_if}
+#!/bin/bash
+#nested if/else block
+
+echo "Are you fluent in French?"
+read language_question
+
+if [ $language_question == "yes" ] ; then
+    echo "Which job do you want to apply to?"
+    echo "options: receptionist, manager, electrician"
+    read job_question
+    if [ $job_question == "receptionist" ] ; then
+        echo "We have no openings for at the moment."
+    elif [ $job_question == "manager" ] ; then
+        echo "We have 3 openings for at the moment."
+        echo "Please submit your resume"
+    elif [ $job_question == "electrician" ] ; then
+        echo "Do you have an electrician diploma or degree?"
+        read electrician_question
+        if [ $electrician_question == "yes" ] ; then
+            echo "We have 2 openings at the moment."
+            echo "Please submit your resume"
+        else
+            echo "Sorry, certification is required."
+        fi
+    else
+        echo "Please, provide a valid answer" 
+    fi  
+else
+    echo "Sorry, fluency in French is required"
+fi
+\end{source_code_float}
+
+Note that, on Listing \ref{fil:nested_if}, all the script lines from 8 to 27 will only be executed if the user answers \mycommand{yes} to the first question. Then, depending on the user's position choice, the script might execute line 12, lines 14 and 15, lines 17 to 24, or line 26 (in case he or she has entered an invalid option). If the user enters anything but \mycommand{yes} for the first question, the line 29 will be executed.
+
+It is important to notice that because some choices depend on previous choices, we had to write \mycommand{if/elif/else} blocks inside parts of another \mycommand{if/elif/else} blocks. For example, lines 11 to 27 correspond to an \mycommand{if/elif/else} block that is only executed if the user has entered \mycommand{yes} for the first question. Moreover, lines 19 to 24 represent an \mycommand{if/else} block that is only executed if the user has entered \mycommand{yes} to the first question and \mycommand{electrician} for the second question.
+\vspace{5cm}
+\begin{my_box}[The importance of indentation]
+\label{box:importance_indentation}
+The \mycommand{bash} interpreter ignores whitespace. I.e., you can add as many spaces or even tabs to the beginning or end of any line of code without affecting how that line will be interpreted. This fact is often used to help us structure our scripts in a way that makes them easier for us, humans, to read. 
+
+As an example,  take a close look at the script in Listing \ref{fil:nested_if}. Note that we added four spaces at the beginning of lines 8 to 27. This was done to make it easier for the reader to see that all these lines would only be executed in case the logical expression associated with the \mycommand{if} keyword in line~7 was true. The same way, we added four spaces at the beginning of line 29 to make it clear that this line is associated to the \mycommand{else} expression. Finally, note that whenever we have nested \mycommand{if/elif/else} blocks, we just add additional whitespace characters to make it visually clear that those lines are only called when two or more decisions were already made. For example, we have 8 spaces at the beginning of lines~12, 14 to 15, and 17 to 24, to indicate the fact that they belong to a nested \mycommand{if/elif/else} block. 
+\end{my_box}
+
+
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+
+\begin{exercises}
+  \item Create a script that asks what day of the week it is. Then, in case the user enters any day from Monday to Friday, the script outputs: \textit{``Today is a weekday. Go to work''}. In case the user enters Saturday or Sunday, the script should output \textit{``Today is a weeked day. Time to chill''}.
+\item Create a script that asks the user for a filename. Then, in case there exists a file with the provided filename in the current working directory, the script should delete the file, and warn the user that the file has been deleted. Otherwise, your script should warn the user that no file has neen found.
+\item Create a script that asks the user what is his favorite OS. If the user answers \mycommand{Linux}, the script should output: \textit{``That's awesome''}, if the user answers \mycommand{OSX}, the script should output: \textit{``Not bad, but you can do better''}, if the user answers \mycommand{Windows}, the script should output \textit{``Some people are just beyond help''}, and finally if the user enters anything else, the script should output: \textit{``Are you sure this is an OS?''}.
+\item Create a script for a robot waiter. It should start by asking if the costumer wants some eggs. In case the answer is \mycommand{yes}, then your script should then ask how many eggs, how the costumer wants his eggs, and save these answers in variables called \mycommand{qtd} and \mycommand{egg}. Then, your script should output the costumer order. For example, if the user entered \mycommand{yes}, \mycommand{2}, and \mycommand{scrambled}, the script should output: \textit{``I will bring 2 scrambled eggs soon''}.
+In case the costumer says \mycommand{no} to the eggs question, the script should then ask if he wants some pancakes instead. In case the costumer says \mycommand{yes} to this question, your script should then ask how many pancakes and store this value in a \mycommand{pck} variable. Then, your script should display: \textit{``I will bring 3 pancakes soon''}. Finally, if the user also says no to the pancakes question, the script should say: \textit{``I have no other food for you. Go away!''}
+\end{exercises}

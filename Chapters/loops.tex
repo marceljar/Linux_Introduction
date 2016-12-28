@@ -1,0 +1,261 @@
+%************************************************
+\chapter{Loops}\label{ch:loops}
+%************************************************
+
+One of the areas in which computers really excel is in their ability to perform repetitive tasks in a fast and precise manner. Users can request a particular command to be executed hundreds or thousands of times, and the system will hapilly oblige, executing the command exactly the same way each time. In this chapter, we will learn how to execute a set of instructions multiple times using \mycommand{for}, \mycommand{while}, and \mycommand{until} loops. 
+
+\section{\mycommand{for} Loops}
+
+A \mycommand{for} loop defines a variable with the first value in a given list. Then,  it runs all lines of code between a \mycommand{do} and \mycommand{done} keywords. Following, the loop will redefine the variable with the next value in the given list, and execute all lines of code between \mycommand{do} and \mycommand{done} again. This procedure continues until the variable has assumed all possible values in the provided list. Listing \ref{fil:simple_for} provides an example of a \mycommand{for} loop.
+
+\begin{source_code_float}{Bash}{Script containing a simple \mycommand{for} loop.}{fil:simple_for}
+#!/bin/bash
+#Simple for loop
+
+for colour in "white" "blue" "green" ; do
+    echo "my variable has colour: $colour"
+done
+echo "Your loop has ended"
+\end{source_code_float}
+
+In the example provided in Listing \ref{fil:simple_for}, our loop defines a variable called \mycommand{colour} and starts by storing a string \mycommand{white} in it. Then, it prints: ``\textit{my variable has colour: white}'' on the terminal. Following, the loop replaces the value stored in the variable \mycommand{colour}, from \mycommand{white} to \mycommand{blue}, and prints ``\textit{my variable has colour: blue}'' on the terminal. Finally, the loop replaces the value śtored in the variable \mycommand{colour}, from \mycommand{blue} to \mycommand{green}, and prints ``\textit{my variable has colour: green}'' on the terminal. Because \mycommand{green} is the last value in the provided list, the loop finishes execution, and the script will proceed with the first line after the \mycommand{done} keyword. In this particualr example, it will simply print ``\textit{Your loop has ended}''.
+
+\subsection{Using wildcards}
+
+In our previous example, we specified a complete list for our \mycommand{for} loop to go through. However, it is important to keep in mind that \mycommand{bash} scripts can use many of the tecniques we have used in the past while working with shell commands. One such technique is making use of wildcards. In Listing \ref{fil:for_wild}, we show a script that loops through all the \mycommand{.pdf} files in the current working directory and asks the user if he or she wants to delete it.
+
+\begin{source_code_float}{Bash}{Script using a \mycommand{for} loop with wildcards.}{fil:for_wild}
+#!/bin/bash
+#For loop with wildcard 
+for file in *.pdf ; do
+   echo "Do you want to delete file: $file"
+   read answer
+   if [ $answer == "yes" ] ; then
+       echo "deleting file: $file"
+       rm $file
+   fi
+done
+echo "End of script"
+\end{source_code_float}
+Note that in this example the loop will go through all files that end on \mycommand{.pdf}. In case there are no files with this end, the script will simply assign a value \mycommand{*.pdf} to the variable \mycommand{file}.
+
+\subsection{Using brace expansion}
+
+Brace expansion is a method in \mycommand{bash} to create a sequence of numbers or characters. For example, \mycommand{touch file\{1..3\}} creates three files: \mycommand{file1}, \mycommand{file2}, and \mycommand{file3}\marginnotes{It can also be used with letters, for example \mycommand{touch file\{a..z\}} creates 26 files: \mycommand{filea}, \mycommand{fileb}, etc}. 
+
+Brace expansion is often used with \mycommand{for} loops. For example, Listing~\ref{fil:for_brace} can be used to print the same message, ``\textit{I will not play games in class}'' a hundred times.
+
+\begin{source_code_float}{Bash}{Script using a \mycommand{for} loop with brace expansion.}{fil:for_brace}
+#!/bin/bash
+#For loop with brace expansion
+for number in {1..100} ; do
+   echo "$number: I will not play games in class"
+done
+echo "End of script"
+\end{source_code_float}
+
+It is important to note that brace expansion does not expand \mycommand{bash} variables. This occurs because the brace expansion is the first step of the shell expansion. Hence, a script like the one shown in Listing \ref{fil:for_brace2} does not work properly.
+
+\begin{source_code_float}{Bash}{Script using a \mycommand{for} loop with \textbf{wrong} brace expansion.}{fil:for_brace2}
+#!/bin/bash
+#For loop with wrong brace expansion 
+
+var=100
+for number in {1..$var} ; do
+   echo "$number: I will not play games in class"
+done
+echo "End of script"
+\end{source_code_float}
+The problem with the script in Listing \ref{fil:for_brace2} is that the shell will first try to apply the expansion: \mycommand{1} to the string \mycommand{\$var}, before replacing the string \mycommand{\$var} with the value contained in the variable \mycommand{var}, which is \mycommand{100}. As a result, the variable number will assume a value: \mycommand{\{1..\$var\}}, as opposed to a sequence of values from \mycommand{1} to \mycommand{100}.
+
+\subsection{Using c-style \mycommand{for} loops}
+
+Given that brace expansion cannot work with variables, it cannot be easily used to create loops with user-define ranges. For example, the script presented in Listing \ref{fil:for_brace3} would not work properly because brace expansion does not work with variables.
+
+\begin{source_code_float}{Bash}{Script using a \mycommand{for} loop with user input and \textbf{wrong} brace expansion.}{fil:for_brace3}
+#!/bin/bash
+#For loop with usr input wrong brace expansion 
+
+echo "Write down a starting point"
+read start
+echo "Write down an end point"
+read end
+
+for number in {$start..$end} ; do
+   echo "$number"
+done
+echo "End of script"
+\end{source_code_float}
+
+In order to get a \mycommand{for} loop to work properly with variables, we need to use a differeent type of syntax for \mycommand{for}, called \mycommand{c-style}\marginnotes{Due to the fact that they are similar to the syntax used in the \mycommand{C} language}. A c-style for loop uses the following syntax:
+\begin{command_line}[Bash]
+for ((ASSIGNMENT ; LOGICAL EXPRESSION ; INCREMENT)) ; do
+    #lines to run for each iteration
+done    
+\end{command_line}
+Where each element of the c-style syntax is ecplained in what follows.
+
+\begin{description}
+\item[Assignment] Refers to the initial value assigned to the variable that will be used in our iterations. For example, we can have \mycommand{var=1} or \mycommand{var=\$start}\marginnotes{Where \mycommand{start} is a previously defined variable}.
+\item[logical expression] Refers to a logical expression that will interrupt the loop once met. For example, we can have \mycommand{var==10} or \mycommand{var<=\$end}\marginnotes{Where \mycommand{end} is a previously defined variable}.
+\item[Increment] Refers to how the variable changes with each iteration. For example, you can have \mycommand{var=var+1}\marginnotes{Which can be shortened to \mycommand{var++}}, \mycommand{var=var-1}\marginnotes{Which can be shortened to \mycommand{var--}}, or \mycommand{var=var+3}, which would increment the value stored in \mycommand{var} by \mycommand{3} at each iteration.
+\end{description}
+
+As, an example, on Listing \ref{fil:for_cstyle}, we fix the script with errors introduced in Listing\ref{fil:for_brace3} by replacing brace expansion with a \mycommand{c-style for} loop.
+
+\begin{source_code_float}{Bash}{Script using a \mycommand{c-style for} loop with user input.}{fil:for_cstyle}
+#!/bin/bash
+#For loop with usr input wrong brace expansion 
+
+echo "Write down a starting point"
+read start
+echo "Write down an end point"
+read end
+
+for ((number=$start; number<=end; number++)) ; do
+   echo "$number"
+done
+echo "End of script"
+\end{source_code_float}
+
+\section{\mycommand{while} Loops}
+
+Another way of creating a loop in \mycommand{bash} is to run iterations while a logical expression is \mycommand{true}, using a \mycommand{while} loop. The syntax for a \mycommand{while} loop is shown in what follows:
+
+\begin{command_line}[Bash]
+while [ LOGICAL EXPRESSION ]; do
+    #lines to run while LOGICAL EXPRESSION is true
+done    
+\end{command_line}
+Where the \mycommand{LOGICAL EXPRESSION} could be any of the types of logical expressions covered in the previous chapter.
+
+For example, on Listing \ref{fil:simple_while}, we present a loop that keeps asking for a magic word until the user enters the word \mycommand{abracadabra}.
+
+\begin{source_code_float}{Bash}{Script using a \mycommand{while} loop.}{fil:simple_while}
+#!/bin/bash
+#Simple while loop
+
+word=""
+while [ "$word" \!= "abracadabra" ] ; do
+   echo "Enter the magic word"
+   read word
+done
+echo "You have entered the magic word!"
+\end{source_code_float}
+Note that in Listing \ref{fil:simple_while},  we started by defining the variable \mycommand{word} as an empty string before starting to compare it to tge magic word in the loop. Also, note that, just like with \mycommand{if/else} blocks, there must be spaces between the logical expression and the square brackets.
+
+\subsection{Reading files line by line}
+While loops can also be used to read files, line by line, as shown in Listing~\ref{fil:file_while}.
+
+\begin{source_code_float}{Bash}{Reading file contents using a \mycommand{while} loop.}{fil:file_while}
+#!/bin/bash
+#reading a file, line by line, using a while loop
+
+number=1
+while read line ; do    
+   echo "The contents of line $number is: $line"
+   number=$(($number+1))  
+done < file_name
+\end{source_code_float}
+Note that, on Listing \ref{fil:file_while}, we redirect the \mycommand{stdin} to send the contents of a file called \mycommand{file\_name} to the \mycommand{while} loop. The loop will then read the first line of this file, save it in a variable called \mycommand{line}, and then run its first iteration. Following, the loop will save the contents of the second line of \mycommand{file\_name} into \mycommand{line} and run its second iteration. This process continues until the loop reaches the final line of the file. At each iteration, we add one to the value stored in the variable \mycommand{number}.
+
+\subsection{\mycommand{until} Loops}
+An \mycommand{until} loop is similar to a \mycommand{while} loop except for one major difference. It run iterations while a logical expression is \mycommand{false}, as opposed to \mycommand{true}. The syntax for an \mycommand{until} loop is shown in what follows:
+
+\begin{command_line}[Bash]
+until [ LOGICAL EXPRESSION ]; do
+    #lines to run while LOGICAL EXPRESSION is false
+done    
+\end{command_line}
+Where the \mycommand{LOGICAL EXPRESSION} could be any of the types of logical expressions covered in the previous chapter. On Listing \ref{fil:simple_until}, we present a loop that keeps echoing the user's input until the user enters the string \mycommand{-q}.
+
+\begin{source_code_float}{Bash}{Script using an \mycommand{until} loop.}{fil:simple_until}
+#!/bin/bash
+#Simple until loop
+
+word=""
+until [ $word == "-q" ] ; do
+   echo "Enter any word to have it echoed, or -q to exit"
+   read word
+   echo "You entered: $word"
+done
+\end{source_code_float}
+
+\section{\mycommand{break}}
+There might be situations in which we want to get out of a \mycommand{for} loop even though there are still more items to run through. In the same manner, there might be situations in which we want to exit a \mycommand{while} loop even though its logical expression is true\marginnotes{Or to exit an \mycommand{until} loop, even though its logical expression is still false.}
+
+For these scenarios, the keyword \mycommand{break} can be used. Whenever the shell interpreter finds a \mycommand{break}, it immediatly finishes the loop, no matter if it is a \mycommand{for}, a \mycommand{while}, r an \mycommand{until} loop. 
+
+One example of a scenario in which using a \mycommand{break} statement could be used is in a refactoring of Listing \ref{fil:simple_until}. In its present format, this script would print ``\textit{You entered: -q},'' before quitting. This script could be refactored\marginnotes{Which is the technical jargon for improved}, using a \mycommand{break}, so that it exits immediatly after the user enters \mycommand{-q} without printing any messages. This is exactly what was done in Listing \ref{fil:break}.
+
+\begin{source_code_float}{Bash}{Script using a \mycommand{break}.}{fil:break}
+#!/bin/bash
+#Loop with a break
+
+while [ true ] ; do
+   echo "Enter any word to have it echoed, or -q to exit"
+   read word
+   if [ $word == "-q" ] ; then
+       break
+   fi
+   echo "You entered: $word"   
+done
+\end{source_code_float}
+
+Note that in Listing \ref{fil:break}, the logical expression we used was simply a keyword \mycommand{true}\marginnotes{We could also have used an \mycommand{until} loop with a \mycommand{false} keyword}. This means that, no matter what happens inside each iteration, this expression will be true and the loop will proceed with the next iteration. The only way to exit a loop such as this is by reaching a \mycommand{break}. Also, note that once the logical expression for the \mycommand{if} block is true, the interpreter will break out of the loop and, therefore, it will not read the code in line 10.
+
+\section{\mycommand{continue}}
+A \mycommand{continue} keyword is similar to the \mycommand{break} keyword in which they both interrupt the normal execution of a loop. However, whereas a \mycommand{break} completely exits the loop, a \mycommand{continue} just exits the \textbf{current iteration} and moves ahead to the next one.
+
+On Listing \ref{fil:continue}, we present a simple refactoring of the script presented in Listing \ref{fil:simple_for}. In this new version, the script will skip intepreting line 8, and move to the next loop iteration, in case the value stored in \mycommand{colour} is blue. 
+
+\begin{source_code_float}{Bash}{Script using a \mycommand{continue}.}{fil:continue}
+#!/bin/bash
+#For loop with a continue
+for colour in "white" "blue" "green" ; do
+    if [ $colour == "blue" ] ; then
+        continue
+    fi
+    echo "my variable has colour: $colour"
+done
+echo "Your loop has ended"
+\end{source_code_float}
+
+\section{Nested Loops}
+
+Just like with \mycommand{if/else} blocks, nothing prevents a loop to be placed inside another loop. In such scenarios, the inner loop will run all of it iterations for each iteration of the outer loop.
+
+In Listing \ref{fil:nested_loops}, we present a scrpt that displays the first 5 columns of the multiplicative table.
+
+\begin{source_code_float}{Bash}{Script using nested \mycommand{for} loops.}{fil:nested_loops}
+#!/bin/bash                                                                                     
+#multiplicative table                                                       
+for i in {1..10} ; do                                                          
+   for j in {1..5} ; do                                                           
+      echo -n -e "$j x $i = $(($j*$i)) \t"   
+   done
+   echo ""
+done
+\end{source_code_float}
+Note that, in Listing \ref{fil:nested_loops}, we used the option \mycommand{-n} and \mycommand{-e} for the \mycommand{echo} command in order to avoid the default newline at the end of each link, as well as to ensure that echpo will interpret the special character \mycommand{\textbackslash t} as a tab.
+
+
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+
+\begin{exercises}
+  \item Write a script that will display: ``\textit{Bash scripting is easy}'' 50 times on the terminal.
+  \item Write a script that displays the number of files in the current folder that ends on \mycommand{.pdf}.
+  \item Write a script that will display the name of all \mycommand{.txt} files in the current working directory that are not empty.
+  \item Write a script that will read all numbers contained in the file displayed below, and them display their sum on the terminal. Make sure that your file will not have empty lines at the end.
+  \begin{source_code_float}{Bash}{File to be used with question 4.}{fil:file_question4}
+3
+4
+2
+7
+\end{source_code_float}
+  \item Write a script that starts by creating a variable called \mycommand{password} containing the string \textit{qwerty}. Following the script asks for the user's password, until the user enters a valid password, in which case your script should display a ``\textit{Welcome}'' message, or until the user enters three invalid passwords, in which case your script should enter a ``\textit{Could not log in}'' message.
+   \item Explain, with your own words,t he difference between the \mycommand{break} and \mycommand{continue} keywords.
+  \item Write a script that uses an \mycommand{until} loop to count down from 10 to~1.
+  \item Rewrite the nested loop in Listing \ref{fil:nested_loops} using \mycommand{while} loops instead of \mycommand{for} loops.
+\end{exercises}

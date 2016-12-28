@@ -1,5 +1,5 @@
 %************************************************
-\chapter{Logical Statements}\label{ch:logical_statements}
+\chapter{Logical Expressions}\label{ch:logical_expressions}
 %************************************************
 
 In real life, we often need to make decisions based on what is happening around us. For example, during a weekend, you might decide to go to the beach \textbf{if} it is sunny and warm, or \textbf{else} in case it is cold and rainy, you might go to the movies. In computing, these \textbf{if/else} blocks of sentences, which allow us to make decision based on \textbf{logical expressions}, arise quite frequently. In this chapter, we will study how to make decisions in \mycommand{bash} scripts based on results of previous commands, based on information stored in variables, or even based on the input from users. 
@@ -48,10 +48,10 @@ The most common string expressions available in \mycommand{bash} are listed in T
    \myfloatalign
    \begin{tabularx}{\textwidth}{Xp{70mm}} \toprule
    \tableheadline{Expression} & \tableheadline{Returns \mycommand{true} if:}\\ \midrule
-   \mycommand{string1 == string2} & The two strings are identical. \\
-   \mycommand{string1 =! string2} & \mycommand{string1} comes before \mycommand{string2}. \\
-   \mycommand{string1 < string2} & \mycommand{string1} comes before \mycommand{string2}. \\
-   \mycommand{string1 > string2} & \mycommand{string1} after before \mycommand{string2}. \\
+   \mycommand{string1 \textbackslash== string2} & The two strings are identical. \\
+   \mycommand{string1 \textbackslash!= string2} & The two strings are not identical. \\
+   \mycommand{string1 \textbackslash< string2} & \mycommand{string1} comes before \mycommand{string2}. \\
+   \mycommand{string1 \textbackslash> string2} & \mycommand{string1} comes after \mycommand{string2}. \\
    \mycommand{-n string} & The length of \mycommand{string} is greater than zero. \\
    \mycommand{-z string} & The length of \mycommand{string} is equal to zero. \\
    \mycommand{string} & The \mycommand{string} exists. \\
@@ -68,10 +68,10 @@ The most common string expressions available in \mycommand{bash} are listed in T
 echo "What is your name?"
 read name
 
-if [ $name < "Thomas" ] ; then
+if [ $name \< "Thomas" ] ; then
     echo "You come before Thomas in the attendance list."
 fi
-if [ $name <= "James" ] ; then
+if [ $name \< "James" ] ; then
     echo "You come before James in the attendance list, or your name is also James."
 fi
 \end{source_code_float}
@@ -169,7 +169,7 @@ read weekend
 echo "Is the weather sunny?"
 read weather 
 
-if [ $weekend == "yes" && $weather == "yes" ] ; then
+if [ $weekend == "yes" ] && [ $weather == "yes" ] ; then
     echo "I am going to the beach"   
 else
     echo "I am going work or I will just stay home."   
@@ -188,7 +188,7 @@ read parents
 echo "Where you born in American soil?"
 read soil
 
-if [ $parents == "yes" || $soil == "yes" ] ; then
+if [ $parents == "yes" ] || [ $soil == "yes" ] ; then
     echo "You can apply for an American citizenship."   
 else
     echo "You can apply for an American citizenship. "   

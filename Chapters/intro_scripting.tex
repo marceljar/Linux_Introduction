@@ -107,16 +107,16 @@ Note that, once we granted the script permission to be executed, we were able to
 
 It is important to note that, apart from the fact that it requires executing permission, a script is no different than any other text file. In fact, just like any other text fiIe, it can be opened for reading using \mycommand{more}, \mycommand{less}, \mycommand{cat}, or opened for editing in \mycommand{nano}, \mycommand{vim} or even with \acs{GUI} tools such as \mycommand{Gedit}.
 
-\section{Variables and Environments}
+\section{Variables}
 
 A variable is a name we assign to a place in memory that we can use to store a particular value. For example, if we enter \mycommand{var=6}, in our terminal, the shell saves the value \mycommand{6} in memory on a variable called \mycommand{var}. To retrieve the contents of a variable, we need only to call its name with a preceding dollar sign, \mycommand{\$}. See the example below:
 
 \begin{command_line}[Make]
 @@marcel@dell:~$var=6@@
-@@marcel@dell:~$echo "The value stored in var is \$var"@@
+@@marcel@dell:~$echo "The value stored in var is $var"@@
 The value stored in var is 6
 @@marcel@dell:~$var=8@@
-@@marcel@dell:~$echo "The value stored in var is \$var"@@
+@@marcel@dell:~$echo "The value stored in var is $var"@@
 The value stored in var is 8
 \end{command_line}
 
@@ -124,11 +124,33 @@ As shown above, a variable can have its value changed after it was first defined
 
 \begin{command_line}[Make]
 @@marcel@dell:~$var=6@@
-@@marcel@dell:~$echo 'The value stored in var is \$var'@@
+@@marcel@dell:~$echo 'The value stored in var is $var'@@
 The value stored in var is $var
 \end{command_line}
 
 Variables are extensively used when working with scripts. They can be used to store numbers, words or sentences\marginnotes{Which in computing jargon are called strings}, and even filenames.
+
+\subsection{Mathematical Operations}
+
+To perform mathematical operations with variables, one needs to use the syntax shown below:
+\begin{command_line}
+$((OPERATION))
+\end{command_line}
+Where valid operations are addition (+), subtraction (-), multiplication (*), and division (/). Note that, for division, the result will only have the integer part. See the examples below:
+\begin{command_line}
+@@marcel@dell:~$var1=6@@
+@@marcel@dell:~$var1=4@@
+@@marcel@dell:~$echo "$var1 + $var2 = $(($var1+$var2))"@@
+6 + 4 = 10
+@@marcel@dell:~$echo "$var1 - $var2 = $(($var1-$var2))"@@
+6 - 4 = 2
+@@marcel@dell:~$echo "$var1 * $var2 = $(($var1*$var2))"@@
+6 * 4 = 24
+@@marcel@dell:~$echo "$var1 / $var2 = $(($var1/$var2))"@@
+6 / 4 = 1
+\end{command_line}
+
+\section{Environments}
 
 When a user logs into the system, the shell normally sets up an environment for this specific user with number of variables that control the behaviour of the terminal. The \mycommand{PATH} variable we discussed before is an example of a variable that is normally set with default values. Other examples are \mycommand{LOGUSER}, and \mycommand{HOSTNAME}, which store the user name of the user that is currently logged, and the host name, respectively. You can see all default variables by issuing a \mycommand{env} command.
 
@@ -201,6 +223,7 @@ echo "Hello $name"
 \end{source_code_float}
 
 \subsection{Passing arguments to a script}
+\label{sec:passing_arguments}
 
 You can also gather inputs from users by having them passing arguments to the script during its call. This is done by writing all arguments, separated by spaces, when the script is called. The value of each argument can be retrieved from inside the script using the syntax \mycommand{\$N}, where \mycommand{N} stands for the argument number. I.e., if it is the first argument, the second, etc. You can also get the total number of arguments passed to the script using the syntax \mycommand{\$\#}. In the example below, we pass three arguments to a script call:
 

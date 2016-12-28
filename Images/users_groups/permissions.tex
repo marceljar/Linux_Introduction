@@ -1,0 +1,26 @@
+% TikZ styles for drawing
+\tikzstyle{block} = [draw,rectangle, thick,minimum height=2.0em,minimum width=3.5em]
+\tikzstyle{simp_label} = [minimum height=2.0em,minimum width=5.5em]
+\tikzstyle{connector} = [->, >=latex', bend right=0, thick, dashed]
+
+
+
+\begin{tikzpicture}[scale=1, auto, >=stealth']
+  \node[block] at (0,0) (file_type) {\LARGE{\phantom{a} -}};
+  \node[block] at (1.4,0) (user) {\LARGE{rwx}};
+  \node[block] at (2.8,0) (group) {\LARGE{r- -}};
+  \node[block] at (4.2,0) (others) {\LARGE{r- -}};
+
+  \node[simp_label] at (6.4,-1.0) (to_file) {File type};
+  \node[simp_label] at (7.6,-1.5) (to_user) {User owner permissions};
+  \node[simp_label] at (7.8,-2.0) (to_group) {Group owner permissions};
+  \node[simp_label] at (7.6,-2.5) (to_others) {Other users permissions};
+  \draw[->, thick] (file_type.south) |- (to_file.west);
+  \draw[->, thick] (user.south) |- (to_user.west);
+  \draw[->, thick] (group.south) |- (to_group.west);
+  \draw[->, thick] (others.south) |- (to_others.west);
+
+
+
+
+\end{tikzpicture}

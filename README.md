@@ -69,3 +69,14 @@ your commands go in here
 \end{command_line_float}
 
 There are also two environments called source_code, and source_code_float that are almost identical to command_line and command_line_float, respectively, with only one difference: they displays line numbers.
+
+##To add items:
+* Case expressions in the logical expressions chapter
+* Exit command in the Basic Commands I chapter
+* An appendix on computer architectures covering BIOS, MBR, GRUB, and their UEFI counterparrs
+* More questions for the scripting chapters
+* A tree diagram showing nested if expressions in the Scripting: Logical Expression files
+* Refactor chapter names
+* Fix references that currently show XXX
+* An iluatration to describe the escope of local variables.
+

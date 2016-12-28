@@ -1,0 +1,321 @@
+%************************************************
+\chapter{Permissions, Users, and Groups}\label{ch:users_groups}
+%************************************************
+
+As mentioned in Chapter XX, Unix was created in an era in which large central computers were shared among multiple users. Hence, one of its main design goals was to support multiple users. As an \ac{OS} inspired by Unix, Linux has inherited its multiuser support. As a result, nowadays, Linux systems are often used in academic, as well as in industrial systems, in which multiple users need to share the same resources. Examples of such systems are supercomputers, servers, as well as cloud services. In a multiuser system, the following requirements are of fundamental importance: 
+
+\begin{itemize}
+\item Each user should be able to control who have access to his/her files and folders.
+\item Regular users should not be allowed to interfere with processes initiated by other users. However, sysadmins should be able to take action in case some processes are not behaving properly.
+\item Sysadmins should be able to create new users, edit the configurations of existing users, and delete users from the system.
+\end{itemize}
+
+In this chapter, we start by discussing files and folders permissions, which allow for a fine control of which users can access which files and folders. Following, we introduce the concepts of \mycommand{sudo} access and the \mycommand{root} user, which allow system admins to perform a large number of administrative tasks, such as process control, as well as software and user management. Finally, we end by explaining how to create, edit, and delete users and groups.
+
+
+\section{File and Folder Permissions}
+
+When asking for a list of all files and folders in the current working directory with \mycommand{ls -l}, you should get an output similar to the one provided in Listing \ref{fil:ls_output}:
+
+\begin{command_line_float}{Bash}{ls -l.}{fil:ls_output}
+@@marcel@dell:~$@@ ls  -l
+drwxrwxr-x  2 marcel marcel  4096 Jun 21 23:06 Music
+drwxrwxr-x  2 marcel marcel  4096 Jun 21 23:06 Video
+-rw-rw-r--  1 marcel marcel 12238 Jun 29 22:54 read_me
+-rwxrwxr-x  1 marcel marcel   126 Jun 28 20:52 script.sh
+-rw-r-----  1 marcel admin   2238 Jun 12 21:24 guide.pdf
+\end{command_line_float}
+
+This output has seven fields. In Table~\ref{tab:ch2_list}, we discussed what each field represents, using the file \textbf{\texttt{seneca.pdf}} as an example. In this section, we are focusing on the first field: files and folders permission sets. Given the fact that files and folders behave differently\marginnotes{For example, you can write or execute files, but not folders}, their permissions settings are slightly different. In what follows, we cover permissions for files first. Following, then we cover permissions for folders.
+
+\subsection{File permissions}
+
+There are three different types of file permissions. They are  shown on Table~\ref{tab:file_permissions} together with their acronyms and descriptions.
+
+\begin{table}[!htbp]
+   \myfloatalign
+   \begin{tabularx}{\textwidth}{Xcp{90mm}} \toprule
+   \tableheadline{type} & \tableheadline{ac.} & \tableheadline{Description}\\ \midrule
+   \mycommand{read} & \mycommand{r} & Grants permission to access the file's contents, but not to edit it or execute it \\
+   \mycommand{write} & \mycommand{w} & Grants permission to edit the file's contents. Given the fact that  a user needs to access the contents of a file in order to edit it, this permission is only effective if granted together with a \mycommand{read} permission. \\
+   \mycommand{execute} & \mycommand{x} & Grants permission to execute the file's contents as a script. Given the fact that the shell needs to access the contents of a file in order to execute it, this permission is only effective if granted together with a \mycommand{read} permission. \\
+   \bottomrule
+   \end{tabularx}
+\caption{Types of file permissions.}
+\label{tab:file_permissions}
+\end{table}
+
+A full file permission set is comprised of ten characters that are divided in four fields: one to represent the type of file, one to define the permissions set for the user who owns the file, one to define the permissions set for the members of the group owner of the file, and finally one to define the permissions for everyone else in the system. We present a detailed description of each field in what follows.
+
+\begin{figure}[!htbp]
+  \centering
+        \input{Images/users_groups/permissions.tex}
+        \caption{File Permissions.}
+        \label{fig:permissions_file}
+\end{figure}
+
+\begin{description}
+\item[File type] The first character of a file's permission set contains an acronym that determines what kind of file it is\marginnotes{Remember that everything in Linux is considered a file}. A list containing the most important types of files, as well as  their acronyms is provided in Table \ref{tab:file_types}.
+\begin{table}[!htbp]
+   \myfloatalign
+   \begin{tabularx}{\textwidth}{Xp{100mm}} \toprule
+   \tableheadline{Ac.} &  \tableheadline{Description}\\ \midrule
+   \mycommand{-} & A dash represents a regular file, such as a text file, a script, an mp3 fle, etc. \\
+   \mycommand{d} &  A \mycommand{d} stands for a directory. Permission sets for directories are covered in the next section. \\
+   \mycommand{l} & An \mycommand{l} stands for a symbolic link. Symbolic links were covered in Section XXX. \\
+   \mycommand{p} & A \mycommand{p} stands for a named pipe. Pipilines were overed in Section XXX. \\
+   \mycommand{s} & An \mycommand{s} stands for a socket, which are used for data communications between different processes. \\
+   \mycommand{b} & A \mycommand{b} stands for a block device. \\
+   \mycommand{c} & An \mycommand{c} stands for a character device. \\
+   \bottomrule
+   \end{tabularx}
+\caption{File types.}
+\label{tab:file_types}
+\end{table}
+\item[User Owner Permission Set ] Characters two to four define the read, write, and execute permissions for the user who owns the file.
+\item[Group owner Permission Set] Characters five to seven define the read, write, and execute permissions for all users in the group that owns the file\marginnotes{Groups are discussed in Section XXX}.
+\item[Others Permission Set] Characters eight to ten define the read, write, and execute permissions for all other users. I.e., users that are neither the user owner, nor members of the group owner of the file.
+\end{description}
+
+In Listing \ref{fil:ls_output} on page \pageref{fil:ls_output}, we showed  the output of a \mycommand{ls -l} command. In it, you can see that there are two directories and three files in the current working directory, each one with different sets of permissions. In what follows, we explain what the permission sets of each one of the three files represent.
+
+
+\begin{enumerate}
+\item[\mycommand{read\_me}] This file has a permission set \mycommand{-rw-rw-r--}, which is the default set when a file is first created. It allows both the user owner (\mycommand{marcel}), as well as users that are members of the group owner (also called \mycommand{marcel}\marginnotes{We will explain why the group owner has often the same name as the user owner in Section XXX.}), to read and edit (write) this file. Other users can only read this file. Note that no user can execute this file.
+\item[\mycommand{script.sh}] This file has a permission set \mycommand{-rwxrwxr-x}. It allows both the user owner (\mycommand{marcel}), as well as users that are members of the group owner (also called \mycommand{marcel}), to read, edit (write), and execute this file. Other users can also read and execute this file, but cannot edit (write) it.
+\item[\mycommand{config.pdf}] This file has a permission set \mycommand{-rw-r-----}. It allows the user owner (\mycommand{marcel}) to access and edit (write) this file. Users that are members of the group owner (called \mycommand{admin}) can access the contents of this file, but cannot edit (write) it. Other users cannot access or edit this file. Note that no user can execute this file.
+\end{enumerate}
+
+
+\subsection{Directory Permissions}
+
+Like regular files, directories also have three different types of file permissions. Also, like files, these permissions have acronyms \mycommand{r}, \mycommand{w}, and \mycommand{x}. However, the meaning of these permissions are slightly different than the ones shown on Table~\ref{tab:file_permissions}. On Table \ref{tab:directory_permissions}, we present a list of directory permission acronyms together with a description adn examples of usage. 
+
+\begin{table}[!htbp]
+   \myfloatalign
+   \begin{tabularx}{\textwidth}{Xp{100mm}} \toprule
+   \tableheadline{ac.} & \tableheadline{Description}\\ \midrule
+   \mycommand{r} & Grants permission to read the contents of the directory. For example, it allows users to use the get a list of all fiels and folders using the \mycommand{ls} command. \\
+   \mycommand{w} & Grants permission to create files inside the directory. For example, it allow users to create new text files inside the directory using \mycommand{vim} or \mycommand{nano}.\\
+    \mycommand{x} & Grants permission to set the directory as the current working directory. For example, it allow users to use the \mycommand{cd} command to set it as its current working directory. \\
+   \bottomrule
+   \end{tabularx}
+\caption{Types of dirctory permissions.}
+\label{tab:fdirectory_permissions}
+\end{table}
+ 
+ The topic of file permissions is closely related to that of users and groups. In our next sections, we cover these two topics.
+
+\section{Users}
+
+Linux stores information about users with access to the system in a file called \mycommand{\textbackslash etc\textbackslash passwd}, as shown in Listing \ref{fil:passwd_tail1}, where its last 5 lines are displayed using a \mycommand{tail -5 \textbackslash etc\textbackslash passwd}:
+  
+\begin{command_line_float}{Bash}{Last five lines of a \mycommand{passwd} file.}{fil:passwd_tail1}
+tail -5 /etc/passwd
+inge:x:518:524:art  dealer:/home/inge:/bin/ksh
+marcel:x:100:100:instructor:/home/marcel:/bin/bash 
+john:x:101:101:student:/home/john:/bin/sh
+george:x:102:102:musician:/home/george:/bin/sh
+linus:x:103:103:linux enthusiast:/home/linus:/bin/ksh
+\end{command_line_float}
+
+In this file, each line corresponds to one user, and each column (field) correspond to one property\marginnotes{Fields are separated by colons(\mycommand{:})}. The first lines of this file are normally filled with users that are actually not real users, but act as users on behalf of the operating system or different applications. These users, often called daemons, are frequenty used to start processes or create log files.  It is easy to identify which users are real users. Real users need a password to access the system, hence they should have an \mycommand{x} appearing in its second field.
+
+As you can see, each line in this file contains seven fields.  In Table \ref{tab:passwd_file}, we provide a description of each one of these fields, using the line that set the properties of the user \mycommand{marcel} as an example.
+
+\begin{table}[!htbp]
+   \myfloatalign
+   \begin{tabularx}{\textwidth}{Xcp{65mm}} \toprule
+   \tableheadline{Field} & \tableheadline{Example} & \tableheadline{Description}\\ \midrule
+   \mycommand{username} & \mycommand{marcel} & Name that the user enters in order to be granted access to the system.\\
+   \mycommand{password} & \mycommand{x} & This field is kept here mainly for historical reasons. An \mycommand{x} indicates that a password, if it exists, is stored in the \mycommand{/etc/shadow} file, as we will cover in Section XXX. \\
+   \mycommand{user id} & \mycommand{100} & Linux assigns a unique \mycommand{user id} for each one of its users. This is similar to governamental agencies assigning numbers such as driver license numbers, or social insurance numbers, to its citizens. \\
+   \mycommand{primary group id} & \mycommand{100} & Linux assigns a unique \mycommand{group id} to the primary group of each user. We cover groups on Section XXX. \\
+   \mycommand{description} & \mycommand{instructor} & Linux allows a small description to be assigned to each user. In our example, these descriptions are used to display the job of each user.\\
+   \mycommand{home directory} & \mycommand{/home/marcel} & This field specifies which directory works as the user's home directory. Every time the user logs into the system, this is the folder used as the first working directory.\\
+   \mycommand{login shell} & \mycommand{/bin/bash} & This field specifies which shell should be used when the user logs into the system. \\
+   \bottomrule
+   \end{tabularx}
+\caption{Description of the fields in the \mycommand{passwd} file.}
+\label{tab:passwd_file}
+\end{table}
+
+
+\subsection{Adding new users}
+
+To add a new user into the system, the \mycommand{useradd} command can be used. This command has the following syntax\mycommand{We cover \mycommand{sudo} in Section XXX.}:
+\begin{command_line}
+sudo useradd [options] USER_NAME
+\end{command_line}
+\mycommand{useradd} is most often used with the \mycommand{-m} and \mycommand{-s} options, in order to grant to this new user a home folder and provide him with a description. In Listing \ref{fil:add_user} we use the \mycommand{useradd} command to add a user with username \mycommand{john} to our system. This user is granted a home folder, \mycommand{/home/john} as well as a description, \mycommand{newbie}.
+
+\begin{command_line_float}{Bash}{Adding a user to a Linux system.}{fil:add_user}
+sudo useradd -m -c "newbie" john
+tail -5 /etc/passwd
+marcel:x:100:100:instructor:/home/marcel:/bin/bash 
+john:x:101:101:student:/home/john:/bin/sh
+george:x:102:102:musician:/home/george:/bin/sh
+linus:x:103:103:linux enthusiast:/home/linus:/bin/ksh
+john:x:104:104:newbie:/home/john:/bin/sh
+\end{command_line_float}
+
+Note that, after adding a user to the system, a new line was added at the bottom of the \mycommand{/etc/passwd} file. Note that this user has, \mycommand{sh}, as opposed to \mycommand{bash} as its default shell. This is due to the fact that \mycommand{useradd} uses a file \mycommand{/et/default/useradd} to retrieve its default settings. And this file, by default, sets \mycommand{sh} as its default shell. This behaviour can be changed by altering the \mycommand{/etc/default/useradd} file.
+
+The new user, \mycommand{john}, still cannot get access to the system as it was not yet granted a password. To grant a password to a new user, we need to use the \mycommand{passwd} command, as shown below:
+ 
+ \begin{command_line_float}{Bash}{Providing or changing a password for a given user.}{fil:provide_passwd}
+sudo tail -1 /etc/shadow
+ADD THE LINE HERE XXXX
+sudo passwd john
+Enter new UNIX password:
+Retype new UNIX password:
+passwd: Password updated succesfully
+sudo tail -1 /etc/shadow
+ADD THE LINE HERE XXXX
+\end{command_line_float}
+
+ In this example, you can see that the password field for the user john in the \mycommand{/etc/shadow} had only an exclamation mark (!). After granting this user a password, this field contains a hashed version of the provided password. A hashing algorithm takes a sequence of characters, and outputs another sequence of characters. It is a one-way algorithm. I.e., given a password it is easy to obtain its hash. However, given a hashed version of password, it is nearly impossible to retrieve the original password. Storing a password in a hashed format, as opposed to storing it in plain-text, greatly enhances the security of the system.
+
+\subsection{Changing users}
+
+To switch from one user to another, the switch user command, \mycommand{su}, is used. Its syntax is a shown below:
+\begin{command_line}
+su [options] USER_NAME
+\end{command_line}
+For example, to switch from user \mycommand{marcel} to user \mycommand{john}, the following command can be used:
+\begin{command_line_float}{Bash}{Switching users.}{fil:change_user}
+su john
+Password:
+pwd
+\end{command_line_float}
+Note that the \mycommand{su} command, by default, does not change the current working directory. However, it is possible to switch users and, at the same time, switch to the new user's home folder. This cna be done by entering a dash before the name of the new user, as in \mycommand{su - john}.
+
+The \mycommand{su} can also be used without providing a username as an argument. In this case, it switch to the \mycommand{root} user. In most Linux systems, a \mycommand{root} user is created during installation. Ubuntu is an exception. In order to use the \mycommand{root} user in Ubuntu, you need to first povide it a password using \mycommand{sudo passwd root}.
+
+
+\subsection{Editing existing users}
+
+It is possible to change the settings of particular users by using the \mycommand{usermod} command together with the proper options. Its syntax is:
+\begin{command_line}
+sudo usermod [options] USER_NAME
+\end{command_line}
+Among the possible changes that \mycommand{usermod} can perform are: locking and unlocking a user, changing the user's default shell, changing the user's default home folder, changing the user's password expire date, change the user's primary group, or even add the user as a member of existing groups. For a comprehensive list of all its options, access its manual with \mycommand{man usermod}. In Listing \ref{fil:usermod}, we provide a few examples of usege of the \mycommand{usermod} tool. 
+\begin{command_line_float}{Bash}{Switching users.}{fil:usermod}
+usermod -c "new description john
+usermod -L john #lock the user john
+usermod -U unlock the user john
+uermod -s sh john # change the shell for user john
+usermod -e 2016-11-28 # set the user's john password to expire at the provided date
+usermod -aG linux john # add john to the group linux
+\end{command_line_float}
+
+\subsection {Removing existng users from the system}
+
+To remove a user from the system, the \mycommand{userdel} command can be used. This command has the following syntax:
+\begin{command_line}
+sudo userdel [options] USER_NAME
+\end{command_line}
+By default, this command does not delete the user's home folder, which can lead to wasted space in the system' s memory. In order to do remove the user's home folder, at the same time the user is being removed, the option \mycommand{-r} must be used.  
+
+\section{Groups}
+
+Groups are used when a number of files and folders need to be shared with multiple users. They allow systems administrators to provide a set of permissions for these files and folders for some users, while preventing other users from gettign the same set of permissions. For example, in the output of the ls -l command shown in Listing \ref{fil:ls_output}, both the user owner \mycommand{marcel}, as well as all users that are members of the group \mycommand{admin} can read and edit the file XXX. All other users are allowed to read, but are prevented from editing this file.
+
+In Linux, the file \mycommand{/etc/group} file, as shown in Listing \ref{fil:etc_group}tores information about the current groups in he system, as well as its members.
+
+\begin{command_line_float}{Bash}{Contents of the \mycommand{/etc/group} file.}{fil:etc_group}
+tail -5 /etc/group
+john:x:101:
+john:x:101:
+john:x:101:
+john:x:101:
+\end{command_line_float}
+
+In this file, each row corresponds to a particular group. There are four fields in each row. In Table \ref{tab:group_file} we explain what each field represent, using the last row in Listing \ref{fil:etc_group} as an example.
+
+\begin{table}[!htbp]
+   \myfloatalign
+   \begin{tabularx}{\textwidth}{Xcp{65mm}} \toprule
+   \tableheadline{Field} & \tableheadline{Example} & \tableheadline{Description}\\ \midrule
+   \mycommand{group name} & \mycommand{marcel} & Name of the group.\\
+    \mycommand{password} & \mycommand{!} & The group's password. It is normally empty, which is represented by an exclamation mark \mycommand{!}. We cover groups passwords in Section XXX.\\
+     \mycommand{group ID} & \mycommand{1201} & ID number associated with the group.\\
+     \mycommand{list of users} & \mycommand{ john} & All users within a group are listed in this field. In case of multiple users, they are separated by commas.\\
+   \bottomrule
+   \end{tabularx}
+\caption{Description of the fields in the \mycommand{group} file.}
+\label{tab:group_file}
+\end{table}
+ 
+\subsection{Primary Groups}
+
+By inspecting the \mycommand{/etc/passwd} and \mycommand{/etc/group} files, you can see that each username in \mycommand{/etc/passwd} has a matching group in \mycommand{/etc/etc}. This is not a coincidence. When a user is created in a Linux system, a group with the same name as the username is created and assigned as its primary group. A primairy group of a given user is the group that is assigned by default as the group owner of all files created by the user. For example, when the user \mycommand{marcel} creates a new file, this file will have \mycommand{marcel} as its user owner, and the primary group of \mycommand{marcel}\marginnotes{Also named \mycommand{marcel}}, as its group owner.
+
+\subsection{Creating, configuring, and deleting groups}
+
+To add a new group to a Linux system, the \mycommand{groupadd} command can be used. It has the following syntax:
+\begin{command_line}
+sudo groupadd [options] GROUP_NAME
+\end{command_line}
+
+In Listing \ref{fil:add_group}, two groups called \mycommand{students} and \mycommand{faculty} are added to the system.
+\begin{command_line_float}{Bash}{Adding a group to a Linux system.}{fil:add_group}
+sudo groupadd students
+sudo groupadd faculty
+tail -5 /etc/group
+XXX
+XXX
+XXX
+\end{command_line_float}
+Note that, after adding groups to the system, new line were added at the bottom of the \mycommand{/etc/group} file. 
+
+After being created, a group can have some of its properties changed with the \mycommand{groupmod} command. This command has the following syntax:
+\begin{command_line}
+sudo groupmod [options] GROUP_NAME
+\end{command_line}
+
+In Listing XXX, we use the \mycommand{groupmod} command to alter a few properties of some groups such as: the group's name, the XXX ofthe group, etc. 
+\begin{command_line_float}{Bash}{Changing group properties with \mycommand{groupmod}.}{fil:group_mod}
+sudo groupmod -n new\_name old\_name}
+XXX
+\end{command_line_float}
+
+
+To delete a group from the system, the \mycommand{groupdel} command is used. It has the following syntax:
+\begin{command_line}
+sudo groupdel GROUP_NAME
+\end{command_line}
+
+\subsection{Adding and removing users from groups}
+
+You can add a user to a group with usermod -aG group\_name username
+without the -a, all groups are repalced by a new one.
+
+Or change the user's primary group with usermod -G GROUP\_NAME USERNAME
+
+\subsection{Granting group ownership to regular users}
+
+By default, group operations can only be performed using \mycommand{sudo} access. However, it is possible to assign ownership of a group to a regular user so that this user can add other users to the group. This is accomplished with the \mycommand{gpasswd} command using the syntax below:
+\begin{command_line}
+sudo gpasswd -A GROUP_NAME USERNAME
+\end{command_line}
+After being granted administration rights over a group, regular users can modify the group using the \mycommand{gpasswd} command together with a proper choice of options. In Listing \ref{fil:gpasswd}, we provide examples of a few changes that a group administrator regular  can do to a group. 
+
+\begin{command_line_float}{Bash}{Making changes to groups using \mycommand{gpasswd}.}{fil:gpasswd}
+gpasswd -a group\_name username
+XXXX
+XXXX
+XXXX
+\end{command_line_float}
+
+info about group passwd in /etc/gpasswd and etc/gshadow
+
+tools to identify users: id.
+
+
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+
+\begin{exercises}
+  \item 
+\end{exercises}

@@ -183,3 +183,19 @@ In order to be able to save intermediate results, we need to use \mycommand{tee}
 \begin{command_line}[make]
 @@marcel@dell:cat *.log | tee my\_file | grep "error" | less@@
 \end{command_line}
+
+\newpage
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+
+\begin{exercises}
+  \item Write down a command to concatenate the contents of three files, called \mycommand{syslog}, \mycommand{syslog1}, \mycommand{syslog2}, and display it on the terminal
+  \item Write down a command to concatenate the contents of three files, called \mycommand{syslog}, \mycommand{syslog1}, \mycommand{syslog2}, and display it on \mycommand{less}.
+  \item Write down a command to concatenate the contents of three files, called \mycommand{syslog}, \mycommand{syslog1}, \mycommand{syslog2}, save it in a file called \mycommand{syslogs}, and also display it on \mycommand{less}.
+  \newline
+  \newline
+  For the questions below, assume that you have two files: \mycommand{cs.info} and \mycommand{fa.info} in your current working directory. The contents of these files are displayed in Listings \ref{fil:cs} and \ref{fil:fa}, respectively, on page \pageref{fil:fa}.
+  \item Write down a command to display in the terminal a list of all students emails, without displaying the information in other columns.
+  \item Write down a command to display only the students first and last names in the terminal in alphabetical order according to their last names.
+  \item Write down a command to get the students first and last names, as well as their GPAs, and save them in descending order based on their GPAs in a file called \mycommand{all\_students.info}.
+\end{exercises}

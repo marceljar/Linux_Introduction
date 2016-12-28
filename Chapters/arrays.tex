@@ -1,0 +1,117 @@
+%************************************************
+\chapter{Arrays}\label{ch:arrays}
+%************************************************
+
+So far in this book, each variable we have defined in our previous scripts holds a single value. For example, a variable \mycommand{my\_var} created with the command \mycommand{my\_var=7} holds a value of \mycommand{7}. However, there are situations in which it makes sense to group a number of values under the same variable. To achieve this, \mycommand{bash} makes use of arrays. Arrays are, simply put, variables that can hold multiple values. In what follows, we will discuss hot to create arrays, how to access their contents, how to edit arrays, and finally, how to delete arrays.
+
+\section{Creating Arrays}
+
+To create an array with \mycommand{N} elements, you can use the following syntax:
+\begin{command_line}
+my_array=(element0 element1 element2 ... elementN-1)
+\end{command_line}
+Note that, in the syntax above, we have started at element \mycommand{0} instead of~\mycommand{1}. This is due to the fact that, as we will see later, \mycommand{bash} indexes array elements starting with a \mycommand{0}. As a result, the first element of an array has index \mycommand{0}, the second element has index \mycommand{1}, the third has index \mycommand{2}, and the N-\textit{th} element has index \mycommand{N-1}\marginnotes{Note that each element in an array can be an integer, a string, or even a filename}.
+
+An array can also be created by assigning to each one of its indexes a proper value. For example, we can create an array with three elements using the following syntax:
+\begin{command_line}
+my_array[0]=element0
+my_array[1]=element1
+my_array[2]=element2
+\end{command_line}
+
+The choice of which syntax to use depends on the scenario. For example, if you want to create an array with all the days of the week, using the first syntax makes perfect sense. However, if you want to create an array with all numbers from \mycommand{1} to \mycommand{100}, using the second syntax inside a loop can save a lot of typing, as shown in Listing \ref{fil:loop_array}.
+
+\begin{source_code_float}{Bash}{Script creating an array with numebrs from 1 to 100.}{fil:loop_array}
+#!/bin/bash
+
+index=0
+for number in {1..100} ; do
+    my_array[index]=number
+    index=$(($index+1))
+done
+\end{source_code_float}
+
+\section{Accessing elements of an Array}
+To access the value contained in an individual element of an array, we need to use the syntax: \mycommand{\$\{my\_array[index]\}}, where \mycommand{my\_array} denotes the name of the array, and \mycommand{index} is an integer\marginnotes{Note that the curly braces are mandatory}. For example, \mycommand{echo \$\{my\_var[2]\}} prints the contents of the second element of an array \mycommand{my\_var}, and \mycommand{today=\$\{week[2]\}} saves the value stored in the third element of an array called \mycommand{week} into a variable called \mycommand{today}.
+
+It is also possible to expand an array to use it with a \mycommand{for} loop. This can be accomplished using the syntax \mycommand{for var in "\$\{my\_array[$@$]\}"}, where \mycommand{var} denotes the variable that will, at each iteration, receive one value stored in the array. In Listing \ref{fil:loop_array2}, we use this syntax to print the names of all days of the week:
+
+\begin{source_code_float}{Bash}{Script that displays all elements from an array.}{fil:loop_array2}
+#!/bin/bash
+week=(Monday Tuesday Wednesday Thursday Friday Saturday Sunday)
+for day in "${week[@]}"; do
+    echo "$day"
+done
+\end{source_code_float}
+Finally, it is also possible to get the number of elements of an array\marginnotes{Which is normally, but not always equal to its last index plus one. See the Sparse Arrays box}, using the syntax: \mycommand{\$\{\#my\_array[$@$]\}}.
+
+\begin{my_box}[Sparse Arrays]
+All arrays we have created in our examples so far are full arrays. I.e., all indexes from \mycommand{0} until its last occupied index have values stored in them. However, this does not need to be the case. For example, if we run the commands \mycommand{new\_array[3]=34}, and \mycommand{new\_array[10]=24}. We are in fact creating an array called \mycommand{new\_array} with only two elements. However, the occupied indexes are \mycommand{3} and \mycommand{10}, as opposed to \mycommand{0}, and \mycommand{1}.
+
+Arrays that only have a handful of indexes occupied, i.e., an array in which there are gaps between indexes, are useful in a few scenarios. They are normally called sparse arrays. 
+
+Attempting to access the values stored in non-occupied indexes of an array in \mycommand{bash} will not result in an error, like it would be the case in many other computer languages. It will simply result in an empty answer. 
+\end{my_box}
+
+
+\section{Editing the contents of an array}
+
+Arrays, just like any other type of variable, can have the values that are stored in them changed at any time during the script's execution. In Listing \ref{fil:edit_array}, we create an array with usernames on line 2. Following, we ask the user to provide and index and a new username, and we use this information to change the value stored in the corresponding element. Finally, the script prints the new contents of the array.
+
+\begin{source_code_float}{Bash}{Script that allows users to change elements from an array.}{fil:edit_array}
+#!/bin/bash
+usernames=(john paul george ringo)
+echo "Provide the index of the element you want to change"
+read index
+echo "Provide the new username"
+read username
+
+usernames[$index]=username
+for user in "${usernames[@]}"; do
+    echo $user
+done
+\end{source_code_float}
+
+It is possible to append items to the end of an array using the \mycommand{+=} operator, as shown in the example below:
+\begin{command_line}[Bash]
+@@marcel@dell:~$@@my_array=(bananas apples grapes)
+@@marcel@dell:~$@@echo "{my_array[@]}"
+bananas apples grapes
+@@marcel@dell:~$my_array+=(strawberries pears)@@
+@@marcel@dell:~$@@echo "{my_array[@]}"
+bananas apples grapes strawberries pears
+\end{command_line}
+This keyword can also be used to avoid the need of creating a variable to keep track of the index, as we did in Listing \ref{fil:loop_array}. In fact, we can simplify that script significantly, as shown in Listing \ref{fil:loop_array+}.
+
+\begin{source_code_float}{Bash}{Simplified script to create an array with numbers from 1 to 100.}{fil:loop_array+}
+#!/bin/bash
+for number in {1..100} ; do
+   my_array+=($number)
+done
+for index in {0..99} ; do
+   echo ${my_array[$index]}
+done
+\end{source_code_float}
+Note that, the round brackets shown in Listing \ref{fil:loop_array+} are necessary. Without them, the new contents will be appended to the last element of the list, as opposed to in a new element. 
+
+\section{Deleting an array}
+
+Arrays that are created programatically using loops can end up taking a lot of memory\marginnotes{Listing~\ref{fil:loop_array} could be easily changed to create an array of a million numbers}. Hence, it is important to delete these arrays, once they are no longer needed, in order to free memory for your script to perform other tasks.
+
+To delete an entire array, we simply need to use the \mycommand{unset} keyword followed by the array name, as shown below:
+\begin{command_line}
+unset my_array
+\end{command_line}
+Note that you can also apply the \mycommand{unset} keyword to a particular element of an array, for example using \mycommand{unset my\_array[1]} to delete its second element. In fact, you can use this keyword to delete any variable previously created.
+
+
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+
+\begin{exercises}
+   \item What is the difference between a regular variable and an array?
+   \item How can you create an array containing the names of all months of the year?
+   \item Write down a script that will create an array with all even numbers between \mycommand{0} and \mycommand{100}. \textit{Hint: Use a loop}.
+   \item How can you print the number of elements inside an array?
+   \item How can you delete an array called \mycommand{my\_array}?
+\end{exercises}

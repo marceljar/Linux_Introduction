@@ -1,0 +1,191 @@
+%************************************************
+\chapter{File and Directory Permissions}\label{ch:permissions}
+%************************************************
+
+As mentioned in Chapter~\ref{ch:history}, Unix was created in an era in which large central computers were shared among multiple users. Hence, one of its main design goals was to support multiple users. As an \ac{OS} inspired by Unix, Linux has inherited its multiuser support. As a result, nowadays, Linux systems are often used in academic, as well as in industrial systems, in which multiple users need to share the same resources. Examples of such systems are supercomputers, servers, as well as cloud services. In a multiuser system, the following requirements are of fundamental importance: 
+
+\begin{itemize}
+\item Each user should be able to control who have access to his/her files and folders.
+\item Regular users should not be allowed to interfere with processes initiated by other users. However, sysadmins should be able to take action in case some processes are not behaving properly.
+\item Sysadmins should be able to create new users, edit the configurations of existing users, and delete users from the system.
+\end{itemize}
+
+In this chapter, we cover the first item, i.e we discuss how Linux implements files and folders permissions sets, which allows for a fine control of which users can access which files and folders. In the next chapter, Chapter \ref{ch:users_groups}, we discuss the concepts of users and groups, as well as how to create, edit, and delete them.
+
+\section{File and Folder Permissions}
+
+When asking for a list of all files and folders in the current working directory with \mycommand{ls -l}, you should get an output similar to the one provided in Listing \ref{fil:ls_output}.
+
+\begin{command_line_float}{Bash}{ls -l.}{fil:ls_output}
+@@marcel@dell:~$@@ ls  -l
+drwxrwxr-x  2 marcel marcel  4096 Jun 21 23:06 Music
+drwxrwxr-x  2 marcel marcel  4096 Jun 21 23:06 Video
+-rw-rw-r--  1 marcel marcel 12238 Jun 29 22:54 read_me
+-rwxrwxr-x  1 marcel marcel   126 Jun 28 20:52 script.sh
+-rw-r-----  1 marcel admin   2238 Jun 12 21:24 guide.pdf
+\end{command_line_float}
+
+This output has seven fields. In Table~\ref{tab:ch2_list}, we discussed what each field represents, using the file \textbf{\texttt{seneca.pdf}} as an example. In this section, we are focusing on the first field: files and folders permission sets. Given the fact that files and folders behave differently\marginnotes{For example, you can write or execute files, but not folders}, their permissions settings are slightly different. In what follows, we cover permissions for files first. Afterwards, we cover permissions for folders.
+
+\subsection{File permissions}
+
+There are three different types of file permissions. They are  shown in Table~\ref{tab:file_permissions} together with their acronyms and descriptions.
+
+\begin{table}[!htbp]
+   \myfloatalign
+   \begin{tabularx}{\textwidth}{Xcp{90mm}} \toprule
+   \tableheadline{type} & \tableheadline{ac.} & \tableheadline{Description}\\ \midrule
+   \mycommand{read} & \mycommand{r} & Grants permission to access the file's contents, but not to edit it or execute it. \\
+   \mycommand{write} & \mycommand{w} & Grants permission to edit the file's contents. Given the fact that  a user needs to access the contents of a file in order to edit it, this permission is only effective if granted together with a \mycommand{read} permission. \\
+   \mycommand{execute} & \mycommand{x} & Grants permission to execute the file's contents as a script. Given the fact that the shell needs to access the contents of a file in order to execute it, this permission is only effective if granted together with a \mycommand{read} permission. \\
+   \bottomrule
+   \end{tabularx}
+\caption{Types of file permissions.}
+\label{tab:file_permissions}
+\end{table}
+
+A full file permission set is comprised of ten characters divided in four fields, as seen in Figure~\ref{fig:permissions_file}. Note that a dash symbol, \textbf{-}, stands in place of denied permissions. 
+
+A detailed description of each field is presented in what follows.
+
+\begin{figure}[!htbp]
+  \centering
+        \input{Images/users_groups/permissions.tex}
+        \caption{File Permissions.}
+        \label{fig:permissions_file}
+\end{figure}
+
+\begin{description}
+\item[File type] The first character of a file's permission set contains an acronym that determines what kind of file it is\marginnotes{Remember that everything in Linux is considered a file}. A list containing the most important types of files, as well as  their acronyms is provided in Table \ref{tab:file_types}.
+\begin{table}[!htbp]
+   \myfloatalign
+   \begin{tabularx}{\textwidth}{Xp{100mm}} \toprule
+   \tableheadline{Ac.} &  \tableheadline{Description}\\ \midrule
+   \mycommand{-} & A dash represents a regular file, such as a text file, a script, an mp3 file, etc. \\
+   \mycommand{d} &  A \mycommand{d} stands for a directory. Permission sets for directories are covered in the next section. \\
+   \mycommand{l} & An \mycommand{l} stands for a symbolic link. Symbolic links were covered in Chapter~\ref{ch:file_links}. \\
+   \mycommand{p} & A \mycommand{p} stands for a named pipe. Pipilines were overed in Chapter~\ref{ch:piping}. \\
+   \mycommand{s} & An \mycommand{s} stands for a socket, which are used for data communications between different processes. \\
+   \mycommand{b} & A \mycommand{b} stands for a block device. \\
+   \mycommand{c} & An \mycommand{c} stands for a character device. \\
+   \bottomrule
+   \end{tabularx}
+\caption{File types.}
+\label{tab:file_types}
+\end{table}
+\item[User Owner Permission Set ] Characters two to four define the read, write, and execute permissions for the user who owns the file.
+\item[Group owner Permission Set] Characters five to seven define the read, write, and execute permissions for all users in the group that owns the file\marginnotes{Groups are discussed in Section~\ref{sec:groups}}.
+\item[Others Permission Set] Characters eight to ten define the read, write, and execute permissions for all other users. I.e., users that are neither the user owner, nor members of the group owner of the file.
+\end{description}
+
+In Listing \ref{fil:ls_output} on page \pageref{fil:ls_output}, we showed  the output of a \mycommand{ls -l} command. In it, you can see that there are two directories and three files in the current working directory, each one with different sets of permissions. In what follows, we explain what the permission sets of each one of the three files represent.
+
+
+\begin{enumerate}
+\item[\mycommand{read\_me}] This file has a permission set \mycommand{-rw-rw-r--}, which is the default set when a file is first created. It allows both the user owner (\mycommand{marcel}), as well as users that are members of the group owner (also called \mycommand{marcel}\marginnotes{We will explain why the group owner has often the same name as the user owner in Section~\ref{sec:groups}}), to read and edit (write) this file. Other users can only read this file. Note that no user can execute this file.
+\item[\mycommand{script.sh}] This file has a permission set \mycommand{-rwxrwxr-x}. It allows both the user owner (\mycommand{marcel}), as well as users that are members of the group owner (also called \mycommand{marcel}), to read, edit (write), and execute this file. Other users can also read and execute this file, but cannot edit (write) it.
+\item[\mycommand{config.pdf}] This file has a permission set \mycommand{-rw-r-----}. It allows the user owner (\mycommand{marcel}) to access and edit (write) this file. Users that are members of the group owner (called \mycommand{admin}) can access the contents of this file, but cannot edit (write) it. Other users cannot access or edit this file. Note that no user can execute this file.
+\end{enumerate}
+
+
+\subsection{Directory Permissions}
+
+Like regular files, directories also have three different types of file permissions. Also, like files, these permissions have acronyms \mycommand{r}, \mycommand{w}, and \mycommand{x}. However, the meaning of these permissions are slightly different than the ones shown in Table~\ref{tab:file_permissions}. In Table \ref{tab:directory_permissions}, we present a list of directory permission acronyms together with a description and examples of usage. 
+
+\begin{table}[!htbp]
+   \myfloatalign
+   \begin{tabularx}{\textwidth}{Xp{100mm}} \toprule
+   \tableheadline{ac.} & \tableheadline{Description}\\ \midrule
+   \mycommand{r} & Grants permission to read the contents of the directory. For example, it allows users to use the get a list of all fiels and folders using the \mycommand{ls} command. \\
+   \mycommand{w} & Grants permission to create files inside the directory. For example, it allow users to create new text files inside the directory using \mycommand{vim} or \mycommand{nano}.\\
+    \mycommand{x} & Grants permission to set the directory as the current working directory. For example, it allow users to use the \mycommand{cd} command to set it as its current working directory. \\
+   \bottomrule
+   \end{tabularx}
+\caption{Types of directory permissions.}
+\label{tab:directory_permissions}
+\end{table}
+
+
+In Listing \ref{fil:ls_output} on page \pageref{fil:ls_output}, you can see that there are two directories, \mycommand{Music} and \mycommand{Video}, in the current working directory with a permission set \mycommand{drwxrwxr-x}. This means that both the user owner (\mycommand{marcel}), as well as members of the group owner (also called \mycommand{marcel}), can read the contents of these folders, create files in it, and even set one of them as as their current working directory. Other users can also read the contents of these folders and set one of them as their working directory. However, they cannot create new files or edit the existing files.
+
+\subsection{Changing Permission sets}
+
+To change the permission set of a file you own, you can use the \mycommand{chmod} tool. This tool has the following syntax:
+
+\begin{command_line}
+chmod [MODE] FILE_NAME
+\end{command_line}
+
+Where [MODE] is a string that represents the new permission set. There are two ways to represent [MODE]. Using a symbolic notation, or using an octal notation. Both modes are discussed in what follows.
+
+\subsection*{Symbolic notation}
+
+In symbolic notation, three fields are required: the users upon which the new changes are going to be applied, a plus or minus signal to indicate if a permission is being granted or revoked, and finally the type of permission being granted or revoked. In Table~\ref{tab:sym_notation}, we provide possible values for all these fields.
+
+\begin{table}[!htbp]
+   \myfloatalign
+   \begin{tabularx}{\textwidth}{Xp{80mm}} \toprule
+   \tableheadline{field} & \tableheadline{possible values}\\ \midrule
+   \mycommand{users} & \mycommand{u} for user owner, \mycommand{g} for group owner, \mycommand{o} for others, and \mycommand{a} for all. \\
+   \mycommand{grant/revoke} & \mycommand{+} for granting a permission, \mycommand{-} for revoking it. \\
+   \mycommand{permission type} & \mycommand{r} for reading, \mycommand{w} for writing (editing), and \mycommand{x} for executing. \\
+   \bottomrule
+   \end{tabularx}
+\caption{Symbolic notation for chmod.}
+\label{tab:sym_notation}
+\end{table}
+
+In Listing \ref{fil:symbolic_chmod}, we provide a few examples of \mycommand{chmod} commands using symbolic notation. Note that in some cases, multiple permissions are granted at once. Also, note that if no users are specified, the \acs{OS} will change permissions for all users.
+
+
+\begin{command_line_float}{Bash}{Examples of \mycommand{chmod} using symbolic notation.}{fil:symbolic_chmod}
+@@marcel@dell:~$chmod u+x file1@@ #grants permission to the user owner to execute file1
+@@marcel@dell:~$chmod o-r file1@@ #revokes permissions from others to read file1
+@@marcel@dell:~$chmod a+rw file1@@ #grants permission to all users to both read and write (edit) file1
+@@marcel@dell:~$chmod go-w file1@@ #revokes permissions from group owners and others to write (edit) file1
+\end{command_line_float}
+
+\subsection*{Octal notation}
+
+There are three types of permissions that can be granted: write, read, and execute. Also, there are only two options for each permission: granted or revoked (not granted). Therefore, if we use a binary system with a $1$ representing a granted permission, and a $0$ representing a revoked permission, we have $2^{3} = 8$ possible permission sets for each user. In this way, we can use an octal, i.e., a number from 0 to 7, to represent all possible sets of permissions for a single user, as shown on Table \ref{tab:octal_notation}.
+
+\begin{table}[!htbp]
+   \myfloatalign
+   \begin{tabularx}{\textwidth}{Xcccp{50mm}} \toprule
+   \tableheadline{octal} & \tableheadline{read} & \tableheadline{write} & \tableheadline{execute} & \tableheadline{permissions}\\ \midrule
+   0 & 0 & 0 &0 & none\\
+   1 & 0 & 0 &1 & execute\\
+   2 & 0 & 1 &0 & write\\
+   3 & 0 & 1 &1 & write and execute\\
+   4 & 1 & 0 &0 & read\\
+   5 & 1 & 0 &1 & read and execute\\
+   6 & 1 & 1 &0 & read and write\\
+   7 & 1 & 1 &1 & read, write, and execute\\
+   \bottomrule
+   \end{tabularx}
+\caption{Octal notation for chmod.}
+\label{tab:octal_notation}
+\end{table}
+
+In order to specify a permission set to all types of users, i.e., a user owner, a member of the group owner, and all others. It is necessary to write three octals in sequence.
+
+
+In Listing \ref{fil:octal_chmod}, we provide a few examples of \mycommand{chmod} commands using octal notation.
+
+\begin{command_line_float}{Bash}{Examples of \mycommand{chmod} using octal notation.}{fil:octal_chmod}
+@@marcel@dell:~$chmod 755 file1@@ #grants permission to the user owner to read, write and execute file1. All other users can only read and execute file1.
+@@marcel@dell:~$chmod 664 file1@@ #grants permission to the user owner, and members of the group owner to read and write file1. Other users can only readfile1.
+\end{command_line_float}
+
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+
+\begin{exercises}
+  \item What does it means to have a \mycommand{w} permission for a file? I.e., what can a user with such a permission do with regards to a file, that other users without such permission cannot?
+  \item What does it means to have an \mycommand{r} permission for a directory? I.e., what can a user with such a permission do with regards to a directory, that other users without such permission cannot?
+  \item Explain what a permission set \mycommand{-rw-rw-r--} represents. I.e., with regards to a file with this permission set, which users\marginnotes{user owner, members of the group owner, and others} can do what?
+  \item Given a file with a permission set \mycommand{-rw-rw-r--}. How can you change it to a permission set \mycommand{-rwxrwxr-x}? Try answering this question using both octal and symbolic modes.
+  \item Given a file with a permission set \mycommand{-rwxr-xr-x}. How can you change it to a permission set \mycommand{-rw-r--r--}? Try answering this question using both octal and symbolic modes.
+  \item What would be the complete permission set of a file that has the following permissions: user owners can read and write, but not execute it, and all other users can only read it.
+  \item Can a user execute a file which he/she has permission to execute, but not permission to read?
+\end{exercises}

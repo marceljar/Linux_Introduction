@@ -4,7 +4,7 @@ In this chapter we will cover how to get access to a terminal emulator, as well 
 
 \section{Accessing a Terminal Emulator}
 
-Once a user logs into a Linux \acs{OS} with a \acs{GUI}, there are multiple ways to get access to a \textbf{terminal emulator}. Some methods work only on a specific distribution, whereas some methods work on most distributions. In what follows, a list of methods to access terminal emulators are presented for some of the most popular desktop environments\marginnotes{Desktop environments are covered in Appendix XXX}. The most commom Linux distribution for each desktop environment is presented in the margin notes.
+Once a user logs into a Linux \acs{OS} with a \acs{GUI}, there are multiple ways to get access to a \textbf{terminal emulator}. Some methods work only on a specific distribution, whereas some methods work on most distributions. In what follows, a list of methods to access terminal emulators are presented for some of the most popular desktop environments. The most commom Linux distribution for each desktop environment is presented in the margin notes.
 
 \begin{description}
    \item[Gnome3] Press\marginpar{Debian, Red Hat, Fedora, CentOS, Kali} the super (windows) button to call the list of applications, and then type \textbf{\texttt{terminal}} in the search field, or search for the terminal in the provided applications list.
@@ -25,7 +25,7 @@ Once the terminal emulator starts, the user is presented with an application dis
 This prompt contain important information about the current parameters of the shell, namely: the username (\textbf{\texttt{marcel}}), system name (\textbf{\texttt{dell}}), and working directory (represented by a tilde [\textbf{\texttt{\texttildelow}}])\marginnotes{The \textbf{\texttt{\$}} separates command prompts from these current parameters}. A brief description of these parameters follows:
 
 \begin{description}
-\item [Username] Linux systems, as any Unix-like system, was designed to allow multiple users to access the system. When a terminal emulator starts, it assumes the user to be the same one that logged in into the GUI system. in Chapter XX, we will show how the \textbf{\texttt{su}} command can be used to switch users. In the example above, the username is \textbf{\texttt{marcel}}.
+\item [Username] Linux systems, as any Unix-like system, was designed to allow multiple users to access the system. When a terminal emulator starts, it assumes the user to be the same one that logged in into the GUI system. in Chapter \ref{ch:users_groups}, we will show how the \textbf{\texttt{su}} command can be used to switch users. In the example above, the username is \textbf{\texttt{marcel}}.
 
 \item[System name] During the installation of Linux systems,  users are required to give your system (local machine) a name. When a terminal emulator starts, it assumes that you are using the local machine. In chapter XXX we will see how to log into remote machines using the \textbf{\texttt{ssh}} command. In the example above, my local machine is called is \textbf{\texttt{dell}}.
 
@@ -108,10 +108,10 @@ This long list provides a number fo columns containing information about each fi
    \begin{tabularx}{\textwidth}{cXp{70mm}} \toprule
    %\tableheadline{Shell} & \tableheadline{Description}\\ \midrule
    \textbf{column} & \textbf{example} & \textbf{meaning} \\ \bottomrule
-   \textbf{1} & \textbf{\texttt{-rw-rw-r--}} & File type and permission sets. These topics are covered in Chapter XX.\\
-   \textbf{2} & \textbf{1} & Number of hard links to this file. Links are covered in Chapter XX.\\
-   \textbf{3} & \textbf{marcel} & Name of the user owner of the file. The concepts of users and ownership are covered in Chapter XX.\\
-   \textbf{4} & \textbf{marcel} & Name of the group owner of the file. The concepts of groups and ownership are covered in Chapter XX.\\
+   \textbf{1} & \textbf{\texttt{-rw-rw-r--}} & File type and permission sets. These topics are covered in Chapter \ref{ch:users_groups}.\\
+   \textbf{2} & \textbf{1} & Number of hard links to this file. Links are covered in Chapter \ref{ch:file_links}.\\
+   \textbf{3} & \textbf{marcel} & Name of the user owner of the file. The concepts of users and ownership are covered in Chapter \ref{ch:users_groups}.\\
+   \textbf{4} & \textbf{marcel} & Name of the group owner of the file. The concepts of groups and ownership are covered in Chapter \ref{ch:users_groups}.\\
    \textbf{5} & \textbf{12238} & Size of the file in bytes.\\
    \textbf{6} & \textbf{Jun 29 22:54} & Timestamp indicating when the file was edited for the last time.\\
    \textbf{7} & \textbf{seneca.pdf} & File name.\\
@@ -215,7 +215,7 @@ All commands you enter, as well as their outputs, stay in the screen and you are
 
 In order to clear the screen from all previous commands and ouputs, you simple have to issue the \textbf{\texttt{clear}} command. This command will erase from your terminal all information in it and provide you with a command prompt at the top to keep working with the shell.
 
-It is important to note that this command simply clears the terminal display. Any variables\marginnotes{Variables are covered in Chapter XXX} that have been defined, or any modifications to the state of the shell will not be changed by this command.
+It is important to note that this command simply clears the terminal display. Any variables\marginnotes{Variables are covered in Chapter~\ref{ch:intro_scripting}} that have been defined, or any modifications to the state of the shell will not be changed by this command.
 
 \section{Command History}
 

@@ -1,0 +1,375 @@
+%************************************************
+\chapter{Process Control}\label{ch:processes}
+%************************************************
+
+In this chapter, we discuss how a sysadmin can control how processes run in a Linux \acs{OS}. We start by covering tools to monitor processes such as \mycommand{ps} and \mycommand{top}. Following, we will discuss how the \mycommand{kill} and \mycommand{killall} commands can be used to send \textbf{signals} to processes in order to terminate, pause, or even continue paused processes. Next, we discuss the concepts of processes running in the foreground, \mycommand{fg}, or in the background, \mycommand{bg}. Finally, we end this chapter by covering how processes can have their priorities changed with the \mycommand{nice} and \mycommand{renice} commands.
+
+\section{Monitoring Processes}
+
+As mentioned  before throughout this book, Linux was designed to work with multiple concurrent users. When multiple users are interacting with the same system, care must be taken so that a single user is not using all the available resources. As a result, Linux \acs{OS}s come with multiple tools to monitor which processes are currently running, which users started these processes, as well as how much of the available resources each process is using. This allow sysadmins to make informed decisions on tasks such as: which processes should be halted, which processe should have their priorities lowered or raised, etc.
+
+In what follows, we cover two commands that are frequently used to monitor processes: \mycommand{ps}, and \mycommand{top}. Afterwards, we will cover methods to control these processes as well as to change their priorities. 
+
+\subsection{\mycommand{ps}}
+
+The \mycommand{ps}\marginnotes{Short for processes snapshot} command provides a list of processes that are running, or at least that were running at the time the command was called. It has the following syntax:
+\begin{command_line}[make]
+ps [OPTIONS] 
+\end{command_line}
+
+When called without any options, you should see a result similar to the one shown in Listing \ref{fil:ps_basic}. In this listing, there are four fields in the \mycommand{ps} response. These fields are described in Table \ref{tab:basic_ps}.
+
+\begin{command_line_float}{make}{Basic \mycommand{ps} call.}{fil:ps_basic}
+@@marcel@dell:~$ps@@
+  PID TTY          TIME CMD
+21344 pts/3    00:00:00 ps
+32108 pts/3    00:00:00 bash
+@@marcel@dell:~$@@
+\end{command_line_float}
+
+
+\begin{table}[!htbp]
+   \myfloatalign
+   \begin{tabularx}{\textwidth}{Xcp{75mm}} \toprule
+   \tableheadline{Field} & \tableheadline{Example} & \tableheadline{Description}\\ \midrule
+   \mycommand{PID} & \mycommand{21344} & Process ID. Each process is assigned a unique ID by the \acs{OS}.\\
+   \mycommand{TTY} & \mycommand{pts/3} & Teletype. Refers to the terminal that controls the process. If multiple terminals are open, you can see that calling \mycommand{ps} in each one will return a different TTY.\\
+   \mycommand{TIME} & \mycommand{00:00:00} & This field shows for how long each process has been running.\\
+   \mycommand{CMD} & \mycommand{bash} & The name of the command that started the process.\\
+   \bottomrule
+   \end{tabularx}
+\caption{Fields presented in a basic \mycommand{ps} call.}
+\label{tab:basic_ps}
+\end{table}
+
+Note that, by default, \mycommand{ps} only monitors the processes that were initiated by the terminal. This is why only two processes were shown in Listing \ref{fil:ps_basic}\marginnotes{Even if there were other processes running in the \acs{OS}, such as a browser, a calculator, or an email application}. In this listing, the user \mycommand{marcel} uses \mycommand{bash} to call \mycommand{ps}. Note that, because these two commands are executed in less than a second, \mycommand{ps} returns a value of \mycommand{0} for the \mycommand{TIME} field fo both processes.
+
+To visualize all the processes running in the system, you can call the \mycommand{ps} command with the \mycommand{-e} option. Note that there might be hundreds or even thousands of processes running. So, a good aproach is to pipe the output of \mycommand{ps -e} to \mycommand{less}, as shown in Listing \ref{fil:ps_all}\marginnotes{Only the first few lines of the output are displayed}.
+
+\begin{command_line_float}{make}{Monitoring all current processes with \mycommand{ps -e}.}{fil:ps_all}
+@@marcel@dell:~$ps -e | less@@
+#inside less
+PID TTY          TIME CMD
+    1 ?        00:00:00 init
+    2 ?        00:00:00 kthreadd
+    3 ?        00:00:01 ksoftirqd/0
+    5 ?        00:00:00 kworker/0:0H
+    7 ?        00:01:20 rcu_preempt
+:
+\end{command_line_float}
+
+Note that, in Listing \ref{fil:ps_all}, many processes have a \mycommand{?} in its \mycommand{TTY} field. This indicated that these processes were not initiated by a terminal, which is often the case for \textit{daemon} processes.
+
+Many more options are available to \mycommand{ps}. These options can be used to allow sysadmins to apply different types of filters on which processes it should output, as well as to add more fields to each output. For more information about different \mycommand{ps} options, check its \mycommand{man} page.
+
+
+\subsection{\mycommand{top}}
+
+A problem with \mycommand{ps} is that it only provides a snapshot of the processes that are currently running. If a process finishes, or if another process starts after \mycommand{ps} was called, a sysadmin would need to call it again to verify it. Also, \mycommand{ps} can only be used to monitor processes. It does does not provide sysadmins with tools to act on them.
+
+A more dynamic view of processes that are currently running can be obtained using the \mycommand{top} command. Instead of showing only a snapshot of current processes and providing the sysadmin back with the command prompt, \mycommand{top} takes over the terminal and keeps refreshing it with information about the processes that are running\marginnotes{To regain control of the terminal, a sysadmin needs only to type \mycommand{q}}. In Listing~\ref{fil:top} you can see an example of output for \mycommand{top}.
+
+\begin{command_line_float}{make}{Dynamically monitoring processes with \mycommand{top}.}{fil:top}
+@@marcel@dell:~$top@@
+top-09:18:13 up 21:17, 0 users, load average: 0.35,0.45,0.63
+Tasks: 365 total, 1 run, 364 sleep, 0 stop, 0 zombie
+%Cpu:1.7us, 1.5sy, 0.1ni, 96.6id, 0.2wa, 0.0hi, 0.0si, 0.0st
+MiB Mem: 3989 total, 3041 used, 947 free, 54 buffers
+MiB Swap:5844 total, 1192 used, 4651 free. 823 cached Mem
+
+PID   USER   PR NI VIRT  RES  SHR S %CPU %MEM TIME+  COMMAND
+ 1162 marcel 12 -8  901k 140k 49k S 4.6  3.5  6:22.43 chrome      
+27156 marcel 20  0  961k 163k 68k S 1.6  4.1  1:14.21 chrome     
+13162 marcel 20  0  803k 122k 22k S 1.4  0.8  0:20.16 chrome 
+21063 marcel 20  0   21k   3k  2k R 1.3  0.1  0:00.15 top
+20684 marcel 20  0 1748k 168k 43k S 1.0  4.2  3:39.51 code
+11631 marcel 20  0  128k 188k 12k S 1.0  3.1  1:12.43 evince
+13964 marcel 20  0 1605k  41k 95k S 0.7  0.8  0:12.16 unityp 
+14102 root   20  0  305k   4k  3k S 0.7  0.1  0:03.74 upower    
+14257 marcel 20  0 1581k  58k 21k S 0.7  1.5  9:54.38 compiz      
+    7 root   20  0     0    0   0 S 0.3  0.0  1:30.72 rcu_pr 
+\end{command_line_float}
+ 
+The information presented by \mycommand{top} is divided in two parts. The first part presents information about the current system load. Then, \mycommand{top} skips a line and presents information about each individual process, as shown in Listing~\ref{fil:top}. Tables \ref{tab:system_top}, and \ref{tab:individual_top}, explain each field in these two parts.
+
+\begin{longtable}[!tbp]{p{16mm}p{10mm}p{71mm}}
+   \toprule
+   \tableheadline{Field} & \tableheadline{Example} & \tableheadline{Description}\\ \midrule
+   \multicolumn{3}{c}{top line} \\\midrule
+   \mycommand{program} & \mycommand{top} & Name of the foreground process. Should always be \mycommand{top}\\
+   \mycommand{time} & \mycommand{09:18:13} & Current time, as specified by the system.\\
+   \mycommand{last boot} & \mycommand{21:17} & Amount of time that has passed since last boot.\\
+   \mycommand{load averages} & \mycommand{0.35, 0.45, 0.63} & System load over the last 1, 5, and 15 minutes. A value of 1.00 represents full load.\\\midrule
+   \multicolumn{3}{c}{process states (see Section \ref{sec:process_states})} \\\midrule
+   \mycommand{total} & \mycommand{365} & Total number of processes that are currently being managed by the \acs{OS}.\\
+   \mycommand{running} & \mycommand{1} & Number of processes that are currently using the CPU.\\
+   \mycommand{sleeping} & \mycommand{364} & Number of processes that are waiting their turn to use the CPU.\\
+   \mycommand{stopped} & \mycommand{0} & Number of processes that have been stopped (paused) by a user or sysadmin.\\
+   \mycommand{zombie} & \mycommand{0} & Number of processes that have been terminated but did not properly disposed.\\ \midrule
+   \multicolumn{3}{c}{cpu usage (\%)} \\\midrule
+   \mycommand{us} & \mycommand{1.7} & Percentage running un-niced user processes. (See Section \ref{sec:nice} about \mycommand{nice})\\
+   \mycommand{sy} & \mycommand{1.5} & Percentage running kernel processes.\\
+   \mycommand{ni} & \mycommand{0.1} & Percentage running niced user processes.\\
+   \mycommand{id} & \mycommand{96.6} & Percentage not used (idle).\\
+   \mycommand{wa} & \mycommand{0.2} & Time waiting for I/O completion.\\
+   \mycommand{hi} & \mycommand{0.0} & Time spent servicing hardware interrupts.\\
+   \mycommand{si} & \mycommand{0.0} & Time spent servicing software interrupts.\\
+   \mycommand{st} & \mycommand{0.0} & Time stolen from this vm by the hypervisor.\\ \midrule
+   \multicolumn{3}{c}{physical memory usage} \\\midrule
+   \mycommand{total} & \mycommand{3989} & Total RAM memory.\\
+   \mycommand{used} & \mycommand{3041} & RAM currently being used.\\
+   \mycommand{free} & \mycommand{947} & RAM currently free.\\
+   \mycommand{buffers} & \mycommand{54} & RAM used for buffering.\\ \midrule
+   \multicolumn{3}{c}{virtual memory usage} \\\midrule
+   \mycommand{total} & \mycommand{5844} & Total Swap memory.\\
+   \mycommand{used} & \mycommand{1192} & Swap currently being used.\\
+   \mycommand{free} & \mycommand{4651} & Swap currently free.\\
+   \mycommand{cached Mem} & \mycommand{823} & Cached memory.\\ \bottomrule
+\caption{System load fields presented by a \mycommand{top} command.}
+\label{tab:system_top}
+\end{longtable}
+
+
+\begin{longtable}[!tbp]{p{16mm}p{10mm}p{71mm}}
+   \toprule
+   \tableheadline{Field} & \tableheadline{Example} & \tableheadline{Description}\\ \midrule
+   \mycommand{PID} & \mycommand{1162} & Process ID number. Each process is given an ID number by the system.\\
+   \mycommand{USER} & \mycommand{marcel} & User owner of the process. Normally the one who started it.\\
+   \mycommand{PR} & \mycommand{12} & Priority of the process. Directly related to NI, as shown in \ref{sec:nice}.\\
+   \mycommand{NI} & \mycommand{-8} & Nice value of the task. For more information on nice values, see Section \ref{sec:nice}.\\
+   \mycommand{VIRT} & \mycommand{901k} & The  total  amount  of  virtual  memory  used by the process.\\
+   \mycommand{RES} & \mycommand{140k} & Non-swapped physical memory the process has used.\\
+   \mycommand{SHR} & \mycommand{49k} & Amount of shared memory available to a  process.\\
+   \mycommand{S} & \mycommand{S} & Process state. See Section~\ref{sec:process_states}.\\
+   \mycommand{\%CPU} & \mycommand{4.6} & The process' share of the elapsed CPU time since the last screen update, expressed as a percentage of total CPU time.\\
+   \mycommand{\%MEM} & \mycommand{3.5} & Physical memory used by the process.\\
+   \mycommand{TIME+} & \mycommand{6:22.43} & Amount of time a process has been running in minutes, seconds, and fraction of a second.\\
+   \mycommand{COMMAND} & \mycommand{chrome} & Displays the command line used to start the process.\\
+  \bottomrule
+\caption{Individual process fields presented by a \mycommand{top} command.}
+\label{tab:individual_top}
+\end{longtable}
+
+\subsection{Process States}
+\label{sec:process_states}
+A process in a Linux \acs{OS} can be in one of four possible states: running, sleeping, stopped, and zombie. A full description of each state is presented in what follows:
+
+\begin{description}
+\item[Running] Running processes are processe that are currently being processed by the CPU. The number of processes that can be handled concurrently by the CPU is determined by its number of cores. For example, a single core processor can only handle one process at a time, whereas a quad core processor can handle up to four.
+\item[Sleeping] Sleeping processes are processes that are waiting their turn to be processd by the CPU. Note that the \acs{OS} does not wait for a particular process to be finished in order to start processing other processes. Rather, the \acs{OS} keeps switching back and forth between processes at very fast rates so that, for the user point of view, it looks like multiple processes are being dealt with by the CPU concurrently.
+\item[Stopped] Stopped processes are processes that were stoped by the user by pressing \mycommand{Crtl+Z} or by sending a \mycommand{SIGSTOP} signal with \mycommand{kill} or \mycommand{killall}. See Section \ref{sec:signals}.
+\item[Zombie] Zombie processe are processes that were terminated, but for some reason were not cleared up by their parent processes. Note that, in Linux, all processes have a parent. For example, when you call a script using \mycommand{bash}, \mycommand{bash} becomes the parent of the script process.
+\end{description}
+
+Besides dynamically showing all processes, another advantage that \mycommand{top} has over \mycommand{ps} is that it allows sysadmins to control processes by sending signals to them. However, before covering this, we need to introduce the concept of signals.
+
+In the next section, we will discuss the concept of signals, as well as how to send signals to processes using the \mycommand{kill} and \mycommand{killall} commands. At the end of the section, we will explain how to send signals to processes from within \mycommand{top}. 
+
+\section{Sending Signals to Processes}
+\label{sec:signals}
+When a Linux \acs{OS} starts a process, it ensures that the process can respond asynchronously\marginnotes{I.e., at any time} to signals sent to it. This is a very important feature.  It allows, for example, sysadmins to easily terminate processes that are not working properly or that are using too much memory.
+
+There are multiple different signals that can be sent to processes. A list of some of the most common of these signals is presented in Table~\ref{tab:common_signals}.
+
+\begin{table}[!htbp]
+   \myfloatalign
+   \begin{tabularx}{\textwidth}{Xcp{75mm}} \toprule
+   \tableheadline{Name} & \tableheadline{Number} & \tableheadline{Description}\\ \midrule
+   \mycommand{SIGINT} & \mycommand{2} & Interrupt signal. Usually terminates the process. Note that this is equivalent of pressing \mycommand{Crtl+C}\\
+   \mycommand{SIGKILL} & \mycommand{9} & Kill signal. Note that this signal, contrary to most other signals, cannot be caught or ignored. It will terminate the processes instantly, without waiting it to perform its normal termination procedures, such as cleaning up memory.\\
+   \mycommand{SIGTERM} & \mycommand{15} & Terminates a process, but first waits for it to perform its common termination procedures. This is the default signal sent by the \mycommand{kill} and \mycommand{killall} commands.\\
+   \mycommand{SIGCONT} & \mycommand{18} & Continue signal. This signal is used to re-start a process that was previously stopped.\\
+   \mycommand{SIGSTOP} & \mycommand{19} & Stop signal. This signal is used to stop (pause) a process. This is equivalent of pressing \mycommand{Crtl+Z}. Stopped processes can be later re-started using the \mycommand{SIGCONT} signal. \\
+   \bottomrule
+   \end{tabularx}
+\caption{Common System signals.}
+\label{tab:common_signals}
+\end{table}
+
+\begin{my_box}[SIGINT vs SIGTERM vs SIGKILL]
+\label{box:sig_differences}
+These three signals can be used to terminate a process. However, they act in slightly different ways. 
+
+\mycommand{SIGTERM} is the default method to terminate a process. It initiate the termination process, allowing time for the process to do whichever tasks it is supposed to do before finishing. This signal can be caught and even ignored. 
+
+The \mycommand{SIGINT} signal is nearly identical to \mycommand{SIGTERM}. The only difference is that it can be sent via a keyboard shortcut. In fact, this signal can be sent to the foreground process by simply typing \mycommand{Crtl+C}.
+
+The \mycommand{SIGKILL} signal differs from \mycommand{SIGTERM} in which it cannot be caught or ignored. Also, it does not allow for a process to run its normal termination taks. As a result, processes terminated with \mycommand{SIGKILL} might not release the memory they were occupying. For this reason, \mycommand{KILL} is normally only used as a last resort.
+\end{my_box}
+
+Sysadmins can send signals to processes using three differents methods: using the \mycommand{kill} command, using the \mycommand{killall} command, or from within \mycommand{top}. These three methods are covered in what follows.
+
+\subsection{\mycommand{kill}}
+
+The \mycommand{kill} command can be used to send a signal to a specific process. Its syntax is as follows:
+\begin{command_line}[make]
+sudo kill -SIGNAL PID
+\end{command_line}
+where the desired \mycommand{SIGNAL} can be specified in two different ways: using the name of a signal, or by providing the signal number. The \mycommand{PID} stands for the process ID number, which can be obtained using \mycommand{ps} or \mycommand{top}.
+
+In Listing \ref{fil:kill_command}, we present a few examples of how to use the \mycommand{kill} command to send signals to different processes.
+
+\begin{command_line_float}{make}{\mycommand{kill} command examples.}{fil:kill_command}
+@@marcel@dell:~$sudo kill -SIGTERM 440@@ #terminates process 440
+@@marcel@dell:~$sudo kill -2 8532@@ #interrupts process 8532
+@@marcel@dell:~$sudo kill -SIGSTOP 2331@@ #stops process 2331
+@@marcel@dell:~$sudo kill -18 2331@@ #restarts process 2331
+\end{command_line_float}
+
+
+\subsection{killall}
+
+In most \acs{OS}s,  it is possible to initiate multiple instances of a particular application. For example, you can have multiple instances of the \textbf{chrome} browser open, or you can have multiple instances of a text editor, such as \textbf{MS word}, open. In these scenarios, you would have multiple processes named \textbf{chrome} and \textbf{word} running at the same time.
+
+The \mycommand{kill} command uses the PID, as opposed to the process' name in order to be able to distinguish between specific instances of processes. E.g., if there are multiple \textbf{chrome} browsers open, we can use the PID of an specific instance to specify to which one of the multiple open \textbf{browsers} the signal should be sent to.
+
+The \mycommand{killall} command, on the other hand, uses the process' name, as opposed to the PID. By doing so, it is capable of sending a signal to all instances of processes running under a particular name\marginnotes{Hence, the \textbf{all} in its name}. For example, it could send a signal to terminate all \textbf{chrome} browsers in our previous example.
+
+In Listing \ref{fil:killall_command}, we present a few examples of how to use the \mycommand{killall} command to send signals to different processes.
+
+\begin{command_line_float}{make}{\mycommand{killall} command examples.}{fil:killall_command}
+@@marcel@dell:~$sudo killall -SIGTERM chrome@@ #terminates all chrome processes
+@@marcel@dell:~$sudo kill -2 gedit@@ #interrupts all gedit processes
+@@marcel@dell:~$sudo kill -SIGSTOP firefox@@ #stops all firefox processes
+@@marcel@dell:~$sudo kill -18 firefox@@ #restarts all firefox processes
+\end{command_line_float}
+
+\subsection{Sending signals from within \mycommand{top}}
+As previously mentioned, it is possible to send signal to processes while running \mycommand{top}. To do so, a sysadmin just needs to first type \mycommand{k}. Then, the sysadmin is prompted to enter the PID of the process, followed by the signal to be sent. Note that the signal to be sent should not have the \mycommand{-} (dash) that is included while using the \mycommand{kill} or \mycommand{killall} commands. For example, a sysadmin can enter: \mycommand{23140}, followeed by \mycommand{SIGTERM} in order to terminate a processes with PID \mycommand{23140}.
+
+
+\section{Foreground and Background Processes}
+
+By default, each time you start a process from the terminal, this process takes control over the terminal until it finishes. This is clearly the case for \mycommand{top}, which was discussed a few sections ago. This is also the case for all scripts that we have shown in Chapters~\ref{ch:intro_scripting} to \ref{ch:functions}.
+
+The process that is currently controlling the terminal is called the \textbf{foreground} process. Conversely, any processes that are running, but do not control the terminal, are called \textbf{background} processes.
+
+To see how foreground and background processes differ, try running the script \mycommand{echo.sh} presented in Listing~\ref{fil:infinity_loop}. 
+
+\begin{source_code_float}{Bash}{Infinity loop.}{fil:infinity_loop}
+#!/bin/bash
+#infinity loop
+
+while [ true ] ; do
+   echo "Press Crtl+C to stop seeing this annoying message"
+   sleep 5
+done
+\end{source_code_float}
+
+After running this script with \mycommand{./echo.sh}\marginnotes{Remember to give this script permission to be executed using \mycommand{chmod}, as discussed in Chapter \ref{ch:permissions}}, you should note that you are no longer in control of the terminal. You can type messages, but nothing happens. The script just keeps printing its message on the terminal until you send it an \mycommand{INT} signal by entering \mycommand{Crtl+C}. This happens because this script is running in the foreground, just like \mycommand{top} and \mycommand{vim} do when they are executed.
+
+Background scripts, on the other hand, do not take control over the terminal. You can see this by running the same script again with \mycommand{./echo.sh \&}\marginnotes{The \mycommand{\&} symbol indicates that the script will start running on the background, as opposed to the foreground}. Now, even though the script keeps printing its message on the terminal, you are in control of your terminal. You can see this by issuing commands such as \mycommand{ls}, \mycommand{cat}, or even \mycommand{top}\marginnotes{Note that you cannot terminate processes running in the background with \mycommand{Crtl+C}. You will need to use the \mycommand{kill} or \mycommand{killall} commands to send signals to background processes}. 
+
+Note that the difference between a process running in the background or in the foreground only has to do with control over the terminal. It does not mean that a process running in the foreground has higher priority than a process running in the background or vice-versa. In Linux systems, the priority of a process is controlled by its \mycommand{nice} factor, which we cover later in this chapter.
+
+\subsection{\mycommand{fg} and \mycommand{bg}}
+
+Background processes can be sent to the foreground and vice-versa. To do so, the commands \mycommand{fg} and \mycommand{bg} are used.
+
+The syntax for sending background processes to the foreground using \mycommand{fg} is the following:
+\begin{command_line}[make]
+fg JOB_ID
+\end{command_line}
+The \mycommand{JOB\_ID} is an integer that uniquely defines the current process that was initiated by the terminal. You can obtain the \mycommand{JOB\_ID} of any process running on the terminal using the \mycommand{jobs} command. Its syntax is simply:
+\begin{command_line}[make]
+jobs
+\end{command_line}
+
+
+In Listing \ref{fil:fg_command}, we start our \mycommand{echo.sh} script running in the background. Then, we issue a \mycommand{jobs} command and then we use the \mycommand{fg} command to send the script to the foreground. Note that, until the process is sent to the foreground, we cannot stop it with \mycommand{Crtl+C}. 
+\begin{command_line_float}{make}{Sending background processes to the foreground.}{fil:fg_command}
+@@marcel@dell:~$./echo.sh &@@
+Press Crtl+C to stop seeing this annoying message
+jobs
+[1]+  Running                 ./echo.sh &
+Press Crtl+C to stop seeing this annoying message
+fg 1
+./echo.sh # the system shows which process fg acted on
+Press Crtl+C to stop seeing this annoying message
+^C # after entering Crtl+l
+\end{command_line_float}
+
+Foreground processes have control over the terminal. Hence, in order to send a foreground process to the background, you need first to pause (stop) it. This can be achieve by sending a \mycommand{SIGSTOP} signal using \mycommand{Crtl+Z}. After the process is stopped. You can use the \mycommand{bg} command to send it to the background. By default, this command will also send a \mycommand{SIGCONT} signal to resume the process in the background.
+
+In Listing \ref{fil:bg_command}, we start our \mycommand{echo.sh} script running in the foreground. Then, we press \mycommand{Crtl+Z} to pause it. Following, we send it to be resumed in the background using \mycommand{bg}. Note that we did not have to run the \mycommand{jobs} command, because the \mycommand{JOB\_ID} of \mycommand{echo.sh} was displayed after we pressed \mycommand{Crtl+Z}.
+\begin{command_line_float}{make}{Sending foreground processes to the background.}{fil:bg_command}
+@@marcel@dell:~$./echo.sh@@
+Press Crtl+C to stop seeing this annoying message
+^Z
+[1]+  Stopped                 ./echo.sh
+@@marcel@dell:~$bg 1@@ #this JOB_ID was obtained from the previous line
+Press Crtl+C to stop seeing this annoying message
+\end{command_line_float}
+
+\section{Processes Priorities}
+\label{sec:nice}
+
+While describing the difference between process states in Section \ref{sec:process_states}, we talked about how the \acs{OS} keeps switching processes back and forth between running and sleeping states. This is necessary because there are frequently more processes that need to run concurrently than the number of CPU cores.
+
+For example, a user working on a single core computer can listen to an MP3 file, download another file using a browser, and edit a document using a notepad application at the same time. The \acs{OS} will switch back and forth between which application is currently using the CPU so fast that, for the user's point of view, all these applications seem to be being processed at the same time.
+
+The \acs{OS} does not simply switch back and forth processes in and out of the CPU on an equalitarian basis. Some processes deemed more important, i.e. processes with higher priority, get a bigger share of the CPU time than processes deemed less important, i.e. processes with lower priority. Linux \acs{OS}s define priorities of processes based on the \mycommand{nice} factor of each process.
+
+The higher the \mycommand{nice} factor of a process, the least priority it has while contending for CPU access with other processes. On \mycommand{top}, the nice factor of each process is shown in the \mycommand{NI} column. In Listing~\ref{fil:top}, you can see that most processes have a \mycommand{nice} factor of \mycommand{0}, which is the default value, whereas one process has a nice factor of \mycommand{- 8}\marginnotes{\mycommand{top} also shows, by default, the priority of a process, in the \mycommand{PR} column. This priority is calculated as \mycommand{PR = 20 + NI}}. The \mycommand{nice} factor of a process can be set as any value between \mycommand{- 20} and \mycommand{20}.
+
+\subsection{Starting processes using \mycommand{nice}}
+
+By default, all processes started by the terminal will have a default \mycommand{nice} factor of \mycommand{0}. However, it is possible to start a process with a different \mycommand{nice} factor by using the \mycommand{nice} command. The \mycommand{nice} command has a syntax as follows:
+\begin{command_line}[make]
+nice NICE_FACTOR PROCESS_NAME
+\end{command_line}
+where \mycommand{NICE\_FACTOR} should be a number between \mycommand{-20} and \mycommand{+20} and \mycommand{PROCESS\_NAME} would be the name of a process we are executing such as \mycommand{firefox} or \mycommand{./echo.sh}.
+For example, to start the \mycommand{echo.sh} script with a \mycommand{nice} factor of \mycommand{5}, we could use the following:
+\begin{command_line}[make]
+nice +5 ./echo.sh
+\end{command_line}
+Note that regular users can only start processes with \mycommand{nice} factors greater or equal to \mycommand{0}. To create processes with higher priority, i.e. with negative \mycommand{nice} factors, \mycommand{sudo} access is required\marginnotes{This prevents regular users from trying to use too many resources from shared systems}. For example, to start the \mycommand{echo.sh} script with a \mycommand{nice} factor of \mycommand{- 10}, we could use the following:
+\begin{command_line}[make]
+sudo nice -10 ./echo.sh
+\end{command_line}
+
+\subsection{Changing processes priorities with \mycommand{renice}}
+
+After having started, a process can have its priority changed with the \mycommand{renice} command. Its syntax is as follows:
+\begin{command_line}[make]
+renice NICE_FACTOR PID
+\end{command_line}
+where \mycommand{NICE\_FACTOR} is the process' new \mycommand{nice} factor and \mycommand{PID} is the process ID\marginnotes{Note that while \mycommand{nice} requires the process name, the \mycommand{renice} command requires a PID} of the process which priority is being changed.
+Note that a user without \mycommand{sudo} access can only increase the priority of a process, never decrease it. For example, if a process has a \mycommand{nice} factor of \mycommand{10}, a regular user can change this \mycommand{nice} factor to \mycommand{11}, \mycommand{15}, or \mycommand{20}. But, this user would not be able to change its \mycommand{nice} factor to \mycommand{0}, for example. Also, regular users can only change the priorities of processes that they have started.
+
+In Listing~\ref{fil:renice}, we show how a user can start a process with a default \mycommand{nice} factor of \mycommand{0}, change it to \mycommand{10}, then try to change it to \mycommand{5} without \mycommand{sudo} access, and finally manage to change it to \mycommand{5} using sudo.
+\begin{command_line_float}{make}{Using \mycommand{renice} with and without \mycommand{sudo}.}{fil:renice}
+@@marcel@dell:~$./echo.sh@@
+Press Crtl+C to stop seeing this annoying message
+Press Crtl+C to stop seeing this annoying message
+^Z #hit Crtl+Z to gain access to the terminal
+@@marcel@dell:~$jobs@@
+ 2165 pts/3    00:00:00 bash
+ 9313 pts/3    00:00:00 echo.sh
+@@marcel@dell:~$renice 10 9313@@
+9313 (process ID) old priority 0, new priority 10
+@@marcel@dell:~$renice 5 9313@@
+renice:failed to set priority for 9313 (process ID): Permission denied
+@@marcel@dell:~$sudo renice 5 9313@@
+9313 (process ID) old priority 10, new priority 5
+\end{command_line_float}
+
+
+\newpage
+
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+
+\begin{exercises}
+  \item Explain, using your own words, how the Linux \acs{OS} manages to run multiple processes concurrently on a single core computer.
+  \item Which commands can be used to monitor processes in a Linux system?
+  \item List at least two advantages of the \mycommand{top} commadn over the \mycommand{ps} command.
+  \item What is a \textbf{zombie} process?
+  \item What is the main differnece between \mycommand{SIGKILL}  and \mycommand{SIGTERM}?
+  \item Which command can be used to terminate a process with PID \mycommand{3216}?
+  \item Which command can be send to pause all \mycommand{calc} processes currently running on a Linux system?
+  \item What is the main difference between the \mycommand{kill} and \mycommand{killall} commands?
+  \item What is the main difference between a \mycommand{foreground} and a \mycommand{background} process? 
+  \item Can a regular user, i.e. a user with no \mycommand{sudo} access, use \mycommand{renice} to change the priority of a process he/she has started from \mycommand{10} to \mycommand{5}?
+
+\end{exercises}

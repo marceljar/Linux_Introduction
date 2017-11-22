@@ -1,0 +1,33 @@
+%************************************************
+\chapter{Networking II}\label{ch:networking2}
+%************************************************
+
+Ping
+Ping is an utility widely used to check connectivity. It can be used to let a user know if a given internet address can be reached. In case the address is reachable,  I.e., the local machine and the addresses machine, ping also gives the user a ballpark figure for how fast the connection is.
+
+ Ping works by sending an ICMP ECHO\_REQUEST to a destination address provided as an argument, collecting the response from this address, and calculating the time it took for the ICMP packages to be sent back and forth. It can be used as shown below:
+
+Ping www.google.com
+
+By default, ping keeps sending ICMP requests to the provided address. To stop ping, the user needs to press crtl+C. After finished, ping presents the user with statistics about the transmitted packets, as shown in Listing XXX.
+
+Ping can be used with a number of options to change the number of packets that are sent, the size of such packets, the interval between packets, etc. See Table XXX.
+
+The ping utility is quite useful to check if a connection exists between the local machine and an Internet address. However, in case a connection could not be established, it does not provide any indication on where the problem is. For this goal, another tool called traceroute is used.
+
+
+Traceroute
+
+The internet is formed by a plethora of different devices connected together by routers, switches, and hubs. More often than not, two devices are connected not directly, but indirectly by means of multiple hops.
+
+As an example, you can see that the terminals A and B in Figure X are connected via a hub and a router. So, any packet travelling from A to B will 
+
+\begin{figure}[!htbp]
+  \centering
+        \input{Images/networking/traceroute.tex}
+        \caption{Sequence of steps to access a text file.}
+        \label{fig:ch9_accessing_file}
+\end{figure}
+
+Netstat
+Ip: enable and disable interfaces, see statistics, see info about interfaces, 

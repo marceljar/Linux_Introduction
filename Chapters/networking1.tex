@@ -1,0 +1,87 @@
+%************************************************
+\chapter{Networking I}\label{ch:networking1}
+%************************************************
+
+In this chapter, we present a number of networking tools that allow users to perform basic tasks such as: download files using the terminal (\mycommand{wget}), access a remote terminal (\mycommand{ssh}), copy files and folders from a local machine to a remote terminal and vice-versa (\mycommand{scp}), and synchronize local and remote folders (\mycommand{rsync}).
+
+\section{\mycommand{wget}}
+
+The \mycommand{wget}\marginnotes{short for web get}, downloads files over a network. It Works with multiple protocols such as HTTP, HTTPS, and FTP. To use this command, you need only to call it providing, as an argument, the full \acs{URL} of the required file. See and example below.
+
+\begin{command_line}[make]
+wget http://google.com/chrome.zip
+\end{command_line}
+
+\mycommand{wget} can also be used to download files that are protected by a password. To do so, you must provide, besides the \acs{URL} of the file, valid credentials for the server from where the files are being downloaded, as shown below.
+
+\begin{command_line}[make]
+wget --http-user=marcel --http-password=qwerty http://company.com/confidential.zip
+\end{command_line}
+
+\section{\mycommand{ssh}}
+
+The \mycommand{ssh}\marginnotes{Short for secure shell} tool is, nowadays, by far the most common method to access remote terminals in Linux. It allows users to connect to remote terminals across the network while keeping all transmitted data confidential. 
+
+\mycommand{ssh} secures the transmitted data because it encrypts all information that gets transmitted. This way, \mycommand{ssh} users can rest assured that malicious users spoofing the network cannot gain access to sensitive data being transmitted during an \mycommand{ssh} session.
+
+It has replaced telnet, which does not encrypt the transmitted data, to an extent that some distributions don’t even come with telnet these days.
+
+To start an \mycommand{ssh} session, the following command is used:
+
+\begin{command_line}[make]
+ssh username@remotesystem
+\end{command_line}
+
+After issuing this command, the remote terminal will ask for the user’s password. Once a valid password is provided, an ssh starts and your terminal will switch to the remote terminal. Any command that you enter during an ssh session will run on the remote terminal. This  also means that all files and folders that you will have direct access are stored st the remote terminal, not in your local computer.
+
+
+\section{\mycommand{scp}}
+
+The \mycommand{scp}\marginnotes{Short for secure copy} command allows files to be copied from one terminal to another using an encrypted network connection. This command differs from \mycommand{cp} in two fundamental aspects:
+\begin{itemize} 
+\item At least one of the terminals must be remote.
+\item The file is encrypted prior to transmission. 
+\end{itemize}
+Note that \mycommand{scp} only works if the remote terminal has an \mycommand{ssh} server installed.
+
+It can be used to send files from a local terminal to a remote terminal with:
+\begin{command_line}[make]
+scp local_file marcel@myhost.com:/home/marcel/
+\end{command_line}
+
+The system will ask for the user's password\marginnotes{The password set at the destination terminal} prior to transmitting the data.
+
+It can also be used to transmit data from a remote terminal to a local terminal with:
+
+It can be used to send files from a local terminal to a remote terminal with:
+\begin{command_line}[make]
+scp marcel@myhost.com:/home/marcel/ /home/marcel/
+\end{command_line}
+
+It is possible to use \mycommand{scp} to copy entire folders with the \mycommand{-r} option. However, the \mycommand{scp} command can be quite inefficient when used to copy entire folders across a network. Imagine that you have copied a folder with over 100 Mb of text files to a remote terminal. Then, you realized that you need to change a single text file in this folder at you local machine. With \mycommand{scp}, in order to keep the directory up to date, all 100 Mb of files are going to be transmitted again. A more efficient way to keep remote folders up to date with folders in your machine is to use the \mycommand{rsync} command discussed in what follows.
+
+\section{\mycommand{rsync}}
+
+\mycommand{rsync}\marginnotes{Short for remote synchronization} is, as the name suggest, a tool used to keep folders in a local machine and a remote terminal in sync. 
+
+The \mycommand{rsync} command It takes two arguments: the first argument is a source folder, and the second argument is a destination folder. It works as follows:
+\begin{itemize}
+\item It starts by checking if there are any differences in files, or any new files, in the destination folder, when compared to the source folder.
+\item In case there are any new files at the source, these new files are transmitted to the destination
+\item In case there are files at the source with modified timestamps newer than those of the files at the destination, these files are transmitted and used to replace the older versions at the destination.
+\item Any files at the source that have identical counterparts at the destination, or which coutnerparts at the destination have newer modified timestamps, are not transmitted.
+\end{itemize}
+
+To synchronize a directory from a local machine to a remote terminal using \mycommand{rsync}, the following command can be used:
+
+\begin{command_line}[make]
+rsync -az folder marcel@www.seneca.com:/usr/marcel
+\end{command_line}
+
+The \mycommand{-a} option stands for ``archive''. It syncs recursively, which is necessary for directories, and preserves symbolic links, time stamps, group, owner, and permissions. The \mycommand{-z} option is used to compress the files to be transmitted prior to transmission. These files are decompressed once they reach their  destination.
+
+To sync a folder in a remote terminal to that of a local terminal, the following command can be used:
+
+\begin{command_line}[make]
+rsync -az marcel@www.seneca.com:/usr/marcel folder
+\end{command_line}

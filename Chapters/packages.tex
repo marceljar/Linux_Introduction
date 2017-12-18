@@ -25,7 +25,7 @@ Note that, in Windows, each application needs to have its own installer. There i
 
 In most Linux distributions, on the other hand, installing new applications is a task performed by centralized systems. These centralized systems work with file packages and, therefore, are referred to as package management systems.
 
-A Linux software package is a file that contains not only the software to be installed, but also meta information about the software, such as: its current version, any dependencies\marginnotes{Dependencies are covered later in this chapter}, as well as any scripts that are to run at the end of the installation process.
+A Linux software package is a file that contains not only the software to be installed, but also meta information about the software such as: its current version, any dependencies\marginnotes{Dependencies are covered later in this chapter}, as well as any scripts that are to run at the end of the installation process.
 
 \section{Package Formats}
 \label{sec:package_formats}
@@ -69,15 +69,15 @@ An interesting consequence from this philosophy is that, many times, these simpl
 
 Another consequence of this philosophy is that many applications are not self-contained. They need a number of other applications to be also installed in the same \acs{OS} in order to function. These required applications are called dependencies.
 
-For example, in order to use \mycommand{shutter}, a tool to take screenshots of parts of the screen, more than thirty smaller applications are required.
+For example, in order to use \mycommand{shutter}, a tool to take screenshots of parts of the screen, more than thirty smaller applications are required in anUbuntu system.
 \end{my_box}
 
 
 \subsection{\mycommand{apt-get}}
 
-The Debian Advanced Package Tool \acs{APT} is one of its most important features of the Debian distribution.
+The Debian Advanced Package Tool \acs{APT} is one of the most important features of the Debian distribution, as well as that of all distributions absed on it..
 
-It provides a method to install packages in a way that guarantees that all dependencies are satisfied. Also, it introduces the concept of repositories\marginnotes{Repositories are discussed in XXX}, I.e., online lists of approved applications with links to its .deb package files.
+It provides a method to install packages in a way that guarantees that all dependencies are satisfied. Also, it introduces the concept of repositories\marginnotes{Repositories are discussed in a box below}, I.e., online lists of approved applications with links to its .deb package files.
 
 In what follows, we present a number of methods to install, remove, and update packages using \mycommand{apt-get}, the command line tool supplied by \acs{APT}.
 
@@ -139,7 +139,7 @@ Note that this command, by default, will not delete any configuration files that
 sudo apt-get purge PACKAGE #remove package and config files 
 \end{command_line}
 
-Also, this command will not remove, by dafault, any package dependencies that were installed together with this package\marginnotes{Note that \mycommand{libcurl3} was installed together with curl in Listing \ref{fil:apt-get-install}, but not removed with curl in Listing \ref{fil:apt-get-remove}}. To remove dependencies that are no longer required\marginnotes{Because the applications that required them were removed}, the following command can be invoked.
+The \mycommand{apt-get remove} command will not remove, by dafault, any package dependencies that were installed together with this package\marginnotes{Note that \mycommand{libcurl3} was installed together with curl in Listing \ref{fil:apt-get-install}, but not removed with curl in Listing \ref{fil:apt-get-remove}}. To remove dependencies that are no longer required\marginnotes{Because the applications that required them were removed}, the following command can be invoked.
 
 \begin{command_line}[make]
 sudo apt-get autoremove #remove orphaned dependencies 
@@ -153,7 +153,7 @@ Most Linux distributions come with a number of applications installed out-of-the
 
 Besides the applications installed by default, most Linux distributions also come with a number of online repositories. These repositories contain packages that can be easily installed and mantained using \acs{APT}. For example, in  Section \ref{sec:apt-get-install}, the package \mycommand{curl} could be installed using \mycommand{apt-get install curl} because it is present in a repository provided by default with Ubuntu.
 
-A good analogy for Linux repositories is that they can be compared to the  Google Play and the Apple App Store. While Android phones and iPhones already come with a number of applications (called apps), more apps can be installed and maintained using Google Play (Android) or App Store (Apple).
+A good analogy for Linux repositories is that they can be compared to the Google Play and the Apple App Store. While Android phones and iPhones already come with a number of applications (called apps), more apps can be installed and maintained using Google Play (Android) or App Store (Apple).
 
 You can see a list of repositories that are provided by default in Ubuntu by checking the file \mycommand{/etc/apt/source.list}. Some applications, like Dropbox or Google Chrome add a number of repositories to the system. This, way they can keep being updated via \acs{APT}, even without being present in the default Ubuntu respositories. The repositories added by applications can be seen at the \mycommand{/etc/apt/source.list.d} folder.
 
@@ -178,7 +178,7 @@ After running \mycommand{sudo apt-get update}, you can upgrade all packages to t
 sudo apt-get upgrade #upgrade all packages to latest versions
 \end{command_line}
 
-Note that keeping your system with updated packages is of paramount importance to its security. Any time a vulnerability is found in a package, an arms race starts with the package maintainers who try to update update it with a patch to address this security flaw, and hackers who will try to exploit this flaw. By keeping an old version of the package, your computer will still be vulnerable, even after a patch is already available.
+Note that keeping your system with updated packages is of paramount importance to its security. Any time a vulnerability is found in a package, an arms race starts with the package maintainers who try to update it with a patch to address this security flaw, and hackers who will try to exploit this flaw. By keeping an old version of the package, your computer will be vulnerable, even after a patch is already available.
 
 
 \section{Comparison with .RPM system}

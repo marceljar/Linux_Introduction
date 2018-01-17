@@ -1,39 +1,59 @@
 %************************************************
-\chapter{Networking I}\label{ch:networking1}
+\chapter{Networking}\label{ch:networking1}
 %************************************************
 
 In this chapter, we present a number of networking tools that allow users to perform basic tasks such as: download files using the terminal (\mycommand{wget}), access a remote terminal (\mycommand{ssh}), copy files and folders from a local machine to a remote terminal and vice-versa (\mycommand{scp}), and synchronize local and remote folders (\mycommand{rsync}).
 
 \section{\mycommand{wget}}
 
-The \mycommand{wget}\marginnotes{short for web get}, downloads files over a network. It Works with multiple protocols such as HTTP, HTTPS, and FTP. To use this command, you need only to call it providing, as an argument, the full \acs{URL} of the required file. See and example below.
+The \mycommand{wget}\marginnotes{short for web get} command, downloads files over a network. It works with multiple protocols such as \acs{HTTP}, \acs{HTTPS}, and \acs{FTP}. To use this command, you need only to call it providing, as an argument, the full \acs{URL} of the required file. For example, to download the Ubuntu Desktop \mycommand{.iso} image, version 16.04.3., the following command can be used:
 
 \begin{command_line}[make]
-wget http://google.com/chrome.zip
+wget http://releases.ubuntu.com/16.04.3/ubuntu-16.04.3-desktop-amd64.iso?_ga=2.223178783.581450571.1515687109-1725667303.1515687109
 \end{command_line}
 
-\mycommand{wget} can also be used to download files that are protected by a password. To do so, you must provide, besides the \acs{URL} of the file, valid credentials for the server from where the files are being downloaded, as shown below.
+\mycommand{wget} can also be used to download files that are protected by a password. To do so, you must provide, besides the \acs{URL} of the file, valid credentials for the server from where the files are being downloaded. An exemple is provided below where a file \mycommand{confidential.zip} is downloaded from a secured website \mycommand{https://company.com}, using the credentials for the user \mycommand{marcel}.
 
 \begin{command_line}[make]
-wget --http-user=marcel --http-password=qwerty http://company.com/confidential.zip
+wget --http-user=marcel --http-password=qwerty https://company.com/confidential.zip
 \end{command_line}
+
 
 \section{\mycommand{ssh}}
 
-The \mycommand{ssh}\marginnotes{Short for secure shell} tool is, nowadays, by far the most common method to access remote terminals in Linux. It allows users to connect to remote terminals across the network while keeping all transmitted data confidential. 
+One of the many advantages of using a \acs{CLI} over a \acs{GUI} is that, with \acs{CLI}s, one can quickly and easily gain access to remote terminals. Because \acs{CLI}s use text as a medium of communication between the user and the machine, as opposed to graphics, the amount of data that needs to travel accross the network is very small. Hence, there is barely any extra latency involved in working with a remote terminal, instead of a local machine. With \acs{GUI}s, on the other hand, there is normally a significant performance penalty when accessing remote machines. 
+
+The \mycommand{ssh}\marginnotes{Short for secure shell} tool is, by far, the most common method to access remote terminals in Linux. It allows users to connect to remote terminals across the network while keeping all transmitted data confidential. 
 
 \mycommand{ssh} secures the transmitted data because it encrypts all information that gets transmitted. This way, \mycommand{ssh} users can rest assured that malicious users spoofing the network cannot gain access to sensitive data being transmitted during an \mycommand{ssh} session.
 
-It has replaced telnet, which does not encrypt the transmitted data, to an extent that some distributions don’t even come with telnet these days.
+The \mycommand{telnet} command, which does not encrypt the transmitted data, has been replaced by \mycommand{ssh} to an extent that some distributions don’t even come with \mycommand{telnet} anymore these days.
 
 To start an \mycommand{ssh} session, the following command is used:
 
 \begin{command_line}[make]
-ssh username@remotesystem
+ssh USERNAME@REMOTE_MACHINE_ADDRESS
 \end{command_line}
 
-After issuing this command, the remote terminal will ask for the user’s password. Once a valid password is provided, an ssh starts and your terminal will switch to the remote terminal. Any command that you enter during an ssh session will run on the remote terminal. This  also means that all files and folders that you will have direct access are stored st the remote terminal, not in your local computer.
+After issuing this command, the remote terminal will ask for the user’s password. Once a valid password is provided, an \mycommand{ssh} section starts and your terminal will switch to the remote terminal. Any command that you enter during an \mycommand{ssh} session will run on the remote terminal. This  also means that all tools, files, and folders that you will have direct access are stored at the remote terminal, not in your local computer.
 
+\subsection{Establishing Authenticity}
+
+It is important to establish, when attempting to start an \mycommand{ssh} section, that you are in fact connecting to the server you believe you are connecting to\marginnotes{As opposed to an \mycommand{ssh} server set up by a man in the middle}. 
+
+Authenticity, in \mycommand{ssh} sections, is handled by making use of public-key cryptography. In a nutshell, it uses the server's public key to encryt your credentials at the beginning of the section. Only the real server will be able to decrypt these credentials in order to establish a connection. The first time you connect to an \mycommand{ssh} server, you should see a warning message such as the one shown in Listing \ref{fil:ssh_connection}.
+
+\begin{command_line_float}{Bash}{Warning issued when the \mycommand{ssh} server's authenticity cannot be establised.}{fil:ssh_connection}
+@@marcel@dell:~$ssh marcel.jar@my.ssh.server.ca@@
+The authenticity of host 'my.ssh.server.ca (148.256.142.220)' can't be established.
+RSA key fingerprint is SHA256:hHuHK7PCs8boVKTBxWHNl0GLssZYXFN5/JmfXJO3fO8.
+Are you sure you want to continue connecting (yes/no)? @@yes@@
+Warning: Permanently added 'my.ssh.server.ca (148.256.142.220)' (RSA) to the list of known hosts.
+\end{command_line_float}
+
+This warning message lets you know the RSA fingerprint of the \mycommand{ssh} server you are trying to connect to. Most organizations make these fingerprints public. This way, anyone trying to connect to them need only to verify that they got, in fact, the right RSA fingerprint. 
+
+By default, after a user accepts a fingerprint, \mycommand{ssh} adds the fingerprint to a list of trusted fingerprints in your host system. This way, you do not see this warning message in the future when attempting to connect to the same \mycommand{ssh} server in the future.
 
 \section{\mycommand{scp}}
 
@@ -42,29 +62,39 @@ The \mycommand{scp}\marginnotes{Short for secure copy} command allows files to b
 \item At least one of the terminals must be remote.
 \item The file is encrypted prior to transmission. 
 \end{itemize}
-Note that \mycommand{scp} only works if the remote terminal has an \mycommand{ssh} server installed.
+Note that \mycommand{scp} only works if the remote terminal has an \mycommand{ssh} server installed and properly configured.
 
-It can be used to send files from a local terminal to a remote terminal with:
+The \mycommand{scp} command can be used to send files from a local terminal to a remote terminal with:
+\begin{command_line}[make]
+  scp FILENAME USERNAME@REMOTE_MACHINE_ADDRESS:DIRECTORY
+\end{command_line}
+  
+For example, for a user \mycommand{marcel} to send a file called \mycommand{local\_file} to his home folder in a remote system with address \mycommand{myhost.com}, the following command can be used:
 \begin{command_line}[make]
 scp local_file marcel@myhost.com:/home/marcel/
 \end{command_line}
 
 The system will ask for the user's password\marginnotes{The password set at the destination terminal} prior to transmitting the data.
 
-It can also be used to transmit data from a remote terminal to a local terminal with:
+The \mycommand{scp} command can also be used to transmit data from a remote terminal to a local terminal with:
 
-It can be used to send files from a local terminal to a remote terminal with:
 \begin{command_line}[make]
-scp marcel@myhost.com:/home/marcel/ /home/marcel/
+  scp USERNAME@REMOTE_MACHINE_ADDRESS:REMOTE_FOLDER/FILENAME LOCAL_FOLDER
 \end{command_line}
 
-It is possible to use \mycommand{scp} to copy entire folders with the \mycommand{-r} option. However, the \mycommand{scp} command can be quite inefficient when used to copy entire folders across a network. Imagine that you have copied a folder with over 100 Mb of text files to a remote terminal. Then, you realized that you need to change a single text file in this folder at you local machine. With \mycommand{scp}, in order to keep the directory up to date, all 100 Mb of files are going to be transmitted again. A more efficient way to keep remote folders up to date with folders in your machine is to use the \mycommand{rsync} command discussed in what follows.
+For example, to send a file called \mycommand{remote\_file} that exists in folder \mycommand{/home/marcel} at a host \mycommand{myhost.com}, to a local folder \mycommand{/home/marcel}, the user \mycommand{marcel} can issue the following command\marginnotes{Note that this commandmust be issued from the local terminal}:
+  
+\begin{command_line}[make]
+scp marcel@myhost.com:/home/marcel/remote_file /home/marcel/
+\end{command_line}
+
+It is possible to use \mycommand{scp} to copy entire folders with the \mycommand{-r} option. However, the \mycommand{scp} command can be quite inefficient when used to copy entire folders across a network. Imagine that you have copied a folder with over 100 Mb of text files to a remote terminal. Then, after transferring the files, you realized that you need to change a single text file in this folder at you local machine. With \mycommand{scp}, in order to keep the directory up to date, all 100 Mb of files are going to be transmitted again. A more efficient way to keep remote folders up to date with folders in your machine is to use the \mycommand{rsync} command discussed in what follows.
 
 \section{\mycommand{rsync}}
 
 \mycommand{rsync}\marginnotes{Short for remote synchronization} is, as the name suggest, a tool used to keep folders in a local machine and a remote terminal in sync. 
 
-The \mycommand{rsync} command It takes two arguments: the first argument is a source folder, and the second argument is a destination folder. It works as follows:
+The \mycommand{rsync} command takes two arguments: the first argument is a source folder, and the second argument is a destination folder. It works as follows:
 \begin{itemize}
 \item It starts by checking if there are any differences in files, or any new files, in the destination folder, when compared to the source folder.
 \item In case there are any new files at the source, these new files are transmitted to the destination
@@ -73,15 +103,24 @@ The \mycommand{rsync} command It takes two arguments: the first argument is a so
 \end{itemize}
 
 To synchronize a directory from a local machine to a remote terminal using \mycommand{rsync}, the following command can be used:
-
 \begin{command_line}[make]
-rsync -az folder marcel@www.seneca.com:/usr/marcel
+  rsync -az DIRECTORY USERNAME@REMOTE_MACHINE_ADDRESS:REMOTE_DIRECTORY
 \end{command_line}
 
 The \mycommand{-a} option stands for ``archive''. It syncs recursively, which is necessary for directories, and preserves symbolic links, time stamps, group, owner, and permissions. The \mycommand{-z} option is used to compress the files to be transmitted prior to transmission. These files are decompressed once they reach their  destination.
 
-To sync a folder in a remote terminal to that of a local terminal, the following command can be used:
+For example, to synchronize a folder called \mycommand{pdf} in the current working directory, with a directory \mycommand{pdf} in a folder \mycommand{/home/marcel} in a remote host \mycommand{myhost.com}, the user \mycommand{marcel} can issue the following command:
 
 \begin{command_line}[make]
-rsync -az marcel@www.seneca.com:/usr/marcel folder
+rsync -az pdf marcel@myhost.com:/home/marcel
 \end{command_line}
+
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+
+\begin{exercises}
+  \item Which command can be used to login into a \mycommand{matrix.ca} \mycommand{ssh} server system using a username \mycommand{my\_user}?
+  \item Write down a command to send a file called \mycommand{file\_name} in your working directory to a folder \mycommand{/home/user/pdf} in a server \mycommand{matrix.ca}. Assume that your userame is \mycommand{my\_user}.
+  \item Write down a command to send a file called \mycommand{file\_name} in a folder \mycommand{/home/user/pdf} in a server \mycommand{matrix.ca} to a folder \mycommand{/home/users/my\_user}. Assume that your userame is \mycommand{my\_user}.
+  \item Explain the biggest difference between using \mycommand{scp} and using \mycommand{rsync}
+ \end{exercises}
